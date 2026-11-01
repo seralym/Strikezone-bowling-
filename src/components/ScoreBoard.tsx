@@ -7,6 +7,7 @@ interface ScoreBoardProps {
   players: PlayerGame[];
   activePlayerIndex?: number;
   onSelectPlayer?: (index: number) => void;
+  onEditFrame?: (playerIndex: number, frameIndex: number) => void;
   compact?: boolean;
   matchInfo?: {
     centerName?: string;
@@ -21,6 +22,7 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
   players,
   activePlayerIndex = 0,
   onSelectPlayer,
+  onEditFrame,
   compact = false,
   matchInfo,
 }) => {
@@ -167,26 +169,58 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
             )}
 
             {/* Traditional Bowling Grid (10 Frames) */}
-            <div className="w-full max-w-full overflow-x-auto scrollbar-thin overscroll-x-contain touch-pan-x">
-              <div className="min-w-[680px] grid grid-cols-10 divide-x divide-stone-800 border-t border-stone-800/40">
+            <div
+              className="w-full max-w-full overflow-x-auto scrollbar-thin select-none"
+              style={{ touchAction: 'pan-y pan-x' }}
+            >
+              <div
+                className="min-w-[680px] grid grid-cols-10 divide-x divide-stone-800 border-t border-stone-800/40"
+                style={{ touchAction: 'pan-y pan-x' }}
+              >
                 {player.frames.map((frame, fIdx) => {
                   const isCurrentThrowFrame = isActive && fIdx === effectiveFrameIdx && !player.isFinished;
                   const isTenthFrame = fIdx === 9;
 
+                  const isFramePlayed = frame.rolls.length > 0;
+                  const canEdit = !!onEditFrame && isFramePlayed;
+
                   return (
                     <div
                       key={frame.frameNumber}
-                      className={`relative flex flex-col justify-between ${
+                      onClick={(e) => {
+                        if (canEdit) {
+                          e.stopPropagation();
+                          onEditFrame(pIdx, fIdx);
+                        }
+                      }}
+                      role={canEdit ? 'button' : undefined}
+                      tabIndex={canEdit ? 0 : undefined}
+                      onKeyDown={(e) => {
+                        if (canEdit && (e.key === 'Enter' || e.key === ' ')) {
+                          e.preventDefault();
+                          onEditFrame(pIdx, fIdx);
+                        }
+                      }}
+                      title={canEdit ? `Нажмите для редактирования счёта во фрейме ${frame.frameNumber}` : undefined}
+                      className={`relative flex flex-col justify-between group transition-colors select-none ${
+                        canEdit ? 'cursor-pointer hover:bg-amber-500/15 active:bg-amber-500/25' : ''
+                      } ${
                         isCurrentThrowFrame
                           ? 'bg-amber-500/10 ring-1 ring-inset ring-amber-500/60'
                           : fIdx % 2 === 0
                           ? 'bg-stone-900/30'
                           : 'bg-stone-900/10'
                       }`}
+                      style={{ touchAction: 'pan-y pan-x' }}
                     >
                       {/* Frame Header Number */}
-                      <div className="px-1.5 py-1 text-center border-b border-stone-800 text-[11px] font-semibold text-stone-400">
-                        {frame.frameNumber}
+                      <div className="px-1.5 py-1 text-center border-b border-stone-800 text-[11px] font-semibold text-stone-400 flex items-center justify-center gap-1">
+                        <span>{frame.frameNumber}</span>
+                        {canEdit && (
+                          <span className="opacity-0 group-hover:opacity-100 text-[9px] text-amber-400 font-normal transition-opacity">
+                            ✎
+                          </span>
+                        )}
                       </div>
 
                       {/* Roll boxes */}

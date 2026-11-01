@@ -109,7 +109,7 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({
           <input
             ref={fileInputRef}
             type="file"
-            accept=".json"
+            accept=".json,application/json,text/plain,*/*"
             onChange={handleFileUpload}
             className="hidden"
           />

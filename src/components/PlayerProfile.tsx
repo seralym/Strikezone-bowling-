@@ -28,6 +28,7 @@ import {
   Upload,
   Trash2,
   Image as ImageIcon,
+  Download,
 } from 'lucide-react';
 
 interface PlayerProfileProps {
@@ -38,6 +39,7 @@ interface PlayerProfileProps {
   language?: AppLanguage;
   onNotification?: (msg: string) => void;
   initialSubTab?: 'stats' | 'arsenal' | 'centers' | 'patterns';
+  onExportData?: () => void;
 }
 
 export const PlayerProfile: React.FC<PlayerProfileProps> = ({
@@ -48,6 +50,7 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({
   language = 'ru',
   onNotification,
   initialSubTab,
+  onExportData,
 }) => {
   const t = getTranslation(language);
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -71,8 +74,11 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({
   const [tempAvatarUrl, setTempAvatarUrl] = useState<string | undefined>(userConfig.avatarUrl);
 
   const handleAvatarFile = (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      if (onNotification) onNotification('Пожалуйста, выберите файл изображения (PNG, JPG, WebP)');
+    const isImage =
+      file.type.startsWith('image/') ||
+      /\.(jpe?g|png|webp|heic|bmp|gif|svg)$/i.test(file.name);
+    if (!isImage) {
+      if (onNotification) onNotification('Пожалуйста, выберите файл изображения (PNG, JPG, WebP, HEIC)');
       return;
     }
 
@@ -219,7 +225,7 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({
                   if (file) handleAvatarFile(file);
                   e.target.value = '';
                 }}
-                accept="image/*"
+                accept="image/*,.png,.jpg,.jpeg,.webp,.heic"
                 className="hidden"
               />
               <div
@@ -277,15 +283,26 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({
             </div>
           </div>
 
-          {/* Edit button */}
-          <div className="shrink-0">
+          {/* Header Action buttons: Export JSON & Edit Profile */}
+          <div className="shrink-0 flex flex-wrap items-center gap-2.5">
+            {onExportData && (
+              <button
+                type="button"
+                onClick={onExportData}
+                className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-white border border-stone-700/80 transition-all font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 active:scale-95 shadow-md cursor-pointer"
+                title="Экспорт всех данных и статистики в JSON"
+              >
+                <Download className="w-4 h-4 text-emerald-400" />
+                <span>Экспорт в JSON</span>
+              </button>
+            )}
             {!isEditing ? (
               <button
                 type="button"
                 onClick={handleStartEdit}
-                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-white border border-stone-700/80 transition-all font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 active:scale-95 shadow-md"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold transition-all text-xs sm:text-sm flex items-center justify-center gap-2 active:scale-95 shadow-md shadow-amber-500/20 cursor-pointer"
               >
-                <Edit3 className="w-4 h-4 text-amber-400" />
+                <Edit3 className="w-4 h-4 text-stone-950" />
                 <span>{t.editProfile}</span>
               </button>
             ) : null}
@@ -560,6 +577,7 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({
             matches={matches}
             userConfig={userConfig}
             savedTournaments={savedTournaments}
+            onExportData={onExportData}
           />
         </div>
       )}

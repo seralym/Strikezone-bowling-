@@ -27,6 +27,7 @@ import {
   ArrowRight,
   RotateCcw,
   Sparkles,
+  Download,
 } from 'lucide-react';
 
 interface ProfileStatsProps {
@@ -34,6 +35,7 @@ interface ProfileStatsProps {
   userConfig?: UserPersonalConfig;
   savedTournaments?: SavedTournament[];
   initialTournamentId?: string;
+  onExportData?: () => void;
 }
 
 export const ProfileStats: React.FC<ProfileStatsProps> = ({
@@ -41,6 +43,7 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({
   userConfig,
   savedTournaments = [],
   initialTournamentId,
+  onExportData,
 }) => {
   const [selectedTournamentFilter, setSelectedTournamentFilter] = useState<string>(
     initialTournamentId || 'all'
@@ -160,6 +163,18 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({
             <span>Программ масла: {userConfig?.oilPatterns.length || 0}</span>
           </div>
         </div>
+
+        {onExportData && (
+          <button
+            type="button"
+            onClick={onExportData}
+            className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-white border border-stone-700 transition-all font-semibold text-xs sm:text-sm flex items-center gap-2 active:scale-95 shadow-md self-start sm:self-auto cursor-pointer"
+            title="Экспорт всех данных и статистики в JSON"
+          >
+            <Download className="w-4 h-4 text-emerald-400" />
+            <span>Экспорт в JSON</span>
+          </button>
+        )}
       </div>
 
       {/* ========================================================================= */}

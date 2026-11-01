@@ -49,6 +49,7 @@ export interface BowlingCenter {
   address?: string;
   lanesCount?: number;
   surface?: 'Синтетика (Synthetic)' | 'Дерево (Wood)';
+  notes?: string; // Комментарии, особенности дорожек, разбега, скольжения
 }
 
 export interface Roll {
@@ -108,6 +109,14 @@ export interface MatchRecord {
   notes?: string;
 }
 
+export type LaneTransitionRule =
+  | 'none' // Без смены дорожки
+  | 'pairs' // В паре (чет/нечет, напр. 3 ⇄ 4)
+  | 'shift_plus_2' // Сдвиг на +2 дорожки вправо
+  | 'shift_minus_2' // Сдвиг на -2 дорожки влево
+  | 'shift_plus_1' // Сдвиг на +1 дорожку
+  | 'shift_plus_4'; // Сдвиг на +4 дорожки
+
 export interface TournamentConfig {
   tournamentId?: string;
   tournamentName: string;
@@ -120,6 +129,8 @@ export interface TournamentConfig {
   ballId: string;
   ballName: string;
   laneNumber?: number;
+  laneTransitionRule?: LaneTransitionRule;
+  currentGameNumber?: number;
 }
 
 export type BowlerStyle =
@@ -131,7 +142,13 @@ export type BowlerStyle =
 
 export type AppLanguage = 'ru' | 'en' | 'de' | 'fr' | 'es' | 'pt';
 
-export type AppTheme = 'dark' | 'obsidian' | 'retro' | 'slate';
+export type AppTheme =
+  | 'dark'
+  | 'light'
+  | 'high-contrast-dark'
+  | 'high-contrast-light'
+  | 'obsidian'
+  | 'slate';
 
 export interface AppSettings {
   soundEnabled: boolean;
@@ -214,6 +231,7 @@ export interface SavedTournament {
   ballId?: string;
   ballName?: string;
   laneNumber?: number;
+  laneTransitionRule?: LaneTransitionRule;
   format?: string;
   isRegular?: boolean;
   status?: 'active' | 'upcoming' | 'completed';

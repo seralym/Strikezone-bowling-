@@ -11,6 +11,10 @@ import {
   Globe,
   Home,
   BookOpen,
+  CircleDot,
+  Building2,
+  Droplets,
+  PlusCircle,
 } from 'lucide-react';
 import {
   UserPersonalConfig,
@@ -107,8 +111,8 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
         <div className="p-5 border-b border-stone-800">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-amber-500 to-amber-400 flex items-center justify-center font-black text-stone-950 text-xl shadow-md shadow-amber-500/20">
-                🎳
+              <div className="w-10 h-10 rounded-xl bg-stone-900 border border-amber-500/30 flex items-center justify-center p-0.5 shadow-md shadow-amber-500/10 overflow-hidden">
+                <img src="./icon.svg" alt="Strikezone" className="w-full h-full object-contain" />
               </div>
               <div>
                 <span className="font-extrabold text-stone-100 text-lg font-display tracking-tight block">
@@ -122,8 +126,11 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
 
             <button
               type="button"
-              onClick={onClose}
-              className="p-1.5 rounded-lg text-stone-400 hover:text-stone-100 hover:bg-stone-900 transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                onClose();
+              }}
+              className="p-1.5 rounded-lg text-stone-400 hover:text-stone-100 hover:bg-stone-900 transition-colors cursor-pointer"
               aria-label="Закрыть меню"
             >
               <X className="w-5 h-5" />
@@ -132,7 +139,8 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
 
           {/* Player Quick Card (Clicking jumps to profile) */}
           <div
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
               onSelectView('profile');
               onClose();
             }}
@@ -168,14 +176,56 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
         {/* Navigation Items (Home, Practice, Game, Tournaments, Arsenal, Profile, Settings) */}
         {/* ========================================================================= */}
         <div className="flex-1 overflow-y-auto p-4 space-y-1.5">
-          {/* 1. ГЛАВНАЯ (ТИТУЛЬНЫЙ ЭКРАН) */}
+          {/* ========================================================================= */}
+          {/* 1. ЕСЛИ ЕСТЬ АКТИВНАЯ СЕССИЯ: «ТЕКУЩАЯ ИГРА» НА ПЕРВОМ МЕСТЕ             */}
+          {/* ========================================================================= */}
+          {activeSessionInfo?.hasActive && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                onClose();
+                onSelectCurrentGame();
+              }}
+              className={`w-full p-3 rounded-xl flex items-center justify-between transition-all text-left mb-2 shadow-sm cursor-pointer ${
+                activeView === 'game' ||
+                (activeSessionInfo.type === 'practice' && activeView === 'practice')
+                  ? 'bg-amber-500/20 border-2 border-amber-500 text-stone-100 shadow-amber-500/10'
+                  : 'bg-emerald-950/40 border border-emerald-500/50 text-stone-100 hover:bg-emerald-900/40'
+              }`}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="p-2 rounded-lg relative shrink-0 bg-emerald-500 text-stone-950 font-bold shadow-md shadow-emerald-500/25">
+                  <RotateCcw className="w-4 h-4" />
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-300 ring-2 ring-stone-950 animate-ping" />
+                </div>
+                <div className="min-w-0 truncate">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-emerald-300">Текущая игра</span>
+                    <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase bg-emerald-500/30 text-emerald-200 border border-emerald-500/40">
+                      Активна
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-stone-300 mt-0.5 truncate">
+                    {activeSessionInfo.subtitle}
+                  </div>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-emerald-400 shrink-0" />
+            </button>
+          )}
+
+          {/* ========================================================================= */}
+          {/* 2. ГЛАВНАЯ (ТИТУЛЬНЫЙ ЭКРАН)                                              */}
+          {/* ========================================================================= */}
           <button
             type="button"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
               onSelectView('home');
               onClose();
             }}
-            className={`w-full p-3 rounded-xl flex items-center justify-between transition-all text-left ${
+            className={`w-full p-3 rounded-xl flex items-center justify-between transition-all text-left cursor-pointer ${
               activeView === 'home'
                 ? 'bg-amber-500/15 border border-amber-500/40 text-stone-100 shadow-sm'
                 : 'text-stone-300 hover:bg-stone-900 border border-transparent'
@@ -205,14 +255,47 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
             />
           </button>
 
-          {/* 2. ПРАКТИКА */}
+          {/* ========================================================================= */}
+          {/* 3. НОВАЯ ИГРА (ВСЕГДА ДОСТУПНА КАК ОТДЕЛЬНЫЙ РАЗДЕЛ)                      */}
+          {/* ========================================================================= */}
           <button
             type="button"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
+              onClose();
+              onStartNewGame();
+            }}
+            className="w-full p-3 rounded-xl flex items-center justify-between transition-all text-left text-stone-300 hover:bg-stone-900 border border-transparent hover:border-amber-500/40 group cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-stone-900 group-hover:bg-amber-500 group-hover:text-stone-950 text-amber-400 transition-colors">
+                <PlusCircle className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="text-xs font-bold group-hover:text-amber-300 transition-colors">
+                  Новая игра
+                </div>
+                <div className="text-[10px] text-stone-400 mt-0.5">
+                  Начать новую партию из 10 фреймов
+                </div>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-stone-600 group-hover:text-amber-400 transition-colors" />
+          </button>
+
+          <div className="h-px bg-stone-800/80 my-1" />
+
+          {/* ========================================================================= */}
+          {/* 4. ПРАКТИКА                                                               */}
+          {/* ========================================================================= */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
               onSelectView('practice');
               onClose();
             }}
-            className={`w-full p-3 rounded-xl flex items-center justify-between transition-all text-left ${
+            className={`w-full p-3 rounded-xl flex items-center justify-between transition-all text-left cursor-pointer ${
               activeView === 'practice'
                 ? 'bg-amber-500/15 border border-amber-500/40 text-stone-100 shadow-sm'
                 : 'text-stone-300 hover:bg-stone-900 border border-transparent'
@@ -242,65 +325,17 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
             />
           </button>
 
-          {/* 3. ТЕКУЩАЯ ИГРА (ПЕРЕХОД К АКТИВНОЙ СЕССИИ ИЛИ ВЫБОР РЕЖИМА) */}
+          {/* ========================================================================= */}
+          {/* 5. ТУРНИРЫ И ЛИГИ                                                         */}
+          {/* ========================================================================= */}
           <button
             type="button"
-            onClick={() => {
-              onClose();
-              onSelectCurrentGame();
-            }}
-            className={`w-full p-3 rounded-xl flex items-center justify-between transition-all text-left ${
-              activeView === 'game' || (activeSessionInfo?.hasActive && activeSessionInfo.type === 'practice' && activeView === 'practice')
-                ? 'bg-amber-500/15 border border-amber-500/40 text-stone-100 shadow-sm'
-                : 'text-stone-300 hover:bg-stone-900 border border-transparent'
-            }`}
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div
-                className={`p-2 rounded-lg relative shrink-0 ${
-                  activeView === 'game'
-                    ? 'bg-amber-500 text-stone-950 font-bold'
-                    : activeSessionInfo?.hasActive
-                    ? 'bg-amber-500/20 text-amber-400'
-                    : 'bg-stone-900 text-emerald-400'
-                }`}
-              >
-                <RotateCcw className="w-4 h-4" />
-                {activeSessionInfo?.hasActive && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-stone-950 animate-pulse" />
-                )}
-              </div>
-              <div className="min-w-0 truncate">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold">Текущая игра</span>
-                  {activeSessionInfo?.hasActive && (
-                    <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                      Активна
-                    </span>
-                  )}
-                </div>
-                <div className="text-[10px] text-stone-400 mt-0.5 truncate">
-                  {activeSessionInfo?.subtitle || 'Классическая игра из 10 фреймов'}
-                </div>
-              </div>
-            </div>
-            <ChevronRight
-              className={`w-4 h-4 transition-transform shrink-0 ${
-                activeView === 'game' ? 'text-amber-400 translate-x-0.5' : 'text-stone-600'
-              }`}
-            />
-          </button>
-
-          <div className="h-px bg-stone-800/80 my-2" />
-
-          {/* 4. ТУРНИРЫ */}
-          <button
-            type="button"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
               onSelectView('tournaments');
               onClose();
             }}
-            className={`w-full p-3 rounded-xl flex items-center justify-between transition-all text-left ${
+            className={`w-full p-3 rounded-xl flex items-center justify-between transition-all text-left cursor-pointer ${
               activeView === 'tournaments'
                 ? 'bg-amber-500/15 border border-amber-500/40 text-stone-100 shadow-sm'
                 : 'text-stone-300 hover:bg-stone-900 border border-transparent'
@@ -330,15 +365,137 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
             />
           </button>
 
-
-          {/* 6. ЗАМЕТКИ */}
+          {/* ========================================================================= */}
+          {/* 6. АРСЕНАЛ И КАТАЛОГ ШАРОВ                                                */}
+          {/* ========================================================================= */}
           <button
             type="button"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
+              onSelectView('arsenal');
+              onClose();
+            }}
+            className={`w-full p-3 rounded-xl flex items-center justify-between transition-all text-left cursor-pointer ${
+              activeView === 'arsenal'
+                ? 'bg-amber-500/15 border border-amber-500/40 text-stone-100 shadow-sm'
+                : 'text-stone-300 hover:bg-stone-900 border border-transparent'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className={`p-2 rounded-lg ${
+                  activeView === 'arsenal'
+                    ? 'bg-amber-500 text-stone-950 font-bold'
+                    : 'bg-stone-900 text-amber-400'
+                }`}
+              >
+                <CircleDot className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="text-xs font-bold">Арсенал и каталог</div>
+                <div className="text-[10px] text-stone-400 mt-0.5">
+                  Сверление шаров и каталог брендов
+                </div>
+              </div>
+            </div>
+            <ChevronRight
+              className={`w-4 h-4 transition-transform ${
+                activeView === 'arsenal' ? 'text-amber-400 translate-x-0.5' : 'text-stone-600'
+              }`}
+            />
+          </button>
+
+          {/* ========================================================================= */}
+          {/* 7. БОУЛИНГ-ЦЕНТРЫ                                                         */}
+          {/* ========================================================================= */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              onSelectView('centers');
+              onClose();
+            }}
+            className={`w-full p-3 rounded-xl flex items-center justify-between transition-all text-left cursor-pointer ${
+              activeView === 'centers'
+                ? 'bg-amber-500/15 border border-amber-500/40 text-stone-100 shadow-sm'
+                : 'text-stone-300 hover:bg-stone-900 border border-transparent'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className={`p-2 rounded-lg ${
+                  activeView === 'centers'
+                    ? 'bg-amber-500 text-stone-950 font-bold'
+                    : 'bg-stone-900 text-emerald-400'
+                }`}
+              >
+                <Building2 className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="text-xs font-bold">Боулинг-центры</div>
+                <div className="text-[10px] text-stone-400 mt-0.5">
+                  Локации, покрытие дорожек и заметки
+                </div>
+              </div>
+            </div>
+            <ChevronRight
+              className={`w-4 h-4 transition-transform ${
+                activeView === 'centers' ? 'text-amber-400 translate-x-0.5' : 'text-stone-600'
+              }`}
+            />
+          </button>
+
+          {/* ========================================================================= */}
+          {/* 8. ПРОГРАММЫ МАСЛА                                                        */}
+          {/* ========================================================================= */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              onSelectView('patterns');
+              onClose();
+            }}
+            className={`w-full p-3 rounded-xl flex items-center justify-between transition-all text-left cursor-pointer ${
+              activeView === 'patterns'
+                ? 'bg-amber-500/15 border border-amber-500/40 text-stone-100 shadow-sm'
+                : 'text-stone-300 hover:bg-stone-900 border border-transparent'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className={`p-2 rounded-lg ${
+                  activeView === 'patterns'
+                    ? 'bg-amber-500 text-stone-950 font-bold'
+                    : 'bg-stone-900 text-blue-400'
+                }`}
+              >
+                <Droplets className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="text-xs font-bold">Программы масла</div>
+                <div className="text-[10px] text-stone-400 mt-0.5">
+                  Паттерны кондиционера и диаграммы
+                </div>
+              </div>
+            </div>
+            <ChevronRight
+              className={`w-4 h-4 transition-transform ${
+                activeView === 'patterns' ? 'text-amber-400 translate-x-0.5' : 'text-stone-600'
+              }`}
+            />
+          </button>
+
+          {/* ========================================================================= */}
+          {/* 9. ЗАМЕТКИ                                                                */}
+          {/* ========================================================================= */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
               onSelectView('notes');
               onClose();
             }}
-            className={`w-full p-3 rounded-xl flex items-center justify-between transition-all text-left ${
+            className={`w-full p-3 rounded-xl flex items-center justify-between transition-all text-left cursor-pointer ${
               activeView === 'notes'
                 ? 'bg-amber-500/15 border border-amber-500/40 text-stone-100 shadow-sm'
                 : 'text-stone-300 hover:bg-stone-900 border border-transparent'
@@ -368,14 +525,17 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
             />
           </button>
 
-          {/* 7. НАСТРОЙКИ */}
+          {/* ========================================================================= */}
+          {/* 10. НАСТРОЙКИ                                                             */}
+          {/* ========================================================================= */}
           <button
             type="button"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
               onSelectView('settings');
               onClose();
             }}
-            className={`w-full p-3 rounded-xl flex items-center justify-between transition-all text-left ${
+            className={`w-full p-3 rounded-xl flex items-center justify-between transition-all text-left cursor-pointer ${
               activeView === 'settings'
                 ? 'bg-amber-500/15 border border-amber-500/40 text-stone-100 shadow-sm'
                 : 'text-stone-300 hover:bg-stone-900 border border-transparent'
@@ -394,7 +554,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
               <div>
                 <div className="text-xs font-bold">{t.settings}</div>
                 <div className="text-[10px] text-stone-400 mt-0.5">
-                  Звук, тема оформления и выбор языка (6 языков)
+                  Звук, темы, язык
                 </div>
               </div>
             </div>
@@ -411,8 +571,11 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
           {/* Quick Sound Switch */}
           <button
             type="button"
-            onClick={onToggleSound}
-            className="w-full py-2.5 px-3 rounded-xl bg-stone-900 text-stone-300 hover:text-stone-100 hover:bg-stone-800 text-xs font-semibold transition-colors flex items-center justify-between"
+            onClick={(e) => {
+              e.preventDefault();
+              onToggleSound();
+            }}
+            className="w-full py-2.5 px-3 rounded-xl bg-stone-900 text-stone-300 hover:text-stone-100 hover:bg-stone-800 text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer"
           >
             <span className="flex items-center gap-2">
               {settings.soundEnabled ? (

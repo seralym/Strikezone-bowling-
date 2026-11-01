@@ -1,4 +1,5 @@
 import { BowlingBall } from '../types/bowling';
+import { ARCHIVED_BALLS } from './archivedBalls';
 
 export interface CatalogBallPreset {
   id: string;
@@ -27,6 +28,10 @@ export interface CatalogBallPreset {
   secondaryColor?: string;
   accentColor?: string;
   description: string;
+  isArchived?: boolean;
+  releaseYear?: number;
+  isBanned?: boolean;
+  bannedReason?: string;
 }
 
 export const BALL_BRANDS: Array<
@@ -55,7 +60,7 @@ export const BALL_BRANDS: Array<
   'Track',
 ];
 
-export const BALL_CATALOG: CatalogBallPreset[] = [
+const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
   // =========================================================================
   // 1. STORM (20 моделей)
   // =========================================================================
@@ -3591,6 +3596,253 @@ export const BALL_CATALOG: CatalogBallPreset[] = [
     description: 'Надежный спэровый шар Track для безупречного закрытия любых открытых фреймов.',
   },
 ];
+
+export const BANNED_BALLS: CatalogBallPreset[] = [
+  {
+    id: 'banned_storm_spectre',
+    name: 'Spectre [Запрещен USBC]',
+    brand: 'Storm',
+    coverstock: 'Pearl',
+    coverstockName: 'NeX™ Pearl Reactive',
+    core: 'Vector™ Symmetrical',
+    coreType: 'Symmetrical',
+    rg: 2.54,
+    diff: 0.050,
+    finish: '1500-grit Polished',
+    recommendedOil: 'Medium',
+    primaryColor: '#701a75',
+    secondaryColor: '#0284c7',
+    accentColor: '#f43f5e',
+    description: 'Отозван USBC 30 марта 2022 г. из-за несоответствия спецификации твердости (ниже 73D). Обладал феноменальным угловым входом.',
+    releaseYear: 2022,
+    isArchived: true,
+    isBanned: true,
+    bannedReason: 'USBC hardness revocation (март 2022)',
+  },
+  {
+    id: 'banned_storm_phaze_4',
+    name: 'Phaze 4 [Ограничен USBC]',
+    brand: 'Storm',
+    coverstock: 'Pearl',
+    coverstockName: 'R2S™ Pro Pearl Reactive',
+    core: 'Velocity™ Core',
+    coreType: 'Symmetrical',
+    rg: 2.48,
+    diff: 0.051,
+    finish: '1500-grit Polished',
+    recommendedOil: 'Medium-Heavy',
+    primaryColor: '#1e3a8a',
+    secondaryColor: '#7c3aed',
+    accentColor: '#38bdf8',
+    description: 'Ограничен USBC на национальных турнирах в 2022 г. Знаменитое ядро Velocity в перламутровом исполнении для чистого скольжения.',
+    releaseYear: 2022,
+    isArchived: true,
+    isBanned: true,
+    bannedReason: 'USBC national tournament restriction 2022',
+  },
+  {
+    id: 'banned_storm_trend_2',
+    name: 'Trend 2 [Ограничен USBC]',
+    brand: 'Storm',
+    coverstock: 'Hybrid',
+    coverstockName: 'NRG™ Hybrid Reactive',
+    core: 'Piston™ Core',
+    coreType: 'Symmetrical',
+    rg: 2.52,
+    diff: 0.056,
+    finish: '1500-grit Polished',
+    recommendedOil: 'Medium-Heavy',
+    primaryColor: '#047857',
+    secondaryColor: '#18181b',
+    accentColor: '#10b981',
+    description: 'Создан с участием Джейсона Белмонте. Включен в ограничительный список USBC 2022 г. Обеспечивал мощное продолжение в кеглях.',
+    releaseYear: 2021,
+    isArchived: true,
+    isBanned: true,
+    bannedReason: 'USBC restriction list 2022',
+  },
+  {
+    id: 'banned_global_altered_reality',
+    name: 'Altered Reality [Запрещен USBC]',
+    brand: '900 Global',
+    coverstock: 'Pearl',
+    coverstockName: 'S84 Response™ Pearl',
+    core: 'Disturbance™ Asymmetric',
+    coreType: 'Asymmetrical',
+    rg: 2.49,
+    diff: 0.052,
+    mb: 0.018,
+    finish: '1500-grit Polished',
+    recommendedOil: 'Heavy',
+    primaryColor: '#4338ca',
+    secondaryColor: '#0f172a',
+    accentColor: '#ec4899',
+    description: 'Асимметричный перловый топ для тяжелого масла. Отозван USBC весной 2022 года за отклонение твердости покрышки.',
+    releaseYear: 2021,
+    isArchived: true,
+    isBanned: true,
+    bannedReason: 'USBC hardness revocation 2022',
+  },
+  {
+    id: 'banned_global_wolverine',
+    name: 'Wolverine [Ограничен USBC]',
+    brand: '900 Global',
+    coverstock: 'Pearl',
+    coverstockName: 'S70™ Pearl Reactive',
+    core: 'Lacerate™ 2.0 Symmetrical',
+    coreType: 'Symmetrical',
+    rg: 2.54,
+    diff: 0.053,
+    finish: '1500-grit Polished',
+    recommendedOil: 'Medium',
+    primaryColor: '#7c2d12',
+    secondaryColor: '#d97706',
+    accentColor: '#fbbf24',
+    description: 'Шар с агрессивным скид-флипом, попавший под турнирные ограничения USBC в 2022 году.',
+    releaseYear: 2021,
+    isArchived: true,
+    isBanned: true,
+    bannedReason: 'USBC tournament ban 2022',
+  },
+  {
+    id: 'banned_roto_ufo_alert',
+    name: 'UFO Alert [Запрещен USBC]',
+    brand: 'Roto Grip',
+    coverstock: 'Hybrid',
+    coverstockName: 'eTrax™ Hybrid Reactive',
+    core: 'E.T.™ Core (Equalizer Technology)',
+    coreType: 'Asymmetrical',
+    rg: 2.52,
+    diff: 0.054,
+    mb: 0.016,
+    finish: '1500-grit Polished',
+    recommendedOil: 'Medium-Heavy',
+    primaryColor: '#0284c7',
+    secondaryColor: '#172554',
+    accentColor: '#38bdf8',
+    description: 'Асимметричный гибрид Roto Grip с невероятным углом атаки, отозванный USBC весной 2022 года.',
+    releaseYear: 2021,
+    isArchived: true,
+    isBanned: true,
+    bannedReason: 'USBC hardness revocation 2022',
+  },
+  {
+    id: 'banned_roto_rubicon_uc3',
+    name: 'Rubicon UC3 [Ограничен USBC]',
+    brand: 'Roto Grip',
+    coverstock: 'Urethane',
+    coverstockName: 'Tour-ethane™ Pearl',
+    core: 'Rondure™ Core',
+    coreType: 'Asymmetrical',
+    rg: 2.49,
+    diff: 0.052,
+    mb: 0.011,
+    finish: '1000-grit Abralon',
+    recommendedOil: 'Medium',
+    primaryColor: '#18181b',
+    secondaryColor: '#3f3f46',
+    accentColor: '#a1a1aa',
+    description: 'Уретановый шар с асимметричным ядром Rondure. Ограничен USBC на национальных турнирах в 2022 году.',
+    releaseYear: 2021,
+    isArchived: true,
+    isBanned: true,
+    bannedReason: 'USBC national tournament ban 2022',
+  },
+  {
+    id: 'banned_motiv_jackal',
+    name: 'Jackal [Запрещен USBC 2016]',
+    brand: 'Motiv',
+    coverstock: 'Solid',
+    coverstockName: 'TruDrop™ Reactive',
+    core: 'Predator™ Asymmetric',
+    coreType: 'Asymmetrical',
+    rg: 2.46,
+    diff: 0.060,
+    mb: 0.015,
+    finish: '3000-grit LSS',
+    recommendedOil: 'Heavy',
+    primaryColor: '#7f1d1d',
+    secondaryColor: '#450a0a',
+    accentColor: '#dc2626',
+    description: 'Отозван USBC 15 марта 2016 г. за превышение допустимого дифференциала 0.060 при аудите серийных партий. Культовая мощь.',
+    releaseYear: 2015,
+    isArchived: true,
+    isBanned: true,
+    bannedReason: 'USBC Max Differential 0.060 Exceeded (март 2016)',
+  },
+  {
+    id: 'banned_motiv_jackal_carnage',
+    name: 'Jackal Carnage [Запрещен USBC 2016]',
+    brand: 'Motiv',
+    coverstock: 'Solid',
+    coverstockName: 'Coercion™ MFS Solid',
+    core: 'Predator™ Asymmetric',
+    coreType: 'Asymmetrical',
+    rg: 2.46,
+    diff: 0.060,
+    mb: 0.015,
+    finish: '1000-grit LSS',
+    recommendedOil: 'Heavy',
+    primaryColor: '#991b1b',
+    secondaryColor: '#18181b',
+    accentColor: '#f87171',
+    description: 'Один из самых ранних и мощных шаров Motiv для сильного масла. Отозван USBC в 2016 г. из-за дифференциала.',
+    releaseYear: 2016,
+    isArchived: true,
+    isBanned: true,
+    bannedReason: 'USBC Max Differential Exceeded (2016)',
+  },
+  {
+    id: 'banned_hammer_purple_pearl_2016',
+    name: 'Purple Pearl Urethane (2016-17) [Ограничен PBA]',
+    brand: 'Hammer',
+    coverstock: 'Urethane',
+    coverstockName: 'Urethane Pearl',
+    core: 'LED Symmetrical',
+    coreType: 'Symmetrical',
+    rg: 2.65,
+    diff: 0.015,
+    finish: '500/1000/2000 Abralon',
+    recommendedOil: 'Short',
+    primaryColor: '#581c87',
+    secondaryColor: '#3b0764',
+    accentColor: '#c084fc',
+    description: 'Партии 2016–2017 гг. были запрещены на PBA Tour в марте 2022 г. после введения правила минимальной твердости 78D.',
+    releaseYear: 2016,
+    isArchived: true,
+    isBanned: true,
+    bannedReason: 'PBA 78D Minimum Hardness Rule (2022)',
+  },
+];
+
+const RAW_BALL_CATALOG: CatalogBallPreset[] = [
+  ...BANNED_BALLS,
+  ...MODERN_BALL_CATALOG,
+  ...ARCHIVED_BALLS,
+];
+
+// Enforce released from 2010 onwards (>= 2010, не старше 2010 года выпуска) and limit to max 30 balls per brand
+const brandCounts: Record<string, number> = {};
+const uniqueIds = new Set<string>();
+
+export const BALL_CATALOG: CatalogBallPreset[] = [];
+
+for (const ball of RAW_BALL_CATALOG) {
+  // Exclude balls released before 2010 (шары не старше 2010 года выпуска)
+  if (ball.releaseYear !== undefined && ball.releaseYear < 2010) {
+    continue;
+  }
+  // Avoid duplicate ID keys
+  if (uniqueIds.has(ball.id)) {
+    continue;
+  }
+  const currentCount = brandCounts[ball.brand] || 0;
+  if (currentCount < 30) {
+    uniqueIds.add(ball.id);
+    brandCounts[ball.brand] = currentCount + 1;
+    BALL_CATALOG.push(ball);
+  }
+}
 
 /**
  * Convert a catalog ball preset to a user's BowlingBall entry

@@ -38,8 +38,9 @@ export const BallVisual: React.FC<BallVisualProps> = ({
   const isPearl = coverstock === 'Pearl';
   const isUrethane = coverstock === 'Urethane';
 
-  // Generate unique gradient IDs based on properties
-  const safeId = `${brand.replace(/[^a-zA-Z0-9]/g, '')}_${size}_${primaryColor.replace('#', '')}_${(secondaryColor || '').replace('#', '')}`;
+  const reactId = React.useId().replace(/[^a-zA-Z0-9]/g, '_');
+  // Generate unique gradient IDs based on unique React ID
+  const safeId = `${brand.replace(/[^a-zA-Z0-9]/g, '')}_${size}_${reactId}`;
 
   // Brand emblem SVG icon renderer
   const renderBrandEmblem = () => {

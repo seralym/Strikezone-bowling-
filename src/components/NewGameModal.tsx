@@ -24,7 +24,7 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
   userConfig,
   onStartGame,
 }) => {
-  const [title, setTitle] = useState('Одиночная тренировка');
+  const [title, setTitle] = useState('');
   const [laneNumber, setLaneNumber] = useState<number | ''>(1);
   const [selectedCenterId, setSelectedCenterId] = useState<string>(
     userConfig.activeCenterId || userConfig.centers[0]?.id || ''
@@ -83,16 +83,19 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Match Title */}
+          {/* Match Title / Competition Name */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-400 mb-1.5">
-              Название партии / Соревнование
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-stone-300">
+                Название соревнований
+              </label>
+              <span className="text-[10px] text-stone-500 font-medium">Опционально</span>
+            </div>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Например: Квалификация, 1-я игра"
+              placeholder="Например: Квалификация, 1-я игра (необязательно)"
               className="w-full px-3.5 py-2.5 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-sm focus:outline-none focus:border-amber-500"
             />
           </div>
@@ -170,7 +173,8 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
             </select>
           </div>
 
-          <div className="pt-3 border-t border-stone-800 flex items-center justify-end gap-3">
+          {/* Sticky Bottom Actions Bar - Always active 'Сохранить' button */}
+          <div className="sticky bottom-0 bg-stone-900/95 backdrop-blur-md pt-3 pb-1 -mx-6 px-6 border-t border-stone-800 flex items-center justify-end gap-3 z-10 shadow-lg">
             <button
               type="button"
               onClick={onClose}
@@ -180,9 +184,9 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 text-sm font-bold rounded-xl bg-amber-500 text-stone-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20"
+              className="px-6 py-2.5 text-sm font-bold rounded-xl bg-amber-500 text-stone-950 hover:bg-amber-400 active:scale-95 transition-all shadow-lg shadow-amber-500/20 cursor-pointer"
             >
-              Выйти на дорожку
+              Сохранить
             </button>
           </div>
         </form>

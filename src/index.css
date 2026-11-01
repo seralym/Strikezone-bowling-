@@ -51,24 +51,163 @@
   box-shadow: 0 0 50px -10px rgba(245, 158, 11, 0.15);
 }
 
-/* Theme accent variations */
-.theme-obsidian {
-  --theme-accent: #06b6d4;
-  --theme-accent-glow: rgba(6, 182, 212, 0.2);
+/* Theme accent & palette variations with softer, eye-friendly contrast */
+.theme-dark {
+  --theme-accent: #f59e0b;
+  --theme-accent-glow: rgba(245, 158, 11, 0.18);
+  background-color: #0c0a09 !important;
+  color: #f5f5f4 !important;
 }
 
-.theme-retro {
-  --theme-accent: #f97316;
-  --theme-accent-glow: rgba(249, 115, 22, 0.2);
+.theme-obsidian {
+  --theme-accent: #06b6d4;
+  --theme-accent-glow: rgba(6, 182, 212, 0.22);
+  background-color: #000000;
 }
 
 .theme-slate {
-  --theme-accent: #eab308;
-  --theme-accent-glow: rgba(234, 179, 8, 0.2);
+  --theme-accent: #38bdf8;
+  --theme-accent-glow: rgba(56, 189, 248, 0.18);
 }
 
-.theme-dark {
-  --theme-accent: #f59e0b;
-  --theme-accent-glow: rgba(245, 158, 11, 0.2);
+/* Soft, High-Contrast Light Theme (Calm slate/warm neutral, no blinding glare) */
+.theme-light {
+  --theme-accent: #d97706;
+  --theme-accent-glow: rgba(217, 119, 6, 0.18);
+  color-scheme: light;
+  background-color: #f5f5f4 !important;
+  color: #1c1917 !important;
 }
+
+.theme-light .bg-stone-950,
+.theme-light .bg-slate-950,
+.theme-light header.bg-stone-950\/95 {
+  background-color: #ffffff !important;
+  color: #1c1917 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.theme-light .bg-stone-900,
+.theme-light .bg-stone-900\/80,
+.theme-light .bg-stone-900\/90,
+.theme-light .bg-stone-900\/70,
+.theme-light .bg-stone-900\/60,
+.theme-light .bg-stone-900\/95 {
+  background-color: #ffffff !important;
+  color: #1c1917 !important;
+  border-color: #e7e5e4 !important;
+}
+
+.theme-light .bg-stone-950\/70,
+.theme-light .bg-stone-950\/80,
+.theme-light .bg-stone-950\/90 {
+  background-color: #fafaf9 !important;
+  border-color: #e7e5e4 !important;
+}
+
+.theme-light .bg-stone-800,
+.theme-light .bg-stone-800\/80 {
+  background-color: #f5f5f4 !important;
+  color: #292524 !important;
+  border-color: #e7e5e4 !important;
+}
+
+.theme-light .border-stone-800,
+.theme-light .border-stone-800\/80,
+.theme-light .border-stone-800\/60,
+.theme-light .border-stone-800\/40,
+.theme-light .border-stone-700 {
+  border-color: #e7e5e4 !important;
+}
+
+.theme-light .text-stone-100,
+.theme-light .text-stone-200,
+.theme-light .text-slate-100 {
+  color: #1c1917 !important;
+}
+
+.theme-light .text-stone-300,
+.theme-light .text-stone-400 {
+  color: #44403c !important;
+}
+
+.theme-light .text-stone-500,
+.theme-light .text-stone-600 {
+  color: #78716c !important;
+}
+
+/* High-Contrast Dark (OLED Gold) Theme */
+.theme-high-contrast-dark {
+  --theme-accent: #facc15;
+  --theme-accent-glow: rgba(250, 204, 21, 0.35);
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.theme-high-contrast-dark .bg-stone-950,
+.theme-high-contrast-dark .bg-slate-950 {
+  background-color: #000000 !important;
+}
+
+.theme-high-contrast-dark .bg-stone-900,
+.theme-high-contrast-dark .bg-stone-900\/80,
+.theme-high-contrast-dark .bg-stone-900\/90 {
+  background-color: #0a0a0a !important;
+}
+
+.theme-high-contrast-dark .border-stone-800,
+.theme-high-contrast-dark .border-stone-800\/80,
+.theme-high-contrast-dark .border-stone-700 {
+  border-color: rgba(250, 204, 21, 0.6) !important;
+}
+
+.theme-high-contrast-dark .text-stone-100,
+.theme-high-contrast-dark .text-stone-200 {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.theme-high-contrast-dark .text-stone-400,
+.theme-high-contrast-dark .text-stone-300 {
+  color: #fef08a !important;
+  font-weight: 500 !important;
+}
+
+/* High-Contrast Light (Sharp Black & White) Theme */
+.theme-high-contrast-light {
+  --theme-accent: #b45309;
+  --theme-accent-glow: rgba(180, 83, 9, 0.2);
+  color-scheme: light;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.theme-high-contrast-light .bg-stone-950,
+.theme-high-contrast-light .bg-stone-900,
+.theme-high-contrast-light .bg-slate-950,
+.theme-high-contrast-light header.bg-stone-950\/95 {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.theme-high-contrast-light .border-stone-800,
+.theme-high-contrast-light .border-stone-800\/80,
+.theme-high-contrast-light .border-stone-700 {
+  border-color: #000000 !important;
+  border-width: 1.5px !important;
+}
+
+.theme-high-contrast-light .text-stone-100,
+.theme-high-contrast-light .text-stone-200,
+.theme-high-contrast-light .text-stone-300,
+.theme-high-contrast-light .text-stone-400 {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+/* Pin deck pyramid zone touch action - locks page scroll strictly inside the pin pyramid envelope */
+.pin-deck-pyramid-zone {
+  touch-action: none;
+}
+
 

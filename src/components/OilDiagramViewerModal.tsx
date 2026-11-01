@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { OilPattern } from '../types/bowling';
 import {
   X,
@@ -6,37 +6,100 @@ import {
   Download,
   ZoomIn,
   ZoomOut,
-  RotateCcw,
   RotateCw,
   Maximize2,
   Minimize2,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 interface OilDiagramViewerModalProps {
   pattern: OilPattern | null;
   isOpen: boolean;
   onClose: () => void;
+  allPatterns?: OilPattern[];
+  onSelectPattern?: (pattern: OilPattern) => void;
 }
 
 export const OilDiagramViewerModal: React.FC<OilDiagramViewerModalProps> = ({
   pattern,
   isOpen,
   onClose,
+  allPatterns,
+  onSelectPattern,
 }) => {
   const [scale, setScale] = useState<number>(1);
   const [rotation, setRotation] = useState<number>(0);
+  const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState<boolean>(false);
   const [isBrowserFullscreen, setIsBrowserFullscreen] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const dragStartRef = useRef<{ startX: number; startY: number; initialPosX: number; initialPosY: number }>({
+    startX: 0,
+    startY: 0,
+    initialPosX: 0,
+    initialPosY: 0,
+  });
+  const hasDraggedRef = useRef<boolean>(false);
 
-  // Reset scale and rotation whenever a new pattern is opened
+  // List of all patterns that have screenshots
+  const patternsWithImages = useMemo(() => {
+    if (allPatterns && allPatterns.length > 0) {
+      const filtered = allPatterns.filter((p) => !!p.imageUrl);
+      if (filtered.length > 0) return filtered;
+    }
+    return pattern && pattern.imageUrl ? [pattern] : [];
+  }, [allPatterns, pattern]);
+
+  const currentIndex = useMemo(() => {
+    if (!pattern) return 0;
+    const idx = patternsWithImages.findIndex((p) => p.id === pattern.id);
+    return idx !== -1 ? idx : 0;
+  }, [pattern, patternsWithImages]);
+
+  const hasMultiple = patternsWithImages.length > 1;
+
+  const handlePrev = useCallback(() => {
+    if (!hasMultiple || !onSelectPattern) return;
+    const prevIdx = (currentIndex - 1 + patternsWithImages.length) % patternsWithImages.length;
+    onSelectPattern(patternsWithImages[prevIdx]);
+  }, [hasMultiple, onSelectPattern, currentIndex, patternsWithImages]);
+
+  const handleNext = useCallback(() => {
+    if (!hasMultiple || !onSelectPattern) return;
+    const nextIdx = (currentIndex + 1) % patternsWithImages.length;
+    onSelectPattern(patternsWithImages[nextIdx]);
+  }, [hasMultiple, onSelectPattern, currentIndex, patternsWithImages]);
+
+  // Reset scale, rotation, and pan position whenever a new pattern is opened or modal opens
   useEffect(() => {
     if (isOpen) {
       setScale(1);
       setRotation(0);
+      setPosition({ x: 0, y: 0 });
     }
   }, [isOpen, pattern]);
 
-  // Handle ESC key to close
+  // Native non-passive wheel event listener for fluid mouse/trackpad scroll-to-zoom
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el || !isOpen) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
+      setScale((prev) => {
+        const next = Number((prev * zoomFactor).toFixed(2));
+        return Math.min(Math.max(next, 0.4), 6.0);
+      });
+    };
+
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, [isOpen]);
+
+  // Handle ESC and Arrow keys for navigation
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -45,11 +108,15 @@ export const OilDiagramViewerModal: React.FC<OilDiagramViewerModalProps> = ({
           document.exitFullscreen().catch(() => {});
         }
         onClose();
+      } else if (e.key === 'ArrowLeft') {
+        handlePrev();
+      } else if (e.key === 'ArrowRight') {
+        handleNext();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, handlePrev, handleNext]);
 
   // Listen to fullscreenchange
   useEffect(() => {
@@ -63,29 +130,77 @@ export const OilDiagramViewerModal: React.FC<OilDiagramViewerModalProps> = ({
   if (!isOpen || !pattern || !pattern.imageUrl) return null;
 
   const handleZoomIn = () => {
-    setScale((prev) => Math.min(Number((prev + 0.35).toFixed(2)), 3.5));
+    setScale((prev) => Math.min(Number((prev + 0.35).toFixed(2)), 6.0));
   };
 
   const handleZoomOut = () => {
-    setScale((prev) => Math.max(Number((prev - 0.35).toFixed(2)), 0.6));
+    setScale((prev) => Math.max(Number((prev - 0.35).toFixed(2)), 0.4));
   };
 
   const handleResetZoom = () => {
     setScale(1);
     setRotation(0);
+    setPosition({ x: 0, y: 0 });
   };
 
   const handleRotate = () => {
     setRotation((prev) => (prev + 90) % 360);
   };
 
-  // Tap on image toggles zoom: 1x -> 1.75x -> 2.5x -> 1x
-  const handleImageTap = () => {
+  // Pointer drag handlers for panning around screen
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    setIsDragging(true);
+    hasDraggedRef.current = false;
+    dragStartRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initialPosX: position.x,
+      initialPosY: position.y,
+    };
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragStartRef.current.startX;
+    const dy = e.clientY - dragStartRef.current.startY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+      hasDraggedRef.current = true;
+    }
+    setPosition({
+      x: Math.round(dragStartRef.current.initialPosX + dx),
+      y: Math.round(dragStartRef.current.initialPosY + dy),
+    });
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (isDragging) {
+      setIsDragging(false);
+      try {
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch {
+        // ignore
+      }
+    }
+  };
+
+  // Click on image toggles zoom if not dragged: 1x -> 1.8x -> 3.2x -> 1x
+  const handleImageClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (hasDraggedRef.current) return;
     setScale((prev) => {
-      if (prev < 1.3) return 1.75;
-      if (prev < 2.2) return 2.6;
+      if (prev < 1.3) return 1.8;
+      if (prev < 2.5) return 3.2;
       return 1;
     });
+    if (scale >= 2.5) {
+      setPosition({ x: 0, y: 0 });
+    }
   };
 
   const toggleBrowserFullscreen = () => {
@@ -118,6 +233,11 @@ export const OilDiagramViewerModal: React.FC<OilDiagramViewerModalProps> = ({
 
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
+              {hasMultiple && (
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                  {currentIndex + 1} из {patternsWithImages.length}
+                </span>
+              )}
               <span
                 className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
                   pattern.category === 'Sport'
@@ -221,27 +341,74 @@ export const OilDiagramViewerModal: React.FC<OilDiagramViewerModalProps> = ({
         </div>
       </div>
 
-      {/* Main Fullscreen Canvas Area */}
-      <div className="flex-1 w-full h-full relative overflow-auto flex items-center justify-center bg-stone-950 p-2 sm:p-6 cursor-zoom-in">
+      {/* Main Fullscreen Canvas Area with Wheel Zoom and Pan Drag */}
+      <div
+        ref={viewportRef}
+        className="flex-1 w-full h-full relative overflow-hidden flex items-center justify-center bg-stone-950 p-2 sm:p-6 select-none touch-none"
+      >
+        {/* Floating Left Arrow Button */}
+        {hasMultiple && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handlePrev();
+            }}
+            className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3.5 rounded-2xl bg-stone-900/90 hover:bg-amber-500 hover:text-stone-950 text-stone-200 border border-stone-700/80 shadow-2xl backdrop-blur-md transition-all active:scale-90 cursor-pointer group"
+            title="Предыдущая диаграмма масла (стрелка влево ←)"
+            aria-label="Предыдущая диаграмма масла"
+          >
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5] group-hover:-translate-x-0.5 transition-transform" />
+          </button>
+        )}
+
+        {/* Center Diagram Image with Pan Drag & Scroll Zoom */}
         <div
-          onClick={handleImageTap}
-          className="transition-transform duration-200 ease-out flex items-center justify-center origin-center"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          onClick={handleImageClick}
+          className={`relative flex items-center justify-center origin-center select-none ${
+            isDragging ? 'cursor-grabbing' : 'cursor-grab'
+          }`}
           style={{
-            transform: `scale(${scale}) rotate(${rotation}deg)`,
+            transform: `translate3d(${position.x}px, ${position.y}px, 0) scale(${scale}) rotate(${rotation}deg)`,
+            transition: isDragging ? 'none' : 'transform 0.15s ease-out',
+            touchAction: 'none',
           }}
-          title="Нажмите на диаграмму для увеличения масштаба"
+          title="Скролл колёсиком мыши — зум, зажмите для перемещения, клик — быстрый зум"
         >
           <img
             src={pattern.imageUrl}
             alt={`Диаграмма нанесения масла ${pattern.name}`}
-            className="max-w-[92vw] max-h-[82vh] rounded-2xl object-contain shadow-2xl border border-stone-800/80 bg-black/90 pointer-events-auto"
+            draggable={false}
+            className="max-w-[92vw] max-h-[82vh] rounded-2xl object-contain shadow-2xl border border-stone-800/80 bg-black/90 pointer-events-none select-none"
           />
         </div>
 
+        {/* Floating Right Arrow Button */}
+        {hasMultiple && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleNext();
+            }}
+            className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3.5 rounded-2xl bg-stone-900/90 hover:bg-amber-500 hover:text-stone-950 text-stone-200 border border-stone-700/80 shadow-2xl backdrop-blur-md transition-all active:scale-90 cursor-pointer group"
+            title="Следующая диаграмма масла (стрелка вправо →)"
+            aria-label="Следующая диаграмма масла"
+          >
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5] group-hover:translate-x-0.5 transition-transform" />
+          </button>
+        )}
+
         {/* Floating bottom guidance badge */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none px-3.5 py-1.5 rounded-full bg-stone-900/90 border border-stone-700/60 text-[11px] text-stone-300 backdrop-blur-md shadow-xl flex items-center gap-2">
-          <Droplets className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Нажмите по диаграмме для зума · Доступен поворот на 90°</span>
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none px-4 py-2 rounded-full bg-stone-900/90 border border-stone-700/60 text-[11px] text-stone-200 backdrop-blur-md shadow-2xl flex items-center gap-2">
+          <Droplets className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+          <span>Колёсико мыши: зум · Перетаскивание для перемещения{hasMultiple ? ' · Стрелки ← / →' : ''}</span>
         </div>
       </div>
 

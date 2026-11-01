@@ -87,6 +87,7 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
   const [ballSubView, setBallSubView] = useState<'my_bag' | 'catalog'>('my_bag');
   const [catalogBrand, setCatalogBrand] = useState<string>('Все');
   const [catalogSearch, setCatalogSearch] = useState<string>('');
+  const [catalogEraFilter, setCatalogEraFilter] = useState<'all' | 'modern' | 'archived'>('all');
 
   // Modals state
   const [isBallModalOpen, setIsBallModalOpen] = useState(false);
@@ -393,8 +394,11 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
 
         <button
           type="button"
-          onClick={handleOpenAddBall}
-          className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-amber-500/20 active:scale-95 transition-all self-start sm:self-auto"
+          onClick={(e) => {
+            e.preventDefault();
+            handleOpenAddBall();
+          }}
+          className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-amber-500/20 active:scale-95 transition-all self-start sm:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Создать шар вручную</span>
@@ -406,8 +410,11 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
         <div className="flex items-center gap-1">
           <button
             type="button"
-            onClick={() => setBallSubView('my_bag')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
+            onClick={(e) => {
+              e.preventDefault();
+              setBallSubView('my_bag');
+            }}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
               ballSubView === 'my_bag'
                 ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20'
                 : 'text-stone-400 hover:text-stone-200'
@@ -419,8 +426,11 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
 
           <button
             type="button"
-            onClick={() => setBallSubView('catalog')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
+            onClick={(e) => {
+              e.preventDefault();
+              setBallSubView('catalog');
+            }}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
               ballSubView === 'catalog'
                 ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20'
                 : 'text-stone-400 hover:text-stone-200'
@@ -455,15 +465,21 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
               <div className="flex items-center justify-center gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => setBallSubView('catalog')}
-                  className="px-4 py-2.5 rounded-xl bg-amber-500 text-stone-950 font-bold text-xs shadow-md shadow-amber-500/20"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setBallSubView('catalog');
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-amber-500 text-stone-950 font-bold text-xs shadow-md shadow-amber-500/20 cursor-pointer"
                 >
                   Выбрать шар из каталога
                 </button>
                 <button
                   type="button"
-                  onClick={handleOpenAddBall}
-                  className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold text-xs"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleOpenAddBall();
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold text-xs cursor-pointer"
                 >
                   Создать вручную
                 </button>
@@ -505,16 +521,22 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
                       <div className="flex items-center gap-1 shrink-0">
                         <button
                           type="button"
-                          onClick={() => handleOpenEditBall(ball)}
-                          className="p-1.5 text-stone-400 hover:text-stone-200 hover:bg-stone-800 rounded-lg transition-colors"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleOpenEditBall(ball);
+                          }}
+                          className="p-1.5 text-stone-400 hover:text-stone-200 hover:bg-stone-800 rounded-lg transition-colors cursor-pointer"
                           title="Редактировать параметры шара"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleDeleteBall(ball.id, ball.name)}
-                          className="p-1.5 text-stone-500 hover:text-red-400 hover:bg-red-950/40 rounded-lg transition-colors"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleDeleteBall(ball.id, ball.name);
+                          }}
+                          className="p-1.5 text-stone-500 hover:text-red-400 hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer"
                           title="Удалить шар"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -655,35 +677,101 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
       {ballSubView === 'catalog' && (
         <div className="space-y-5">
           {/* Filter and Search Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl bg-stone-900 border border-stone-800">
-            {/* Brand Tabs */}
-            <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
-              {BALL_BRANDS.map((brandName) => (
-                <button
-                  key={brandName}
-                  type="button"
-                  onClick={() => setCatalogBrand(brandName)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                    catalogBrand === brandName
-                      ? 'bg-amber-500 text-stone-950 shadow-sm'
-                      : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'
-                  }`}
-                >
-                  {brandName}
-                </button>
-              ))}
+          <div className="space-y-2.5 p-3 rounded-2xl bg-stone-900 border border-stone-800">
+            {/* Top row: Brand Tabs & Search Box */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              {/* Brand Tabs */}
+              <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
+                {BALL_BRANDS.map((brandName) => (
+                  <button
+                    key={brandName}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCatalogBrand(brandName);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                      catalogBrand === brandName
+                        ? 'bg-amber-500 text-stone-950 shadow-sm'
+                        : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'
+                    }`}
+                  >
+                    {brandName}
+                  </button>
+                ))}
+              </div>
+
+              {/* Search Box */}
+              <div className="relative min-w-[200px]">
+                <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-stone-500" />
+                <input
+                  type="text"
+                  value={catalogSearch}
+                  onChange={(e) => setCatalogSearch(e.target.value)}
+                  placeholder="Поиск модели шара..."
+                  className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-amber-500"
+                />
+              </div>
             </div>
 
-            {/* Search Box */}
-            <div className="relative min-w-[200px]">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-stone-500" />
-              <input
-                type="text"
-                value={catalogSearch}
-                onChange={(e) => setCatalogSearch(e.target.value)}
-                placeholder="Поиск модели шара..."
-                className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-amber-500"
-              />
+            {/* Bottom row: Era filter toggle (All / Modern / Archived Legends) */}
+            <div className="flex items-center justify-between gap-2 pt-2 border-t border-stone-800/80">
+              <div className="flex items-center gap-1.5 text-xs">
+                <span className="text-[11px] text-stone-500 font-semibold uppercase tracking-wider hidden sm:inline">
+                  Эпоха:
+                </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCatalogEraFilter('all');
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    catalogEraFilter === 'all'
+                      ? 'bg-amber-500 text-stone-950 shadow-xs'
+                      : 'bg-stone-950 text-stone-400 hover:text-stone-200 border border-stone-800'
+                  }`}
+                >
+                  Все ({BALL_CATALOG.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCatalogEraFilter('modern');
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    catalogEraFilter === 'modern'
+                      ? 'bg-amber-500 text-stone-950 shadow-xs'
+                      : 'bg-stone-950 text-stone-400 hover:text-stone-200 border border-stone-800'
+                  }`}
+                >
+                  Современные ({BALL_CATALOG.filter((b) => !b.isArchived).length})
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCatalogEraFilter('archived');
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                    catalogEraFilter === 'archived'
+                      ? 'bg-amber-500 text-stone-950 shadow-xs'
+                      : 'bg-stone-950 text-amber-400 border border-amber-500/30 hover:border-amber-500/60'
+                  }`}
+                >
+                  <span>★ Архивные с 2010 г. ({BALL_CATALOG.filter((b) => b.isArchived).length})</span>
+                </button>
+              </div>
+
+              <span className="text-[11px] text-stone-500 font-mono">
+                {BALL_CATALOG.filter((p) => {
+                  if (catalogBrand !== 'Все' && p.brand !== catalogBrand) return false;
+                  if (catalogEraFilter === 'modern' && p.isArchived) return false;
+                  if (catalogEraFilter === 'archived' && !p.isArchived) return false;
+                  return true;
+                }).length} моделей
+              </span>
             </div>
           </div>
 
@@ -692,6 +780,8 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
             {BALL_CATALOG
               .filter((preset) => {
                 if (catalogBrand !== 'Все' && preset.brand !== catalogBrand) return false;
+                if (catalogEraFilter === 'modern' && preset.isArchived) return false;
+                if (catalogEraFilter === 'archived' && !preset.isArchived) return false;
                 if (catalogSearch.trim()) {
                   const q = catalogSearch.toLowerCase();
                   return (
@@ -728,11 +818,23 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
 
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-1">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block">
-                              {preset.brand}
-                            </span>
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block shrink-0">
+                                {preset.brand}
+                              </span>
+                              {preset.isBanned && (
+                                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-red-950/90 text-red-300 border border-red-500/50 truncate" title={preset.bannedReason}>
+                                  Запрещен USBC
+                                </span>
+                              )}
+                              {preset.isArchived && !preset.isBanned && (
+                                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 truncate">
+                                  Ретро {preset.releaseYear ? `’${String(preset.releaseYear).slice(-2)}` : ''}
+                                </span>
+                              )}
+                            </div>
                             {countInArsenal > 0 && (
-                              <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                              <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
                                 ✓ В арсенале {countInArsenal > 1 ? `(${countInArsenal})` : ''}
                               </span>
                             )}
@@ -827,8 +929,11 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
                     <div className="pt-3 border-t border-stone-800/80">
                       <button
                         type="button"
-                        onClick={() => handleOpenAddPresetModal(preset)}
-                        className="w-full py-2.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-amber-500/20 active:scale-95 transition-all"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleOpenAddPresetModal(preset);
+                        }}
+                        className="w-full py-2.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
                       >
                         <Plus className="w-4 h-4 stroke-[2.5]" />
                         <span>+ В арсенал</span>
@@ -868,8 +973,11 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
 
               <button
                 type="button"
-                onClick={() => setActivePresetToAdd(null)}
-                className="p-1 rounded-lg text-stone-400 hover:text-stone-200"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActivePresetToAdd(null);
+                }}
+                className="p-1 rounded-lg text-stone-400 hover:text-stone-200 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -886,8 +994,11 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
                     <button
                       key={w}
                       type="button"
-                      onClick={() => setPresetWeight(w)}
-                      className={`py-2 rounded-xl text-xs font-bold font-mono transition-all border ${
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPresetWeight(w);
+                      }}
+                      className={`py-2 rounded-xl text-xs font-bold font-mono transition-all border cursor-pointer ${
                         presetWeight === w
                           ? 'bg-amber-500 text-stone-950 border-amber-400 shadow-md shadow-amber-500/20'
                           : 'bg-stone-950 text-stone-300 border-stone-800 hover:border-stone-700'
@@ -989,15 +1100,21 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
               <div className="pt-2 flex items-center justify-end gap-2 border-t border-stone-800">
                 <button
                   type="button"
-                  onClick={() => setActivePresetToAdd(null)}
-                  className="px-4 py-2 rounded-xl bg-stone-800 text-stone-300 font-semibold"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActivePresetToAdd(null);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-stone-800 text-stone-300 font-semibold cursor-pointer"
                 >
                   Отмена
                 </button>
                 <button
                   type="button"
-                  onClick={handleAddPresetConfirm}
-                  className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold shadow-md shadow-amber-500/20"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleAddPresetConfirm();
+                  }}
+                  className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold shadow-md shadow-amber-500/20 cursor-pointer"
                 >
                   Добавить в сумку
                 </button>
@@ -1029,8 +1146,11 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
 
               <button
                 type="button"
-                onClick={() => setIsBallModalOpen(false)}
-                className="p-1.5 text-stone-400 hover:text-stone-100 hover:bg-stone-800 rounded-lg transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsBallModalOpen(false);
+                }}
+                className="p-1.5 text-stone-400 hover:text-stone-100 hover:bg-stone-800 rounded-lg transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1149,8 +1269,11 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
                       <button
                         key={w}
                         type="button"
-                        onClick={() => setBallForm({ ...ballForm, weightLbs: w })}
-                        className={`py-2 rounded-xl text-xs font-bold font-mono transition-all border ${
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setBallForm({ ...ballForm, weightLbs: w });
+                        }}
+                        className={`py-2 rounded-xl text-xs font-bold font-mono transition-all border cursor-pointer ${
                           ballForm.weightLbs === w
                             ? 'bg-amber-500 text-stone-950 border-amber-400 shadow-md shadow-amber-500/20'
                             : 'bg-stone-900 text-stone-300 border-stone-800 hover:border-stone-700'
@@ -1179,8 +1302,11 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
                       <button
                         key={type}
                         type="button"
-                        onClick={() => setBallForm({ ...ballForm, coverstock: type })}
-                        className={`py-1.5 px-2 rounded-xl text-xs font-semibold transition-all border text-center ${
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setBallForm({ ...ballForm, coverstock: type });
+                        }}
+                        className={`py-1.5 px-2 rounded-xl text-xs font-semibold transition-all border text-center cursor-pointer ${
                           ballForm.coverstock === type
                             ? 'bg-amber-500 text-stone-950 border-amber-400 font-bold shadow-sm'
                             : 'bg-stone-900 text-stone-300 border-stone-800 hover:border-stone-700'
@@ -1228,8 +1354,11 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
                       <button
                         key={f}
                         type="button"
-                        onClick={() => setBallForm({ ...ballForm, finish: f })}
-                        className={`px-2 py-0.5 rounded-md text-[10px] border transition-colors ${
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setBallForm({ ...ballForm, finish: f });
+                        }}
+                        className={`px-2 py-0.5 rounded-md text-[10px] border transition-colors cursor-pointer ${
                           ballForm.finish === f
                             ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 font-semibold'
                             : 'bg-stone-900 text-stone-400 border-stone-800 hover:text-stone-200'
@@ -1270,8 +1399,11 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
-                        onClick={() => setBallForm({ ...ballForm, coreType: 'Symmetrical' })}
-                        className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-all border flex items-center justify-center gap-1.5 ${
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setBallForm({ ...ballForm, coreType: 'Symmetrical' });
+                        }}
+                        className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-all border flex items-center justify-center gap-1.5 cursor-pointer ${
                           ballForm.coreType === 'Symmetrical'
                             ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-sm'
                             : 'bg-stone-900 text-stone-400 border-stone-800 hover:text-stone-200'
@@ -1282,8 +1414,11 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
 
                       <button
                         type="button"
-                        onClick={() => setBallForm({ ...ballForm, coreType: 'Asymmetrical' })}
-                        className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-all border flex items-center justify-center gap-1.5 ${
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setBallForm({ ...ballForm, coreType: 'Asymmetrical' });
+                        }}
+                        className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-all border flex items-center justify-center gap-1.5 cursor-pointer ${
                           ballForm.coreType === 'Asymmetrical'
                             ? 'bg-purple-500/20 text-purple-300 border-purple-500/40 shadow-sm'
                             : 'bg-stone-900 text-stone-400 border-stone-800 hover:text-stone-200'
@@ -1425,15 +1560,16 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
                       <button
                         key={p.name}
                         type="button"
-                        onClick={() =>
+                        onClick={(e) => {
+                          e.preventDefault();
                           setBallForm({
                             ...ballForm,
                             primaryColor: p.p,
                             secondaryColor: p.s,
                             accentColor: p.a,
-                          })
-                        }
-                        className="p-1.5 rounded-xl bg-stone-900 border border-stone-800 hover:border-amber-500/40 text-left transition-all flex items-center gap-2 group"
+                          });
+                        }}
+                        className="p-1.5 rounded-xl bg-stone-900 border border-stone-800 hover:border-amber-500/40 text-left transition-all flex items-center gap-2 group cursor-pointer"
                       >
                         <div className="flex -space-x-1.5 shrink-0">
                           <span
@@ -1621,14 +1757,17 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-800">
                 <button
                   type="button"
-                  onClick={() => setIsBallModalOpen(false)}
-                  className="px-4 py-2.5 text-xs font-semibold text-stone-400 hover:text-stone-200 rounded-xl"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsBallModalOpen(false);
+                  }}
+                  className="px-4 py-2.5 text-xs font-semibold text-stone-400 hover:text-stone-200 rounded-xl cursor-pointer"
                 >
                   Отмена
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 text-xs font-bold rounded-xl bg-amber-500 text-stone-950 hover:bg-amber-400 transition-all shadow-md shadow-amber-500/20 active:scale-95"
+                  className="px-6 py-2.5 text-xs font-bold rounded-xl bg-amber-500 text-stone-950 hover:bg-amber-400 transition-all shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer"
                 >
                   {editingBall ? 'Сохранить изменения' : 'Добавить шар в арсенал'}
                 </button>

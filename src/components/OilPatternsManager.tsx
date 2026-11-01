@@ -86,8 +86,11 @@ export const OilPatternsManager: React.FC<OilPatternsManagerProps> = ({
 
         <button
           type="button"
-          onClick={handleOpenAdd}
-          className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-amber-500/20 active:scale-95 transition-all self-start sm:self-auto"
+          onClick={(e) => {
+            e.preventDefault();
+            handleOpenAdd();
+          }}
+          className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-amber-500/20 active:scale-95 transition-all self-start sm:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Добавить программу масла</span>
@@ -139,16 +142,22 @@ export const OilPatternsManager: React.FC<OilPatternsManagerProps> = ({
                   <div className="flex items-center gap-1 shrink-0">
                     <button
                       type="button"
-                      onClick={() => handleOpenEdit(p)}
-                      className="p-1.5 rounded-lg text-stone-400 hover:text-stone-200 hover:bg-stone-800 transition-colors"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleOpenEdit(p);
+                      }}
+                      className="p-1.5 rounded-lg text-stone-400 hover:text-stone-200 hover:bg-stone-800 transition-colors cursor-pointer"
                       title="Редактировать"
                     >
                       <Edit3 className="w-4 h-4" />
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleDeletePattern(p.id, p.name)}
-                      className="p-1.5 rounded-lg text-stone-500 hover:text-red-400 hover:bg-stone-800 transition-colors"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleDeletePattern(p.id, p.name);
+                      }}
+                      className="p-1.5 rounded-lg text-stone-500 hover:text-red-400 hover:bg-stone-800 transition-colors cursor-pointer"
                       title="Удалить"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -179,7 +188,10 @@ export const OilPatternsManager: React.FC<OilPatternsManagerProps> = ({
                 {/* Screenshot / Diagram Preview */}
                 {hasImage ? (
                   <div
-                    onClick={() => setViewingDiagramPattern(p)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setViewingDiagramPattern(p);
+                    }}
                     className="relative group rounded-xl overflow-hidden border border-stone-800 bg-black cursor-pointer max-h-36 flex items-center justify-center transition-all hover:border-cyan-500/60"
                   >
                     <img
@@ -195,8 +207,11 @@ export const OilPatternsManager: React.FC<OilPatternsManagerProps> = ({
                 ) : (
                   <button
                     type="button"
-                    onClick={() => handleOpenEdit(p)}
-                    className="w-full p-2.5 rounded-xl border border-dashed border-stone-800 hover:border-amber-500/40 text-stone-400 hover:text-amber-300 text-xs flex items-center justify-center gap-1.5 transition-colors bg-stone-950/40"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleOpenEdit(p);
+                    }}
+                    className="w-full p-2.5 rounded-xl border border-dashed border-stone-800 hover:border-amber-500/40 text-stone-400 hover:text-amber-300 text-xs flex items-center justify-center gap-1.5 transition-colors bg-stone-950/40 cursor-pointer"
                   >
                     <ImageIcon className="w-3.5 h-3.5 text-stone-500" />
                     <span>+ Прикрепить скриншот диаграммы</span>
@@ -251,6 +266,8 @@ export const OilPatternsManager: React.FC<OilPatternsManagerProps> = ({
         pattern={viewingDiagramPattern}
         isOpen={!!viewingDiagramPattern}
         onClose={() => setViewingDiagramPattern(null)}
+        allPatterns={patterns}
+        onSelectPattern={(nextPattern) => setViewingDiagramPattern(nextPattern)}
       />
     </div>
   );

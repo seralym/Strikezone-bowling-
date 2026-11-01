@@ -38,6 +38,7 @@ console.log('Packaging StrikeZone source files into ZIP...');
 // Add root files
 const rootFiles = [
   'package.json',
+  'package-lock.json',
   'vite.config.ts',
   'tsconfig.json',
   'index.html',

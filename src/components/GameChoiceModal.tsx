@@ -66,8 +66,11 @@ export const GameChoiceModal: React.FC<GameChoiceModalProps> = ({
 
           <button
             type="button"
-            onClick={onClose}
-            className="p-1.5 rounded-xl text-stone-400 hover:text-stone-100 hover:bg-stone-800 transition-colors shrink-0"
+            onClick={(e) => {
+              e.preventDefault();
+              onClose();
+            }}
+            className="p-1.5 rounded-xl text-stone-400 hover:text-stone-100 hover:bg-stone-800 transition-colors shrink-0 cursor-pointer"
             aria-label="Закрыть"
           >
             <X className="w-5 h-5" />
@@ -79,11 +82,12 @@ export const GameChoiceModal: React.FC<GameChoiceModalProps> = ({
           {/* Option 1: Начать практику */}
           <button
             type="button"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
               onClose();
               onStartPractice();
             }}
-            className="w-full p-4 rounded-2xl bg-stone-950/80 hover:bg-amber-500/10 border border-stone-800 hover:border-amber-500/50 transition-all text-left group flex items-center justify-between gap-4 shadow-sm hover:shadow-md hover:shadow-amber-500/5"
+            className="w-full p-4 rounded-2xl bg-stone-950/80 hover:bg-amber-500/10 border border-stone-800 hover:border-amber-500/50 transition-all text-left group flex items-center justify-between gap-4 shadow-sm hover:shadow-md hover:shadow-amber-500/5 cursor-pointer"
           >
             <div className="flex items-center gap-3.5 min-w-0">
               <div className="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold shrink-0 group-hover:scale-105 transition-transform">
@@ -110,11 +114,12 @@ export const GameChoiceModal: React.FC<GameChoiceModalProps> = ({
           {/* Option 2: Новая игра */}
           <button
             type="button"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
               onClose();
               onStartNewGame();
             }}
-            className="w-full p-4 rounded-2xl bg-stone-950/80 hover:bg-emerald-500/10 border border-stone-800 hover:border-emerald-500/50 transition-all text-left group flex items-center justify-between gap-4 shadow-sm hover:shadow-md hover:shadow-emerald-500/5"
+            className="w-full p-4 rounded-2xl bg-stone-950/80 hover:bg-emerald-500/10 border border-stone-800 hover:border-emerald-500/50 transition-all text-left group flex items-center justify-between gap-4 shadow-sm hover:shadow-md hover:shadow-emerald-500/5 cursor-pointer"
           >
             <div className="flex items-center gap-3.5 min-w-0">
               <div className="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold shrink-0 group-hover:scale-105 transition-transform">
@@ -141,11 +146,12 @@ export const GameChoiceModal: React.FC<GameChoiceModalProps> = ({
           {/* Option 3: Новый турнир */}
           <button
             type="button"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
               onClose();
               onOpenNewTournament();
             }}
-            className="w-full p-4 rounded-2xl bg-stone-950/80 hover:bg-purple-500/10 border border-stone-800 hover:border-purple-500/50 transition-all text-left group flex items-center justify-between gap-4 shadow-sm hover:shadow-md hover:shadow-purple-500/5"
+            className="w-full p-4 rounded-2xl bg-stone-950/80 hover:bg-purple-500/10 border border-stone-800 hover:border-purple-500/50 transition-all text-left group flex items-center justify-between gap-4 shadow-sm hover:shadow-md hover:shadow-purple-500/5 cursor-pointer"
           >
             <div className="flex items-center gap-3.5 min-w-0">
               <div className="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold shrink-0 group-hover:scale-105 transition-transform">
@@ -174,8 +180,11 @@ export const GameChoiceModal: React.FC<GameChoiceModalProps> = ({
         <div className="pt-2 flex justify-end">
           <button
             type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-xl text-stone-400 hover:text-stone-200 text-xs font-semibold hover:bg-stone-800/60 transition-colors"
+            onClick={(e) => {
+              e.preventDefault();
+              onClose();
+            }}
+            className="px-4 py-2 rounded-xl text-stone-400 hover:text-stone-200 text-xs font-semibold hover:bg-stone-800/60 transition-colors cursor-pointer"
           >
             Закрыть
           </button>

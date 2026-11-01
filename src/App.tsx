@@ -12,6 +12,8 @@ import {
   UserPersonalConfig,
   TournamentConfig,
   AppSettings,
+  Roll,
+  Frame,
 } from './types/bowling';
 import {
   createEmptyPlayerGame,
@@ -20,6 +22,7 @@ import {
   recordRoll,
   undoLastRoll,
   checkIsSplit,
+  calculateGameScores,
   ALL_PINS,
 } from './utils/bowlingEngine';
 import {
@@ -72,6 +75,7 @@ import { GameChoiceModal } from './components/GameChoiceModal';
 import { ScoreBoard } from './components/ScoreBoard';
 import { PinDeck } from './components/PinDeck';
 import { Controls } from './components/Controls';
+import { FrameEditModal } from './components/FrameEditModal';
 
 import {
   Menu,
@@ -258,13 +262,14 @@ export default function App() {
     if (activeView === 'notes') return 'Заметки боулера';
     if (activeView === 'profile') return t.playerProfile;
     if (activeView === 'game') {
-      const tourney = activeTournament?.tournamentName?.trim() || activeMatch.tournamentName?.trim();
-      if (tourney) return tourney;
-      if (activeMatch.title && activeMatch.title !== 'Тренировочный матч') return activeMatch.title;
-      return 'Партия на дорожке';
+      return 'Новая игра';
     }
     return 'Главная';
   };
+
+  // State for editing any played frame's score
+  const [editingFrameIndex, setEditingFrameIndex] = useState<number | null>(null);
+  const [isFrameEditModalOpen, setIsFrameEditModalOpen] = useState(false);
 
   // Safe reference to the user's personal game
   const activePlayer: PlayerGame = activeMatch.players[0] || createEmptyPlayerGame(userConfig.name);
@@ -541,18 +546,44 @@ export default function App() {
     showToast(`🏆 ${config.tournamentName}`);
   };
 
-  // Start fresh game within current tournament
+  // Start fresh game with automated lane transition based on selected rule
   const handleStartNewGame = () => {
+    let nextLane = activeMatch.laneNumber || activeTournament?.laneNumber;
+
+    if (activeTournament && nextLane) {
+      const rule = activeTournament.laneTransitionRule || 'pairs';
+      if (rule === 'pairs') {
+        // Alternating within a pair: 1 ⇄ 2, 3 ⇄ 4, 5 ⇄ 6, etc.
+        nextLane = nextLane % 2 === 1 ? nextLane + 1 : nextLane - 1;
+      } else if (rule === 'shift_plus_2') {
+        nextLane = nextLane + 2;
+      } else if (rule === 'shift_minus_2') {
+        nextLane = Math.max(1, nextLane - 2);
+      } else if (rule === 'shift_plus_1') {
+        nextLane = nextLane + 1;
+      } else if (rule === 'shift_plus_4') {
+        nextLane = nextLane + 4;
+      }
+
+      const updatedTourney: TournamentConfig = {
+        ...activeTournament,
+        laneNumber: nextLane,
+        currentGameNumber: (activeTournament.currentGameNumber || 1) + 1,
+      };
+      setActiveTournament(updatedTourney);
+      saveActiveTournament(updatedTourney);
+    }
+
     const newPlayer = createEmptyPlayerGame(userConfig.name);
     const newMatch: MatchRecord = {
       id: 'match_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9),
       date: new Date().toISOString(),
-      title: activeTournament?.tournamentName || activeMatch.title || 'Новая партия',
+      title: activeTournament?.tournamentName || activeMatch.tournamentName || (activeMatch.title && activeMatch.title !== 'Тренировочный матч' ? activeMatch.title : 'Новая игра'),
       tournamentId: activeTournament?.tournamentId || activeMatch.tournamentId,
       tournamentName: activeTournament?.tournamentName || activeMatch.tournamentName,
       tournamentStartDate: activeTournament?.startDate || activeMatch.tournamentStartDate,
       tournamentEndDate: activeTournament?.endDate || activeMatch.tournamentEndDate,
-      laneNumber: activeTournament?.laneNumber || activeMatch.laneNumber,
+      laneNumber: nextLane,
       centerId: activeTournament?.centerId || activeMatch.centerId,
       centerName: activeTournament?.centerName || activeMatch.centerName,
       oilPatternId: activeTournament?.oilPatternId || activeMatch.oilPatternId,
@@ -564,7 +595,84 @@ export default function App() {
     setActiveMatch(newMatch);
     setSelectedPinsToKnock([]);
     setActiveView('game');
-    showToast(t.startNewGame);
+
+    if (nextLane && nextLane !== activeMatch.laneNumber) {
+      showToast(`Партия начата · Переход на дорожку №${nextLane}`);
+    } else {
+      showToast('Следующая партия начата');
+    }
+  };
+
+  // Finish current game / match early or on demand
+  const handleFinishCurrentGame = () => {
+    // If rolls have been made, finalize game scores, mark finished and allow saving or moving to next game
+    if (activePlayer.frames.some((f) => f.rolls.length > 0)) {
+      const updatedPlayer: PlayerGame = {
+        ...activePlayer,
+        isFinished: true,
+      };
+      const updatedMatch: MatchRecord = {
+        ...activeMatch,
+        players: [updatedPlayer],
+      };
+      setActiveMatch(updatedMatch);
+      saveActiveMatch(updatedMatch);
+      setSelectedPinsToKnock([]);
+      showToast('Партия завершена');
+    } else {
+      setActiveView('home');
+      showToast('Игра завершена');
+    }
+  };
+
+  // Finish active tournament
+  const handleFinishTournament = () => {
+    // If the active match has rolls made, save it to history
+    if (activePlayer.frames.some((f) => f.rolls.length > 0)) {
+      const updated = addMatchToHistory(activeMatch);
+      setMatches(updated);
+    }
+
+    if (activeTournament?.tournamentId) {
+      const tourneys = loadSavedTournaments();
+      const updated = tourneys.map((t) =>
+        t.id === activeTournament.tournamentId ? { ...t, status: 'completed' as const } : t
+      );
+      setSavedTournaments(updated);
+      saveSavedTournaments(updated);
+    }
+
+    setActiveTournament(null);
+    saveActiveTournament(null);
+    showToast('🏆 Турнир успешно завершён!');
+    setActiveView('tournaments');
+  };
+
+  // Handle editing any frame in the current match
+  const handleSaveEditedFrame = (frameIndex: number, newRolls: Roll[]) => {
+    const currentFrames = [...activePlayer.frames];
+    const targetFrame = currentFrames[frameIndex];
+    if (!targetFrame) return;
+
+    currentFrames[frameIndex] = {
+      ...targetFrame,
+      rolls: newRolls,
+    };
+
+    const recalculatedPlayer = calculateGameScores({
+      ...activePlayer,
+      frames: currentFrames,
+    });
+
+    const updatedMatch: MatchRecord = {
+      ...activeMatch,
+      players: [recalculatedPlayer],
+    };
+
+    setActiveMatch(updatedMatch);
+    saveActiveMatch(updatedMatch);
+    setSelectedPinsToKnock([]);
+    showToast(`Фрейм ${frameIndex + 1} обновлён. Счёт: ${recalculatedPlayer.totalScore}`);
   };
 
   // Save current match to permanent history
@@ -584,7 +692,7 @@ export default function App() {
     a.download = `strikezone_data_${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('Данные экспортированы');
+    showToast('Данные успешно экспортированы в JSON');
   };
 
   const handleImportMatches = (jsonStr: string) => {
@@ -601,17 +709,25 @@ export default function App() {
 
   const handleResetDemo = () => {
     localStorage.removeItem('strikezone_matches_v1');
+    localStorage.removeItem('strikezone_saved_tournaments_v1');
+    localStorage.removeItem('strikezone_practice_drills_v1');
     setMatches(loadSavedMatches());
-    showToast('Загружены демонстрационные матчи');
+    setSavedTournaments(loadSavedTournaments());
+    setPracticeDrills(loadPracticeDrills());
+    showToast('История очищена (чистая база)');
   };
 
   // Visual Theme class wrapper
   const themeClass = useMemo(() => {
     switch (settings.theme) {
+      case 'light':
+        return 'theme-light bg-slate-100 text-slate-900';
+      case 'high-contrast-dark':
+        return 'theme-high-contrast-dark bg-black text-white';
+      case 'high-contrast-light':
+        return 'theme-high-contrast-light bg-white text-black';
       case 'obsidian':
         return 'theme-obsidian bg-black text-cyan-50';
-      case 'retro':
-        return 'theme-retro bg-stone-950 text-amber-50';
       case 'slate':
         return 'theme-slate bg-slate-950 text-slate-100';
       case 'dark':
@@ -661,8 +777,11 @@ export default function App() {
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <button
               type="button"
-              onClick={() => setIsDrawerOpen(true)}
-              className="p-1.5 sm:p-2 -ml-1 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-stone-100 border border-stone-800 transition-colors flex items-center justify-center shrink-0 active:scale-95"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsDrawerOpen(true);
+              }}
+              className="p-1.5 sm:p-2 -ml-1 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-stone-100 border border-stone-800 transition-colors flex items-center justify-center shrink-0 active:scale-95 cursor-pointer"
               aria-label="Открыть меню"
               title={t.menuTitle}
             >
@@ -679,8 +798,11 @@ export default function App() {
             {activeView !== 'home' && (
               <button
                 type="button"
-                onClick={toggleSettings}
-                className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 active:scale-95 ${
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggleSettings();
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer ${
                   activeView === 'settings'
                     ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20 font-bold'
                     : 'bg-stone-900 hover:bg-stone-800 text-stone-200 hover:text-white border border-stone-800'
@@ -761,8 +883,11 @@ export default function App() {
             <div className="flex items-center justify-between pb-3 border-b border-stone-800">
               <button
                 type="button"
-                onClick={() => setActiveView('home')}
-                className="p-2 rounded-xl bg-stone-900 border border-stone-800 hover:border-amber-500/40 text-stone-300 hover:text-white transition-all flex items-center gap-1.5 text-xs font-semibold"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveView('home');
+                }}
+                className="p-2 rounded-xl bg-stone-900 border border-stone-800 hover:border-amber-500/40 text-stone-300 hover:text-white transition-all flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4 text-amber-400" />
                 <span>Главная</span>
@@ -783,8 +908,11 @@ export default function App() {
             <div className="flex items-center justify-between pb-3 border-b border-stone-800">
               <button
                 type="button"
-                onClick={() => setActiveView('home')}
-                className="p-2 rounded-xl bg-stone-900 border border-stone-800 hover:border-emerald-500/40 text-stone-300 hover:text-white transition-all flex items-center gap-1.5 text-xs font-semibold"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveView('home');
+                }}
+                className="p-2 rounded-xl bg-stone-900 border border-stone-800 hover:border-emerald-500/40 text-stone-300 hover:text-white transition-all flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4 text-emerald-400" />
                 <span>Главная</span>
@@ -806,8 +934,11 @@ export default function App() {
             <div className="flex items-center justify-between pb-3 border-b border-stone-800">
               <button
                 type="button"
-                onClick={() => setActiveView('home')}
-                className="p-2 rounded-xl bg-stone-900 border border-stone-800 hover:border-cyan-500/40 text-stone-300 hover:text-white transition-all flex items-center gap-1.5 text-xs font-semibold"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveView('home');
+                }}
+                className="p-2 rounded-xl bg-stone-900 border border-stone-800 hover:border-cyan-500/40 text-stone-300 hover:text-white transition-all flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4 text-cyan-400" />
                 <span>Главная</span>
@@ -826,56 +957,15 @@ export default function App() {
         {/* ========================================================================= */}
         {activeView === 'game' && (
           <div className="space-y-3 sm:space-y-4">
-            {/* Clean Game Header: Tournament title, Greeting or Training */}
-            <div className="rounded-xl bg-stone-900/70 border border-stone-800 px-3.5 py-2.5 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 min-w-0">
-                {activeTournament?.tournamentName ? (
-                  <div className="flex items-center gap-2 truncate">
-                    <span className="text-base shrink-0">🏆</span>
-                    <span className="font-bold text-stone-100 text-sm sm:text-base truncate font-display">
-                      {activeTournament.tournamentName}
-                    </span>
-                  </div>
-                ) : activeMatch.tournamentName || (activeMatch.title && activeMatch.title !== 'Тренировочный матч') ? (
-                  <div className="flex items-center gap-2 truncate">
-                    <span className="text-base shrink-0">🏆</span>
-                    <span className="font-bold text-stone-100 text-sm sm:text-base truncate font-display">
-                      {activeMatch.tournamentName || activeMatch.title}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 truncate">
-                    <span className="text-base shrink-0">👋</span>
-                    <div className="flex items-center gap-1.5 truncate">
-                      <span className="text-stone-300 text-xs sm:text-sm font-medium">
-                        Привет, <strong className="text-amber-400 font-semibold">{userConfig.name || 'Игрок'}</strong>!
-                      </span>
-                      <span className="text-stone-500">·</span>
-                      <span className="text-amber-300/90 text-xs sm:text-sm font-semibold flex items-center gap-1">
-                        🎳 Тренировка
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Match save action */}
-              <button
-                type="button"
-                onClick={handleSaveMatchToHistory}
-                className="shrink-0 px-2.5 py-1 text-xs font-semibold rounded-lg bg-stone-800 hover:bg-stone-700 text-amber-400 border border-stone-700/60 transition-colors flex items-center gap-1.5 active:scale-95"
-                title="Сохранить текущую игру в историю матчей"
-              >
-                <Save className="w-3.5 h-3.5" />
-                <span className="hidden xs:inline">{t.saveGameToHistoryBtn}</span>
-              </button>
-            </div>
-
-            {/* Compact 10-Frame Score Strip */}
+            {/* Compact 10-Frame Score Strip with clickable frame editing */}
             <ScoreBoard
               players={[activePlayer]}
               activePlayerIndex={0}
               compact={true}
+              onEditFrame={(_pIdx, fIdx) => {
+                setEditingFrameIndex(fIdx);
+                setIsFrameEditModalOpen(true);
+              }}
               matchInfo={{
                 centerName: activeMatch.centerName,
                 oilPatternName: activeMatch.oilPatternName,
@@ -884,10 +974,75 @@ export default function App() {
               }}
             />
 
+            {/* Top Bar during play: Match/Tournament info and "Завершить" button */}
+            {!isMatchFinished && (
+              <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 rounded-xl bg-stone-900/60 border border-stone-800">
+                <div className="flex items-center gap-2 text-xs text-stone-300 min-w-0">
+                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="font-bold text-stone-200">
+                    Новая игра
+                  </span>
+                  {activeTournament ? (
+                    <>
+                      <span className="text-stone-500">·</span>
+                      <span className="text-amber-400 font-semibold truncate max-w-[150px] sm:max-w-none">
+                        {activeTournament.tournamentName || 'Турнир'}
+                      </span>
+                      <span className="text-stone-500">·</span>
+                      <span className="text-stone-400 shrink-0">
+                        Партия {activeTournament.currentGameNumber || 1}
+                      </span>
+                      <span className="text-stone-500">·</span>
+                      <span className="text-stone-400 shrink-0">
+                        Дорожка {activeMatch.laneNumber || activeTournament.laneNumber || 1}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-stone-500">·</span>
+                      <span className="text-stone-400">
+                        Дорожка {activeMatch.laneNumber || 1}
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {activeTournament && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleFinishTournament();
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-stone-900 border border-stone-800 hover:border-amber-500/50 text-stone-300 hover:text-amber-300 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                      title="Завершить турнир целиком"
+                    >
+                      <Trophy className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Завершить турнир</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleFinishCurrentGame();
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-stone-900 border border-stone-800 hover:border-red-500/50 text-stone-300 hover:text-red-300 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    title={activeTournament ? "Завершить текущую партию" : "Завершить текущую игру"}
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Завершить</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* THE TWO REQUESTED PANELS: */}
             {!isMatchFinished ? (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-5 items-start">
-                {/* 1. ПАНЕЛЬ С КЕГЛЯМИ (Interactive Pin Deck) */}
+                {/* 1. ПАНЕЛЬ С КЕГЛЯМИ (Interactive Pin Deck with Confirm Roll button in deck footer) */}
                 <div className="lg:col-span-6 xl:col-span-7">
                   <PinDeck
                     standingBefore={standingPins}
@@ -895,6 +1050,7 @@ export default function App() {
                     onTogglePin={handleTogglePin}
                     onKnockAll={handleKnockAll}
                     onKnockNone={handleKnockNone}
+                    onConfirmRoll={handleConfirmSelection}
                     isSplit={currentSplitCheck.isSplit}
                     splitName={currentSplitCheck.name}
                   />
@@ -938,13 +1094,14 @@ export default function App() {
                     isGameFinished={isMatchFinished}
                     onFinishAndSave={handleSaveMatchToHistory}
                     onNewGame={handleStartNewGame}
+                    onFinishGame={handleFinishCurrentGame}
                     isFirstRollOfFrame={isFirstRollOfFrame}
                     language={settings.language}
                   />
                 </div>
               </div>
             ) : (
-              /* When match is completed: Clean summary */
+              /* When match is completed: Clean summary with the 3 requested buttons */
               <div className="rounded-2xl bg-gradient-to-b from-stone-900 to-stone-950 border border-stone-800 p-6 sm:p-8 text-center space-y-5">
                 <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40">
                   <Trophy className="w-7 h-7" />
@@ -977,23 +1134,58 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                {/* The 3 requested post-game buttons */}
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
                   <button
                     type="button"
-                    onClick={handleSaveMatchToHistory}
-                    className="px-5 py-2.5 rounded-xl bg-amber-500 text-stone-950 font-bold hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20 active:scale-95 text-sm flex items-center gap-2"
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>{t.saveGameToHistoryBtn}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleStartNewGame}
-                    className="px-5 py-2.5 rounded-xl bg-stone-800 text-stone-200 font-semibold hover:bg-stone-700 transition-colors active:scale-95 text-sm flex items-center gap-2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleStartNewGame();
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-amber-500 text-stone-950 font-bold hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20 active:scale-95 text-sm flex items-center gap-2 cursor-pointer"
                   >
                     <RotateCcw className="w-4 h-4" />
-                    <span>{t.nextGameBtn}</span>
+                    <span>Следующая партия</span>
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleSaveMatchToHistory();
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-stone-800 text-stone-200 font-semibold hover:bg-stone-700 transition-all active:scale-95 text-sm flex items-center gap-2 cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>Сохранить в историю</span>
+                  </button>
+
+                  {activeTournament ? (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleFinishTournament();
+                      }}
+                      className="px-5 py-2.5 rounded-xl bg-red-950/40 text-red-300 border border-red-800/60 font-semibold hover:bg-red-900/60 hover:text-red-100 transition-all active:scale-95 text-sm flex items-center gap-2 cursor-pointer"
+                    >
+                      <Trophy className="w-4 h-4 text-amber-400" />
+                      <span>Завершить турнир</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setActiveView('home');
+                        showToast('Игра завершена');
+                      }}
+                      className="px-5 py-2.5 rounded-xl bg-stone-800 text-stone-200 font-semibold hover:bg-stone-700 transition-all active:scale-95 text-sm flex items-center gap-2 cursor-pointer"
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <span>Завершить</span>
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -1011,6 +1203,7 @@ export default function App() {
             savedTournaments={savedTournaments}
             language={settings.language}
             onNotification={showToast}
+            onExportData={handleExportMatches}
           />
         )}
 
@@ -1067,6 +1260,21 @@ export default function App() {
           }
         }
       />
+
+      {/* Frame Edit Modal for editing any frame's score */}
+      {editingFrameIndex !== null && (
+        <FrameEditModal
+          isOpen={isFrameEditModalOpen}
+          onClose={() => {
+            setIsFrameEditModalOpen(false);
+            setEditingFrameIndex(null);
+          }}
+          frame={activePlayer.frames[editingFrameIndex] || null}
+          frameIndex={editingFrameIndex}
+          playerName={activePlayer.playerName}
+          onSaveFrame={handleSaveEditedFrame}
+        />
+      )}
 
       {/* Game Choice Modal (Shown when no active games exist) */}
       <GameChoiceModal

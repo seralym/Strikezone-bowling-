@@ -97,8 +97,11 @@ export const OilPatternModal: React.FC<OilPatternModalProps> = ({
   // Process & compress uploaded image file to Data URL
   const processImageFile = (file: File, fallbackName?: string) => {
     setErrorMsg(null);
-    if (!file.type.startsWith('image/')) {
-      setErrorMsg('Пожалуйста, выберите файл изображения (PNG, JPG, WebP)');
+    const isImage =
+      file.type.startsWith('image/') ||
+      /\.(jpe?g|png|webp|heic|bmp|gif|svg)$/i.test(file.name);
+    if (!isImage) {
+      setErrorMsg('Пожалуйста, выберите файл изображения (PNG, JPG, WebP, HEIC)');
       return;
     }
 
@@ -179,19 +182,24 @@ export const OilPatternModal: React.FC<OilPatternModalProps> = ({
     setImageName(undefined);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) {
-      setErrorMsg('Укажите название программы масла');
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      setErrorMsg('Пожалуйста, укажите название программы масла');
       return;
     }
 
+    const len = Number(lengthFt);
+    const validLength = !isNaN(len) && len > 0 ? len : 41;
+    const vol = typeof volumeMl === 'number' && volumeMl > 0 ? volumeMl : undefined;
+
     const newPattern: OilPattern = {
       id: initialPattern?.id || `pattern_${Date.now()}`,
-      name: name.trim(),
+      name: trimmedName,
       category,
-      lengthFt: Number(lengthFt) || 41,
-      volumeMl: typeof volumeMl === 'number' && volumeMl > 0 ? volumeMl : undefined,
+      lengthFt: validLength,
+      volumeMl: vol,
       ratio: ratio.trim() || undefined,
       competitionName: competitionName.trim() || undefined,
       notes: notes.trim() || undefined,
@@ -246,9 +254,11 @@ export const OilPatternModal: React.FC<OilPatternModalProps> = ({
             </label>
             <input
               type="text"
-              required
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (errorMsg) setErrorMsg(null);
+              }}
               placeholder="Например: Kegel Main Street, House 41, PBA Shark"
               className="w-full px-3.5 py-2.5 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-sm focus:outline-none focus:border-amber-500"
             />
@@ -273,13 +283,10 @@ export const OilPatternModal: React.FC<OilPatternModalProps> = ({
 
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-stone-400 mb-1">
-                Длина (футы) *
+                Длина (футы)
               </label>
               <input
                 type="number"
-                required
-                min={25}
-                max={55}
                 value={lengthFt}
                 onChange={(e) => setLengthFt(Number(e.target.value))}
                 placeholder="41"
@@ -297,8 +304,6 @@ export const OilPatternModal: React.FC<OilPatternModalProps> = ({
               <input
                 type="number"
                 step="0.1"
-                min={10}
-                max={40}
                 value={volumeMl}
                 onChange={(e) => setVolumeMl(e.target.value === '' ? '' : Number(e.target.value))}
                 placeholder="24.5"
@@ -354,8 +359,11 @@ export const OilPatternModal: React.FC<OilPatternModalProps> = ({
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
-              onChange={handleFileInputChange}
+              accept="image/*,.png,.jpg,.jpeg,.webp,.heic"
+              onChange={(e) => {
+                handleFileInputChange(e);
+                e.target.value = '';
+              }}
               className="hidden"
             />
 
@@ -441,14 +449,21 @@ export const OilPatternModal: React.FC<OilPatternModalProps> = ({
           <div className="pt-3 border-t border-stone-800 flex items-center justify-end gap-2">
             <button
               type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-semibold text-xs"
+              onClick={(e) => {
+                e.preventDefault();
+                onClose();
+              }}
+              className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-semibold text-xs cursor-pointer"
             >
               Отмена
             </button>
             <button
-              type="submit"
-              className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs shadow-md shadow-amber-500/20 active:scale-95 transition-all flex items-center gap-1.5"
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                handleSubmit(e);
+              }}
+              className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs shadow-md shadow-amber-500/20 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Check className="w-4 h-4" />
               <span>{initialPattern ? 'Сохранить изменения' : 'Добавить программу масла'}</span>

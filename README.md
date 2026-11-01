@@ -52,14 +52,15 @@
 
 ### Вариант 1: Автоматический деплой через GitHub Actions (Рекомендуется)
 
-1. В вашем репозитории на GitHub создайте файл `.github/workflows/deploy.yml` со следующим содержимым:
+Файл `.github/workflows/deploy.yml` уже настроен в репозитории:
 
 ```yaml
 name: Deploy StrikeZone to GitHub Pages
 
 on:
   push:
-    branches: [main] # или master
+    branches: [main, master]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -77,25 +78,29 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --legacy-peer-deps
+          else
+            npm install --legacy-peer-deps
+          fi
 
-      - name: Build project
+      - name: Build production bundle
         run: npm run build
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      - name: Upload dist artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: './dist'
@@ -105,10 +110,11 @@ jobs:
         uses: actions/deploy-pages@v4
 ```
 
-2. В настройках вашего репозитория на GitHub:
+1. В настройках вашего репозитория на GitHub:
    - Перейдите в **Settings** → **Pages**.
-   - В блоке **Build and deployment** выберите Source: **GitHub Actions**.
-3. При каждом `git push` в ветку `main` приложение автоматически соберётся и опубликуется!
+   - В выпадающем списке **Build and deployment** выберите **Source: GitHub Actions**.
+2. При каждом коммите или пуше в ветку `main` или `master` (или по нажатию кнопки «Run workflow» во вкладке Actions) проект собирается и деплоится на GitHub Pages автоматически.
+3. В сборку включены `.nojekyll` и `404.html` SPA-редирект, а также `touch-action: pan-y` для комфортной вертикальной прокрутки страницы на сенсорных экранах.
 
 ---
 

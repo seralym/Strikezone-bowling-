@@ -134,6 +134,12 @@ export interface Translations {
   themeSectionDesc: string;
   themeDark: string;
   themeDarkDesc: string;
+  themeLight: string;
+  themeLightDesc: string;
+  themeHighContrastDark: string;
+  themeHighContrastDarkDesc: string;
+  themeHighContrastLight: string;
+  themeHighContrastLightDesc: string;
   themeObsidian: string;
   themeObsidianDesc: string;
   themeRetro: string;
@@ -254,7 +260,7 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
 
     tournamentModalTitle: 'Новый турнир',
     tournamentModalSubtitle: 'Настройка параметров соревнования для игрока',
-    tournamentNameInput: 'Название соревнования / турнира *',
+    tournamentNameInput: 'Название соревнований',
     tournamentDatesRange: 'Сроки проведения турнира (с какого по какое)',
     startDateInput: 'Дата начала',
     endDateInput: 'Дата окончания',
@@ -262,7 +268,7 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
     oilPatternSelect: 'Программа кондиционирования (Масло) *',
     ballSelect: 'Основной шар для игры',
     laneNumberInput: 'Дорожка №',
-    startTournamentBtn: 'Начать турнир',
+    startTournamentBtn: 'Сохранить',
     cancelBtn: 'Отмена',
     tournamentStartedToast: 'Турнир успешно начат!',
 
@@ -277,6 +283,12 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
     themeSectionDesc: 'Цветовая палитра интерфейса игрового экрана и панелей',
     themeDark: 'Тёмная классика (Amber)',
     themeDarkDesc: 'Тёплый янтарный акцент на глубоком тёмно-сером фоне боулинг-клуба',
+    themeLight: 'Светлая чистая (Daylight)',
+    themeLightDesc: 'Ясный светлый интерфейс для дневных игр и ярко освещённых центров',
+    themeHighContrastDark: 'Контрастная тёмная (OLED Gold)',
+    themeHighContrastDarkDesc: 'Абсолютно чёрный фон, максимальная читаемость и золотые акценты',
+    themeHighContrastLight: 'Контрастная светлая (High Contrast)',
+    themeHighContrastLightDesc: 'Белоснежный фон с чёткими чёрными границами для яркого солнца',
     themeObsidian: 'Обсидиан и Неон',
     themeObsidianDesc: 'Премиальный чёрный фон с неоново-бирюзовыми акцентами',
     themeRetro: 'Ретро Боулинг 80-х',
@@ -419,6 +431,12 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
     themeSectionDesc: 'Interface color palette for game deck and controls',
     themeDark: 'Dark Classic (Amber)',
     themeDarkDesc: 'Warm amber glow on deep bowling club charcoal',
+    themeLight: 'Daylight Clean (Light)',
+    themeLightDesc: 'Crisp bright interface for daytime games and well-lit bowling centers',
+    themeHighContrastDark: 'High Contrast Dark (OLED Gold)',
+    themeHighContrastDarkDesc: 'Pure black background with vivid neon gold high contrast',
+    themeHighContrastLight: 'High Contrast Light (Sharp)',
+    themeHighContrastLightDesc: 'Pure white background with solid black high contrast borders',
     themeObsidian: 'Obsidian & Neon',
     themeObsidianDesc: 'Ultra-deep black with cyan and neon accents',
     themeRetro: 'Retro Bowling 80s',
@@ -561,6 +579,12 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
     themeSectionDesc: 'Farbpalette für das Spieldeck und die Benutzeroberfläche',
     themeDark: 'Dunkel Klassisch (Amber)',
     themeDarkDesc: 'Warme Bernsteinfarben auf tiefem Bowling-Anthrazit',
+    themeLight: 'Helles Tageslicht (Light)',
+    themeLightDesc: 'Klares, helles Design für gut beleuchtete Bowlingcenter',
+    themeHighContrastDark: 'Hoher Kontrast Dunkel (OLED Gold)',
+    themeHighContrastDarkDesc: 'Tiefschwarz mit lebendigen hochkontrastierenden Akzenten',
+    themeHighContrastLight: 'Hoher Kontrast Hell (Scharf)',
+    themeHighContrastLightDesc: 'Reines Weiß mit klaren schwarzen Rändern für Sonnenlicht',
     themeObsidian: 'Obsidian & Neon',
     themeObsidianDesc: 'Tiefschwarz mit leuchtenden Cyan-Akzenten',
     themeRetro: 'Retro Bowling 80er',
@@ -703,6 +727,12 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
     themeSectionDesc: 'Palette de couleurs pour l’interface de jeu',
     themeDark: 'Sombre Classique (Ambre)',
     themeDarkDesc: 'Éclat ambré sur fond anthracite style club',
+    themeLight: 'Clair Épuré (Daylight)',
+    themeLightDesc: 'Interface claire pour centres de bowling lumineux',
+    themeHighContrastDark: 'Contraste Élevé Sombre (OLED Gold)',
+    themeHighContrastDarkDesc: 'Noir absolu avec éléments dorés ultra-lisibles',
+    themeHighContrastLight: 'Contraste Élevé Clair (Net)',
+    themeHighContrastLightDesc: 'Blanc pur avec contours noirs nets et contraste maximal',
     themeObsidian: 'Obsidienne & Néon',
     themeObsidianDesc: 'Noir profond avec accents cyan néon',
     themeRetro: 'Bowling Rétro Années 80',
@@ -845,6 +875,12 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
     themeSectionDesc: 'Paleta de colores para la mesa de bolos y controles',
     themeDark: 'Oscuro Clásico (Ámbar)',
     themeDarkDesc: 'Brillo ámbar cálido sobre carbón profundo de club',
+    themeLight: 'Luz Natural (Claro)',
+    themeLightDesc: 'Diseño brillante y limpio para boleras bien iluminadas',
+    themeHighContrastDark: 'Alto Contraste Oscuro (OLED Gold)',
+    themeHighContrastDarkDesc: 'Negro puro con acentos de oro brillante y alta visibilidad',
+    themeHighContrastLight: 'Alto Contraste Claro (Nítido)',
+    themeHighContrastLightDesc: 'Fondo blanco puro con bordes negros sólidos',
     themeObsidian: 'Obsidiana y Neón',
     themeObsidianDesc: 'Negro ultra profundo con acentos cian neón',
     themeRetro: 'Bolera Retro Años 80',
@@ -987,6 +1023,12 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
     themeSectionDesc: 'Paleta de cores para o painel de pinos e controles',
     themeDark: 'Escuro Clássico (Âmbar)',
     themeDarkDesc: 'Brilho âmbar acolhedor sobre cinza escuro de boliche',
+    themeLight: 'Luz Natural (Claro)',
+    themeLightDesc: 'Interface clara para pistas e centros bem iluminados',
+    themeHighContrastDark: 'Alto Contraste Escuro (OLED Gold)',
+    themeHighContrastDarkDesc: 'Preto puro com acentos dourados de alta legibilidade',
+    themeHighContrastLight: 'Alto Contraste Claro (Nítido)',
+    themeHighContrastLightDesc: 'Branco puro com bordas pretas de alto contraste',
     themeObsidian: 'Obsidiana e Neon',
     themeObsidianDesc: 'Preto ultra profundo com destaques ciano neon',
     themeRetro: 'Boliche Retrô Anos 80',

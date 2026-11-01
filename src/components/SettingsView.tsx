@@ -104,35 +104,19 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   }[] = [
     {
       id: 'dark',
-      name: t.themeDark,
-      desc: t.themeDarkDesc,
+      name: 'Тёмная Классическая',
+      desc: 'Глубокий мягкий угольный фон, контрастный янтарный акцент и максимальная читаемость текста.',
       primaryColor: '#f59e0b',
       accentColor: '#fbbf24',
       bgColor: '#0c0a09',
     },
     {
-      id: 'obsidian',
-      name: t.themeObsidian,
-      desc: t.themeObsidianDesc,
-      primaryColor: '#06b6d4',
-      accentColor: '#22d3ee',
-      bgColor: '#050505',
-    },
-    {
-      id: 'retro',
-      name: t.themeRetro,
-      desc: t.themeRetroDesc,
-      primaryColor: '#ef4444',
-      accentColor: '#f97316',
-      bgColor: '#171210',
-    },
-    {
-      id: 'slate',
-      name: t.themeSlate,
-      desc: t.themeSlateDesc,
-      primaryColor: '#eab308',
-      accentColor: '#ca8a04',
-      bgColor: '#0f172a',
+      id: 'light',
+      name: 'Светлая Чистая',
+      desc: 'Чистый светлый фон без бликов, высокая контрастность и четкий тёмный шрифт для отличной видимости.',
+      primaryColor: '#d97706',
+      accentColor: '#b45309',
+      bgColor: '#f5f5f4',
     },
   ];
 
@@ -374,7 +358,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <span>{t.importDataBtn}</span>
             <input
               type="file"
-              accept=".json"
+              accept=".json,application/json,text/plain,*/*"
               onChange={handleFileInput}
               className="hidden"
             />

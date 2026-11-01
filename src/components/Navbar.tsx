@@ -24,8 +24,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Zone 1: Single text wordmark */}
         <button
           type="button"
-          onClick={() => onSelectTab('game')}
-          className="flex items-center gap-2 text-left focus:outline-none shrink-0"
+          onClick={(e) => {
+            e.preventDefault();
+            onSelectTab('game');
+          }}
+          className="flex items-center gap-2 text-left focus:outline-none shrink-0 cursor-pointer"
         >
           <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center font-black text-stone-950 font-mono text-base shadow-sm">
             🎳
@@ -39,8 +42,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         <nav className="flex items-center gap-1 sm:gap-5 overflow-x-auto py-1">
           <button
             type="button"
-            onClick={() => onSelectTab('game')}
-            className={`px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 rounded-lg ${
+            onClick={(e) => {
+              e.preventDefault();
+              onSelectTab('game');
+            }}
+            className={`px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 rounded-lg cursor-pointer ${
               activeTab === 'game'
                 ? 'text-amber-400 font-semibold bg-stone-900 sm:bg-transparent sm:underline sm:underline-offset-8'
                 : 'text-stone-400 hover:text-stone-200'
@@ -50,8 +56,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => onSelectTab('arsenal')}
-            className={`px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 rounded-lg ${
+            onClick={(e) => {
+              e.preventDefault();
+              onSelectTab('arsenal');
+            }}
+            className={`px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 rounded-lg cursor-pointer ${
               activeTab === 'arsenal'
                 ? 'text-amber-400 font-semibold bg-stone-900 sm:bg-transparent sm:underline sm:underline-offset-8'
                 : 'text-stone-400 hover:text-stone-200'
@@ -61,8 +70,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => onSelectTab('profile')}
-            className={`px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 rounded-lg ${
+            onClick={(e) => {
+              e.preventDefault();
+              onSelectTab('profile');
+            }}
+            className={`px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 rounded-lg cursor-pointer ${
               activeTab === 'profile'
                 ? 'text-amber-400 font-semibold bg-stone-900 sm:bg-transparent sm:underline sm:underline-offset-8'
                 : 'text-stone-400 hover:text-stone-200'
@@ -72,8 +84,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => onSelectTab('history')}
-            className={`px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 rounded-lg ${
+            onClick={(e) => {
+              e.preventDefault();
+              onSelectTab('history');
+            }}
+            className={`px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 rounded-lg cursor-pointer ${
               activeTab === 'history'
                 ? 'text-amber-400 font-semibold bg-stone-900 sm:bg-transparent sm:underline sm:underline-offset-8'
                 : 'text-stone-400 hover:text-stone-200'
@@ -83,8 +98,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => onSelectTab('rules')}
-            className={`hidden lg:block px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 rounded-lg ${
+            onClick={(e) => {
+              e.preventDefault();
+              onSelectTab('rules');
+            }}
+            className={`hidden lg:block px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 rounded-lg cursor-pointer ${
               activeTab === 'rules'
                 ? 'text-amber-400 font-semibold bg-stone-900 sm:bg-transparent sm:underline sm:underline-offset-8'
                 : 'text-stone-400 hover:text-stone-200'
@@ -98,8 +116,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
-            onClick={toggleSoundHandler(isSoundMuted, onToggleSound)}
-            className="p-2 rounded-xl text-stone-400 hover:text-stone-200 hover:bg-stone-900 transition-colors"
+            onClick={(e) => {
+              e.preventDefault();
+              onToggleSound();
+            }}
+            className="p-2 rounded-xl text-stone-400 hover:text-stone-200 hover:bg-stone-900 transition-colors cursor-pointer"
             title={isSoundMuted ? 'Включить звук' : 'Выключить звук'}
             aria-label="Звуковые эффекты"
           >
@@ -112,8 +133,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             type="button"
-            onClick={onNewGameClick}
-            className="px-3.5 py-2 text-xs sm:text-sm font-bold text-stone-950 bg-amber-500 rounded-xl hover:bg-amber-400 transition-all shadow-md shadow-amber-500/10 active:scale-95 whitespace-nowrap shrink-0 flex items-center gap-1.5"
+            onClick={(e) => {
+              e.preventDefault();
+              onNewGameClick();
+            }}
+            className="px-3.5 py-2 text-xs sm:text-sm font-bold text-stone-950 bg-amber-500 rounded-xl hover:bg-amber-400 transition-all shadow-md shadow-amber-500/10 active:scale-95 whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Новая игра</span>

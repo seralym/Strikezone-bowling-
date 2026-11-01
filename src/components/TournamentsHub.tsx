@@ -126,14 +126,15 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
     setIsModalOpen(true);
   };
 
-  const handleSaveTournament = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveTournament = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
 
-    if (!name.trim()) return;
+    const finalTournamentName =
+      name.trim() || `Турнир от ${startDate || new Date().toLocaleDateString('ru-RU')}`;
 
-    const center = userConfig.centers.find((c) => c.id === centerId);
-    const pattern = userConfig.oilPatterns.find((p) => p.id === oilPatternId);
-    const ball = userConfig.balls.find((b) => b.id === ballId);
+    const center = userConfig.centers.find((c) => c.id === centerId) || userConfig.centers[0];
+    const pattern = userConfig.oilPatterns.find((p) => p.id === oilPatternId) || userConfig.oilPatterns[0];
+    const ball = userConfig.balls.find((b) => b.id === ballId) || userConfig.balls[0];
 
     if (editingId) {
       // Edit existing
@@ -141,7 +142,7 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
         if (item.id === editingId) {
           return {
             ...item,
-            name: name.trim(),
+            name: finalTournamentName,
             centerId,
             centerName: center ? center.name : item.centerName,
             startDate,
@@ -164,7 +165,7 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
       // Create new
       const newTournament: SavedTournament = {
         id: `tourn_${Date.now()}`,
-        name: name.trim(),
+        name: finalTournamentName,
         centerId,
         centerName: center ? center.name : 'Основной центр',
         startDate,
@@ -604,17 +605,19 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
             </div>
 
             <form onSubmit={handleSaveTournament} className="space-y-4 text-xs">
-              {/* Name */}
+              {/* Name (Optional) */}
               <div>
-                <label className="block uppercase font-semibold text-stone-400 mb-1">
-                  Название турнира / лиги *
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block uppercase font-semibold text-stone-400">
+                    Название турнира / лиги
+                  </label>
+                  <span className="text-[10px] text-stone-500 font-normal">Опционально</span>
+                </div>
                 <input
                   type="text"
-                  required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Например: Городская лига боулинга"
+                  placeholder="Необязательно (по умолчанию Турнир от даты)"
                   className="w-full px-3 py-2.5 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-sm focus:outline-none focus:border-amber-500"
                 />
               </div>
@@ -623,11 +626,10 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block uppercase font-semibold text-stone-400 mb-1">
-                    Дата начала *
+                    Дата начала
                   </label>
                   <input
                     type="date"
-                    required
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-amber-500"
@@ -635,11 +637,10 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
                 </div>
                 <div>
                   <label className="block uppercase font-semibold text-stone-400 mb-1">
-                    Дата окончания *
+                    Дата окончания
                   </label>
                   <input
                     type="date"
-                    required
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-amber-500"
@@ -803,14 +804,21 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
               <div className="pt-3 border-t border-stone-800 flex items-center justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-semibold text-xs"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsModalOpen(false);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-semibold text-xs cursor-pointer"
                 >
                   Отмена
                 </button>
                 <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs shadow-md shadow-amber-500/20"
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSaveTournament(e);
+                  }}
+                  className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs shadow-md shadow-amber-500/20 cursor-pointer active:scale-95 transition-all"
                 >
                   {editingId ? 'Сохранить изменения' : 'Создать турнир'}
                 </button>

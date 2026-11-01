@@ -6,7 +6,7 @@ import { Undo2, CheckCircle2, RotateCcw } from 'lucide-react';
 interface ControlsProps {
   standingPins: PinNumber[];
   selectedPins: PinNumber[];
-  onConfirmPinSelection: () => void;
+  onConfirmPinSelection?: () => void;
   onQuickCount: (count: number) => void;
   onStrike: () => void;
   onSpare: () => void;
@@ -16,6 +16,7 @@ interface ControlsProps {
   isGameFinished: boolean;
   onFinishAndSave: () => void;
   onNewGame: () => void;
+  onFinishGame?: () => void;
   isFirstRollOfFrame: boolean;
   language?: AppLanguage;
 }
@@ -33,6 +34,7 @@ export const Controls: React.FC<ControlsProps> = ({
   isGameFinished,
   onFinishAndSave,
   onNewGame,
+  onFinishGame,
   isFirstRollOfFrame,
   language = 'ru',
 }) => {
@@ -58,15 +60,21 @@ export const Controls: React.FC<ControlsProps> = ({
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
           <button
             type="button"
-            onClick={onFinishAndSave}
-            className="px-5 py-2.5 rounded-xl bg-amber-500 text-stone-950 font-semibold hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20 active:scale-95"
+            onClick={(e) => {
+              e.preventDefault();
+              onFinishAndSave();
+            }}
+            className="px-5 py-2.5 rounded-xl bg-amber-500 text-stone-950 font-semibold hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20 active:scale-95 cursor-pointer"
           >
             {t.saveGameToHistoryBtn}
           </button>
           <button
             type="button"
-            onClick={onNewGame}
-            className="px-5 py-2.5 rounded-xl bg-stone-800 text-stone-200 font-semibold hover:bg-stone-700 transition-colors active:scale-95 flex items-center gap-1.5"
+            onClick={(e) => {
+              e.preventDefault();
+              onNewGame();
+            }}
+            className="px-5 py-2.5 rounded-xl bg-stone-800 text-stone-200 font-semibold hover:bg-stone-700 transition-colors active:scale-95 flex items-center gap-1.5 cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
             <span>{t.nextGameBtn}</span>
@@ -74,8 +82,11 @@ export const Controls: React.FC<ControlsProps> = ({
           {canUndo && (
             <button
               type="button"
-              onClick={onUndo}
-              className="px-4 py-2.5 rounded-xl bg-stone-800/80 text-stone-400 hover:text-stone-200 text-sm font-medium transition-colors flex items-center gap-1.5"
+              onClick={(e) => {
+                e.preventDefault();
+                onUndo();
+              }}
+              className="px-4 py-2.5 rounded-xl bg-stone-800/80 text-stone-400 hover:text-stone-200 text-sm font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <Undo2 className="w-4 h-4" />
               <span>{t.undoBtn}</span>
@@ -88,38 +99,44 @@ export const Controls: React.FC<ControlsProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Primary Action Button (If pins are selected on deck) */}
-      {hasSelection && (
-        <button
-          type="button"
-          onClick={onConfirmPinSelection}
-          className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-stone-950 font-extrabold text-base shadow-lg shadow-amber-500/20 hover:brightness-105 active:scale-[0.99] transition-all flex items-center justify-center gap-2 animate-in fade-in duration-150"
-        >
-          <CheckCircle2 className="w-5 h-5" />
-          <span>
-            {t.confirmThrowBtn}: {selectedPins.length} / {maxAvailable}
-          </span>
-        </button>
-      )}
-
-      {/* Second Panel: Quick Action Functions (Страйк, Спэр, Фол, Желоб) */}
+      {/* Quick Action Functions (Страйк, Спэр, Фол, Желоб) */}
       <div className="rounded-2xl bg-stone-900/90 border border-stone-800 p-4 sm:p-5 space-y-4 shadow-xl">
         <div className="flex items-center justify-between">
           <span className="text-xs font-bold uppercase tracking-wider text-amber-500/90">
             {t.quickFunctions}
           </span>
 
-          {canUndo && (
-            <button
-              type="button"
-              onClick={onUndo}
-              className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-stone-800 text-stone-300 hover:bg-stone-700 hover:text-stone-100 transition-colors flex items-center gap-1.5"
-              title={t.undoBtn}
-            >
-              <Undo2 className="w-3.5 h-3.5 text-stone-400" />
-              <span>{t.undoBtn}</span>
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {canUndo && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onUndo();
+                }}
+                className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-stone-800 text-stone-300 hover:bg-stone-700 hover:text-stone-100 transition-colors flex items-center gap-1.5 cursor-pointer"
+                title={t.undoBtn}
+              >
+                <Undo2 className="w-3.5 h-3.5 text-stone-400" />
+                <span>{t.undoBtn}</span>
+              </button>
+            )}
+
+            {onFinishGame && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onFinishGame();
+                }}
+                className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-stone-800 text-stone-300 hover:bg-red-950/70 hover:text-red-300 hover:border-red-500/40 border border-transparent transition-colors flex items-center gap-1.5 cursor-pointer"
+                title="Завершить текущую игру"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Завершить</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* 4 Main Quick Function Buttons: Strike, Spare, Foul, Gutter */}
@@ -128,10 +145,13 @@ export const Controls: React.FC<ControlsProps> = ({
           <button
             type="button"
             disabled={!isAllStanding}
-            onClick={onStrike}
+            onClick={(e) => {
+              e.preventDefault();
+              onStrike();
+            }}
             className={`py-3.5 px-3 rounded-xl font-bold text-sm sm:text-base flex flex-col items-center justify-center transition-all ${
               isAllStanding
-                ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-stone-950 shadow-md shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] ring-1 ring-amber-300/40'
+                ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-stone-950 shadow-md shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] ring-1 ring-amber-300/40 cursor-pointer'
                 : 'bg-stone-800/40 text-stone-600 cursor-not-allowed border border-stone-800'
             }`}
           >
@@ -143,10 +163,13 @@ export const Controls: React.FC<ControlsProps> = ({
           <button
             type="button"
             disabled={isFirstRollOfFrame || maxAvailable === 0}
-            onClick={onSpare}
+            onClick={(e) => {
+              e.preventDefault();
+              onSpare();
+            }}
             className={`py-3.5 px-3 rounded-xl font-bold text-sm sm:text-base flex flex-col items-center justify-center transition-all ${
               !isFirstRollOfFrame && maxAvailable > 0
-                ? 'bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-md shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98] ring-1 ring-emerald-300/40'
+                ? 'bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-md shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98] ring-1 ring-emerald-300/40 cursor-pointer'
                 : 'bg-stone-800/40 text-stone-600 cursor-not-allowed border border-stone-800'
             }`}
           >
@@ -157,8 +180,11 @@ export const Controls: React.FC<ControlsProps> = ({
           {/* Foul (Заступ) button */}
           <button
             type="button"
-            onClick={onFoul}
-            className="py-3.5 px-3 rounded-xl font-bold text-sm sm:text-base flex flex-col items-center justify-center bg-stone-900 border border-red-500/40 text-red-400 hover:bg-red-950/60 transition-all active:scale-[0.98]"
+            onClick={(e) => {
+              e.preventDefault();
+              onFoul();
+            }}
+            className="py-3.5 px-3 rounded-xl font-bold text-sm sm:text-base flex flex-col items-center justify-center bg-stone-900 border border-red-500/40 text-red-400 hover:bg-red-950/60 transition-all active:scale-[0.98] cursor-pointer"
             title={t.foulBtn}
           >
             <span className="text-2xl font-black font-mono leading-none flex items-center gap-1">
@@ -170,8 +196,11 @@ export const Controls: React.FC<ControlsProps> = ({
           {/* Gutter / Miss (0) button */}
           <button
             type="button"
-            onClick={() => onQuickCount(0)}
-            className="py-3.5 px-3 rounded-xl font-bold text-sm sm:text-base flex flex-col items-center justify-center bg-stone-800 hover:bg-stone-700 text-stone-300 transition-all active:scale-[0.98] border border-stone-700/50"
+            onClick={(e) => {
+              e.preventDefault();
+              onQuickCount(0);
+            }}
+            className="py-3.5 px-3 rounded-xl font-bold text-sm sm:text-base flex flex-col items-center justify-center bg-stone-800 hover:bg-stone-700 text-stone-300 transition-all active:scale-[0.98] border border-stone-700/50 cursor-pointer"
             title={t.gutterBtn}
           >
             <span className="text-2xl font-black font-mono leading-none">-</span>
@@ -198,10 +227,13 @@ export const Controls: React.FC<ControlsProps> = ({
                   key={count}
                   type="button"
                   disabled={!isAllowed}
-                  onClick={() => onQuickCount(count)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onQuickCount(count);
+                  }}
                   className={`h-11 sm:h-12 rounded-xl font-mono text-base font-bold transition-all flex items-center justify-center ${
                     isAllowed
-                      ? 'bg-stone-800 hover:bg-amber-500 hover:text-stone-950 text-stone-100 active:scale-95 border border-stone-700/60'
+                      ? 'bg-stone-800 hover:bg-amber-500 hover:text-stone-950 text-stone-100 active:scale-95 border border-stone-700/60 cursor-pointer'
                       : 'bg-stone-900/40 text-stone-600 border border-stone-800/40 cursor-not-allowed'
                   }`}
                 >

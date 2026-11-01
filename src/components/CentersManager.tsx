@@ -31,12 +31,14 @@ export const CentersManager: React.FC<CentersManagerProps> = ({
     address: string;
     lanesCount: number;
     surface: BowlingCenter['surface'];
+    notes: string;
   }>({
     name: '',
     city: 'Москва',
     address: '',
     lanesCount: 16,
     surface: 'Синтетика (Synthetic)',
+    notes: '',
   });
 
   const centers = userConfig.centers || [];
@@ -49,6 +51,7 @@ export const CentersManager: React.FC<CentersManagerProps> = ({
       address: '',
       lanesCount: 16,
       surface: 'Синтетика (Synthetic)',
+      notes: '',
     });
     setIsModalOpen(true);
   };
@@ -61,13 +64,21 @@ export const CentersManager: React.FC<CentersManagerProps> = ({
       address: center.address || '',
       lanesCount: center.lanesCount || 16,
       surface: center.surface || 'Синтетика (Synthetic)',
+      notes: center.notes || '',
     });
     setIsModalOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.name.trim()) return;
+  const handleSave = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmedName = form.name.trim();
+    if (!trimmedName) {
+      if (onNotification) onNotification('Пожалуйста, укажите название боулинг-центра или клуба');
+      return;
+    }
+
+    const lanes = Number(form.lanesCount);
+    const validLanes = !isNaN(lanes) && lanes > 0 ? lanes : 16;
 
     let updated: BowlingCenter[];
     if (editingCenter) {
@@ -75,26 +86,28 @@ export const CentersManager: React.FC<CentersManagerProps> = ({
         c.id === editingCenter.id
           ? {
               ...c,
-              name: form.name.trim(),
+              name: trimmedName,
               city: form.city.trim() || undefined,
               address: form.address.trim() || undefined,
-              lanesCount: form.lanesCount > 0 ? form.lanesCount : undefined,
+              lanesCount: validLanes,
               surface: form.surface,
+              notes: form.notes.trim() || undefined,
             }
           : c
       );
-      if (onNotification) onNotification(`Боулинг-центр «${form.name.trim()}» обновлён`);
+      if (onNotification) onNotification(`Боулинг-центр «${trimmedName}» обновлён`);
     } else {
       const newCenter: BowlingCenter = {
         id: `center_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        name: form.name.trim(),
+        name: trimmedName,
         city: form.city.trim() || undefined,
         address: form.address.trim() || undefined,
-        lanesCount: form.lanesCount > 0 ? form.lanesCount : undefined,
+        lanesCount: validLanes,
         surface: form.surface,
+        notes: form.notes.trim() || undefined,
       };
       updated = [...centers, newCenter];
-      if (onNotification) onNotification(`Боулинг-центр «${form.name.trim()}» добавлен`);
+      if (onNotification) onNotification(`Боулинг-центр «${trimmedName}» добавлен`);
     }
 
     onUpdateConfig({
@@ -133,8 +146,11 @@ export const CentersManager: React.FC<CentersManagerProps> = ({
 
         <button
           type="button"
-          onClick={handleOpenAdd}
-          className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-amber-500/20 active:scale-95 transition-all self-start sm:self-auto"
+          onClick={(e) => {
+            e.preventDefault();
+            handleOpenAdd();
+          }}
+          className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-amber-500/20 active:scale-95 transition-all self-start sm:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Добавить боулинг-центр</span>
@@ -171,16 +187,22 @@ export const CentersManager: React.FC<CentersManagerProps> = ({
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     type="button"
-                    onClick={() => handleOpenEdit(center)}
-                    className="p-1.5 text-stone-400 hover:text-stone-200 hover:bg-stone-800 rounded-lg transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleOpenEdit(center);
+                    }}
+                    className="p-1.5 text-stone-400 hover:text-stone-200 hover:bg-stone-800 rounded-lg transition-colors cursor-pointer"
                     title="Редактировать центр"
                   >
                     <Edit3 className="w-4 h-4" />
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleDelete(center.id, center.name)}
-                    className="p-1.5 text-stone-500 hover:text-red-400 hover:bg-red-950/40 rounded-lg transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDelete(center.id, center.name);
+                    }}
+                    className="p-1.5 text-stone-500 hover:text-red-400 hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer"
                     title="Удалить центр"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -188,6 +210,18 @@ export const CentersManager: React.FC<CentersManagerProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* Optional Notes / Comments */}
+            {center.notes && (
+              <div className="pt-2 text-[11px] text-stone-300 bg-stone-950/70 p-2.5 rounded-xl border border-stone-800/60 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-amber-400/90 tracking-wider block">
+                  Заметки / Особенности:
+                </span>
+                <p className="whitespace-pre-line leading-relaxed text-stone-300">
+                  {center.notes}
+                </p>
+              </div>
+            )}
 
             {/* Bottom info stats */}
             <div className="pt-3 border-t border-stone-800/80 flex items-center justify-between text-xs">
@@ -231,7 +265,6 @@ export const CentersManager: React.FC<CentersManagerProps> = ({
                 </label>
                 <input
                   type="text"
-                  required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="Например: Боулинг-центр «Галактика»"
@@ -256,15 +289,12 @@ export const CentersManager: React.FC<CentersManagerProps> = ({
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="block uppercase font-semibold text-stone-300">
-                      Общее количество дорожек *
+                      Общее количество дорожек
                     </label>
                     <span className="text-[10px] text-stone-400">1–120</span>
                   </div>
                   <input
                     type="number"
-                    min="1"
-                    max="120"
-                    required
                     value={form.lanesCount || ''}
                     onChange={(e) =>
                       setForm({
@@ -328,17 +358,37 @@ export const CentersManager: React.FC<CentersManagerProps> = ({
                 </select>
               </div>
 
+              <div>
+                <label className="block uppercase font-semibold text-stone-400 mb-1">
+                  Комментарии и особенности локации
+                </label>
+                <textarea
+                  rows={3}
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                  placeholder="Особенности дорожек, разбег (скользкий/тугой), температура в зале, любимые пары дорожек, кондиционер..."
+                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:border-amber-500 focus:outline-none leading-relaxed"
+                />
+              </div>
+
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-800">
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-stone-400 hover:text-stone-200"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsModalOpen(false);
+                  }}
+                  className="px-4 py-2 text-xs font-semibold text-stone-400 hover:text-stone-200 cursor-pointer"
                 >
                   Отмена
                 </button>
                 <button
-                  type="submit"
-                  className="px-5 py-2 text-xs font-bold rounded-xl bg-amber-500 text-stone-950 hover:bg-amber-400 transition-colors shadow-md shadow-amber-500/20 flex items-center gap-1.5"
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSave(e);
+                  }}
+                  className="px-5 py-2 text-xs font-bold rounded-xl bg-amber-500 text-stone-950 hover:bg-amber-400 transition-colors shadow-md shadow-amber-500/20 flex items-center gap-1.5 cursor-pointer active:scale-95"
                 >
                   <Check className="w-4 h-4" />
                   <span>{editingCenter ? 'Сохранить изменения' : 'Добавить центр'}</span>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserPersonalConfig, TournamentConfig, AppLanguage, OilPattern } from '../types/bowling';
+import { UserPersonalConfig, TournamentConfig, AppLanguage, OilPattern, LaneTransitionRule } from '../types/bowling';
 import { getTranslation } from '../utils/i18n';
 import { OilPatternModal } from './OilPatternModal';
 import { OilDiagramViewerModal } from './OilDiagramViewerModal';
@@ -14,6 +14,7 @@ import {
   Plus,
   Image as ImageIcon,
   ZoomIn,
+  Shuffle,
 } from 'lucide-react';
 
 interface TournamentSetupModalProps {
@@ -42,7 +43,7 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
     .slice(0, 10);
 
   const [tournamentName, setTournamentName] = useState(
-    initialValues?.tournamentName || 'Городской турнир по боулингу'
+    initialValues?.tournamentName || ''
   );
   const [selectedCenterId, setSelectedCenterId] = useState<string>(
     initialValues?.centerId ||
@@ -72,6 +73,9 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
   const [laneNumber, setLaneNumber] = useState<number | ''>(
     initialValues?.laneNumber ?? 3
   );
+  const [laneTransitionRule, setLaneTransitionRule] = useState<LaneTransitionRule>(
+    initialValues?.laneTransitionRule || 'pairs'
+  );
 
   const [isNewPatternModalOpen, setIsNewPatternModalOpen] = useState(false);
   const [viewingPattern, setViewingPattern] = useState<OilPattern | null>(null);
@@ -80,24 +84,26 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
 
-    const center = userConfig.centers.find((c) => c.id === selectedCenterId);
-    const pattern = userConfig.oilPatterns.find((p) => p.id === selectedPatternId);
-    const ball = userConfig.balls.find((b) => b.id === selectedBallId);
+    const dateFormatted = new Date().toLocaleDateString('ru-RU');
+    const center = userConfig.centers.find((c) => c.id === selectedCenterId) || userConfig.centers[0];
+    const pattern = userConfig.oilPatterns.find((p) => p.id === selectedPatternId) || userConfig.oilPatterns[0];
+    const ball = userConfig.balls.find((b) => b.id === selectedBallId) || userConfig.balls[0];
 
     const config: TournamentConfig = {
-      tournamentName: tournamentName.trim() || 'Турнир по боулингу',
-      centerId: selectedCenterId,
+      tournamentName: tournamentName.trim() || `Турнир от ${dateFormatted}`,
+      centerId: selectedCenterId || center?.id || 'center_default',
       centerName: center ? center.name : 'Основной центр',
       startDate: startDate || todayStr,
       endDate: endDate || startDate || todayStr,
-      oilPatternId: selectedPatternId,
+      oilPatternId: selectedPatternId || pattern?.id || 'pattern_default',
       oilPatternName: pattern ? pattern.name : 'Стандартное масло',
-      ballId: selectedBallId,
+      ballId: selectedBallId || ball?.id || 'ball_default',
       ballName: ball ? ball.name : 'Основной шар',
-      laneNumber: typeof laneNumber === 'number' ? laneNumber : undefined,
+      laneNumber: typeof laneNumber === 'number' ? laneNumber : 1,
+      laneTransitionRule,
     };
 
     onStartTournament(config);
@@ -124,25 +130,30 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
 
           <button
             type="button"
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-stone-400 hover:text-stone-100 hover:bg-stone-800 transition-colors"
+            onClick={(e) => {
+              e.preventDefault();
+              onClose();
+            }}
+            className="p-1.5 rounded-lg text-stone-400 hover:text-stone-100 hover:bg-stone-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* 1. Tournament Name */}
+          {/* 1. Competition Name (Clean, Optional) */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-400 mb-1.5">
-              {t.tournamentNameInput}
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-stone-300">
+                Название соревнований
+              </label>
+              <span className="text-[10px] text-stone-500 font-medium">Опционально</span>
+            </div>
             <input
               type="text"
-              required
               value={tournamentName}
               onChange={(e) => setTournamentName(e.target.value)}
-              placeholder="Например: Чемпионат Федерации, Кубок Мастеров"
+              placeholder="Например: Чемпионат города (необязательно)"
               className="w-full px-3.5 py-2.5 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-sm focus:outline-none focus:border-amber-500"
             />
           </div>
@@ -180,7 +191,6 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
                 </label>
                 <input
                   type="date"
-                  required
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl bg-stone-900 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-amber-500 font-mono"
@@ -193,8 +203,6 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
                 </label>
                 <input
                   type="date"
-                  required
-                  min={startDate}
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl bg-stone-900 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-amber-500 font-mono"
@@ -295,19 +303,50 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
             </div>
           </div>
 
-          <div className="pt-3 border-t border-stone-800 flex items-center justify-end gap-3">
+          {/* 6. Lane Transition Rule (Правило смены дорожек) */}
+          <div className="p-3 rounded-xl bg-stone-950/60 border border-stone-800/80 space-y-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-stone-300">
+              <Shuffle className="w-3.5 h-3.5 text-amber-400" />
+              <span>Правило смены дорожек между партиями</span>
+            </label>
+            <select
+              value={laneTransitionRule}
+              onChange={(e) => setLaneTransitionRule(e.target.value as LaneTransitionRule)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-stone-900 border border-stone-800 text-stone-100 text-sm focus:outline-none focus:border-amber-500 cursor-pointer"
+            >
+              <option value="pairs">Чередование в паре дорожек (напр. 3 ⇄ 4)</option>
+              <option value="shift_plus_2">Сдвиг вправо через пару (+2 дорожки)</option>
+              <option value="shift_minus_2">Сдвиг влево через пару (-2 дорожки)</option>
+              <option value="shift_plus_1">Сдвиг на +1 дорожку</option>
+              <option value="shift_plus_4">Сдвиг на +4 дорожки</option>
+              <option value="none">Без смены (игра на одной дорожке)</option>
+            </select>
+            <p className="text-[11px] text-stone-500">
+              При нажатии «Следующая партия» номер дорожки переключится автоматически по этому правилу.
+            </p>
+          </div>
+
+          {/* Sticky Bottom Actions Bar - Always active 'Сохранить' button */}
+          <div className="sticky bottom-0 bg-stone-900/95 backdrop-blur-md pt-3 pb-1 -mx-5 px-5 sm:-mx-6 sm:px-6 border-t border-stone-800 flex items-center justify-end gap-3 z-10 shadow-lg">
             <button
               type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 text-xs font-semibold rounded-xl text-stone-400 hover:text-stone-200 transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                onClose();
+              }}
+              className="px-4 py-2.5 text-xs font-semibold rounded-xl text-stone-400 hover:text-stone-200 transition-colors cursor-pointer"
             >
               {t.cancelBtn}
             </button>
             <button
-              type="submit"
-              className="px-5 py-2.5 text-xs font-bold rounded-xl bg-amber-500 text-stone-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20 flex items-center gap-1.5"
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                handleSubmit(e);
+              }}
+              className="px-6 py-2.5 text-xs font-bold rounded-xl bg-amber-500 text-stone-950 hover:bg-amber-400 active:scale-95 transition-all shadow-lg shadow-amber-500/20 flex items-center gap-1.5 cursor-pointer"
             >
-              <span>{t.startTournamentBtn}</span>
+              <span>Сохранить</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -333,6 +372,8 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
         isOpen={!!viewingPattern}
         onClose={() => setViewingPattern(null)}
         pattern={viewingPattern}
+        allPatterns={userConfig.oilPatterns}
+        onSelectPattern={(next) => setViewingPattern(next)}
       />
     </div>
   );

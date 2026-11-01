@@ -7,6 +7,7 @@ import {
   UserPersonalConfig,
   TournamentConfig,
   AppSettings,
+  AppTheme,
   SavedTournament,
   PracticeDrillRecord,
   BowlingNote,
@@ -245,11 +246,11 @@ export const DEFAULT_CENTERS: BowlingCenter[] = [
 ];
 
 export const DEFAULT_USER_CONFIG: UserPersonalConfig = {
-  name: 'Сергей',
+  name: 'Игрок',
   style: 'Правша',
   hand: 'Правша',
   avatarColor: '#f59e0b',
-  bio: 'Любитель боулинга · Клубная лига',
+  bio: 'Боулер',
   balls: DEFAULT_BALLS,
   oilPatterns: DEFAULT_OIL_PATTERNS,
   centers: DEFAULT_CENTERS,
@@ -464,9 +465,7 @@ export function loadSavedMatches(): MatchRecord[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_MATCHES);
     if (!raw) {
-      const demo = generateDemoMatches();
-      saveMatches(demo);
-      return demo;
+      return [];
     }
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
@@ -558,7 +557,25 @@ export function saveActiveMatch(match: MatchRecord | null): void {
 export function exportMatchesToJson(): string {
   const matches = loadSavedMatches();
   const userConfig = loadUserPersonalConfig();
-  return JSON.stringify({ userConfig, matches }, null, 2);
+  const tournaments = loadSavedTournaments();
+  const practiceDrills = loadPracticeDrills();
+  const notes = loadSavedNotes();
+  const settings = loadAppSettings();
+  return JSON.stringify(
+    {
+      appName: 'StrikeZone Bowling Tracker',
+      version: '2.0',
+      exportedAt: new Date().toISOString(),
+      userConfig,
+      matches,
+      tournaments,
+      practiceDrills,
+      notes,
+      settings,
+    },
+    null,
+    2
+  );
 }
 
 export function importMatchesFromJson(jsonStr: string): boolean {
@@ -568,6 +585,18 @@ export function importMatchesFromJson(jsonStr: string): boolean {
       saveMatches(parsed.matches);
       if (parsed.userConfig) {
         saveUserPersonalConfig(parsed.userConfig);
+      }
+      if (parsed.tournaments && Array.isArray(parsed.tournaments)) {
+        saveSavedTournaments(parsed.tournaments);
+      }
+      if (parsed.practiceDrills && Array.isArray(parsed.practiceDrills)) {
+        savePracticeDrills(parsed.practiceDrills);
+      }
+      if (parsed.notes && Array.isArray(parsed.notes)) {
+        saveNotes(parsed.notes);
+      }
+      if (parsed.settings) {
+        saveAppSettings(parsed.settings);
       }
       return true;
     } else if (Array.isArray(parsed)) {
@@ -637,9 +666,11 @@ export function loadAppSettings(): AppSettings {
       };
     }
     const parsed = JSON.parse(raw);
+    const validTheme: AppTheme = parsed.theme === 'light' ? 'light' : 'dark';
     return {
       ...DEFAULT_APP_SETTINGS,
       ...parsed,
+      theme: validTheme,
     };
   } catch (err) {
     console.error('Failed to load app settings', err);
@@ -661,73 +692,18 @@ export function saveAppSettings(settings: AppSettings): void {
 // SAVED TOURNAMENTS (Regular leagues, tournaments, custom events)
 // =========================================================================
 
-export const DEFAULT_SAVED_TOURNAMENTS: SavedTournament[] = [
-  {
-    id: 'tourn_regular_1',
-    name: 'Городская лига боулинга (Регулярный сезон)',
-    centerId: 'center_1',
-    centerName: 'Боулинг-центр «Галактика»',
-    startDate: '2026-10-01',
-    endDate: '2026-11-30',
-    oilPatternId: 'pattern_1',
-    oilPatternName: 'House Shot (41 фут)',
-    ballId: 'ball_1',
-    ballName: 'Storm Phaze II',
-    laneNumber: 4,
-    format: 'Лига по понедельникам (4 игры в зачёт)',
-    isRegular: true,
-    status: 'active',
-    notes: 'Регулярная клубная лига с еженедельными играми и таблицей гандикапов.',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'tourn_regular_2',
-    name: 'Кубок выходного дня «Strike Masters»',
-    centerId: 'center_2',
-    centerName: 'Brunswick Strike Club',
-    startDate: '2026-10-25',
-    endDate: '2026-10-26',
-    oilPatternId: 'pattern_2',
-    oilPatternName: 'Kegel Main Street (41 фут)',
-    ballId: 'ball_2',
-    ballName: 'Hammer Black Widow 3.0',
-    laneNumber: 7,
-    format: 'Квалификация 6 игр + Сетка плей-офф топ-8',
-    isRegular: true,
-    status: 'upcoming',
-    notes: 'Турнир выходного дня со сложной диаграммой масла и денежным призовым фондом.',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'tourn_3',
-    name: 'Открытый чемпионат Федерации 2026',
-    centerId: 'center_3',
-    centerName: 'Клуб «Арена Боулинг»',
-    startDate: '2026-11-15',
-    endDate: '2026-11-17',
-    oilPatternId: 'pattern_3',
-    oilPatternName: 'PBA Shark (43 фута)',
-    ballId: 'ball_2',
-    ballName: 'Hammer Black Widow 3.0',
-    laneNumber: 11,
-    format: 'Спортивный разряд PBA (длинное масло)',
-    isRegular: false,
-    status: 'upcoming',
-    notes: 'Главный спортивный турнир осени. Требуется строгая чистота броска.',
-    createdAt: new Date().toISOString(),
-  },
-];
+export const DEFAULT_SAVED_TOURNAMENTS: SavedTournament[] = [];
 
 export function loadSavedTournaments(): SavedTournament[] {
-  if (typeof window === 'undefined') return DEFAULT_SAVED_TOURNAMENTS;
+  if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY_SAVED_TOURNAMENTS);
-    if (!raw) return DEFAULT_SAVED_TOURNAMENTS;
+    if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_SAVED_TOURNAMENTS;
+    return Array.isArray(parsed) ? parsed : [];
   } catch (e) {
     console.error('Failed to load saved tournaments', e);
-    return DEFAULT_SAVED_TOURNAMENTS;
+    return [];
   }
 }
 
@@ -744,58 +720,18 @@ export function saveSavedTournaments(tournaments: SavedTournament[]): void {
 // PRACTICE DRILLS (Spare & Split Drill Records)
 // =========================================================================
 
-export const DEFAULT_PRACTICE_DRILLS: PracticeDrillRecord[] = [
-  {
-    id: 'drill_1',
-    date: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
-    timestamp: Date.now() - 2 * 24 * 3600 * 1000,
-    drillName: 'Сплит 7-10 (Bedposts)',
-    targetPins: [7, 10],
-    attemptsCount: 20,
-    convertedCount: 2,
-    missedCount: 18,
-    conversionRate: 10,
-    ballUsedName: 'Storm Phaze II',
-    notes: 'Отработка рикошета от заднего борта и желоба',
-  },
-  {
-    id: 'drill_2',
-    date: new Date(Date.now() - 4 * 24 * 3600 * 1000).toISOString(),
-    timestamp: Date.now() - 4 * 24 * 3600 * 1000,
-    drillName: '10-я кегля (Правый угол)',
-    targetPins: [10],
-    attemptsCount: 25,
-    convertedCount: 22,
-    missedCount: 3,
-    conversionRate: 88,
-    ballUsedName: 'Columbia 300 White Dot',
-    notes: 'Прямой бросок по диагонали дорожки через третью стрелку',
-  },
-  {
-    id: 'drill_3',
-    date: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString(),
-    timestamp: Date.now() - 5 * 24 * 3600 * 1000,
-    drillName: 'Сплит 2-8-10',
-    targetPins: [2, 8, 10],
-    attemptsCount: 15,
-    convertedCount: 6,
-    missedCount: 9,
-    conversionRate: 40,
-    ballUsedName: 'Storm Phaze II',
-    notes: 'Направление 2-й кегли в 10-ю',
-  },
-];
+export const DEFAULT_PRACTICE_DRILLS: PracticeDrillRecord[] = [];
 
 export function loadPracticeDrills(): PracticeDrillRecord[] {
-  if (typeof window === 'undefined') return DEFAULT_PRACTICE_DRILLS;
+  if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY_PRACTICE_DRILLS);
-    if (!raw) return DEFAULT_PRACTICE_DRILLS;
+    if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_PRACTICE_DRILLS;
+    return Array.isArray(parsed) ? parsed : [];
   } catch (e) {
     console.error('Failed to load practice drills', e);
-    return DEFAULT_PRACTICE_DRILLS;
+    return [];
   }
 }
 
@@ -808,55 +744,20 @@ export function savePracticeDrills(drills: PracticeDrillRecord[]): void {
   }
 }
 
-export const DEFAULT_NOTES: BowlingNote[] = [
-  {
-    id: 'note_1',
-    title: 'План перехода по доскам на длинном масле (42+ ft)',
-    content:
-      'На свежем масле начинать игру снаружи (борда 10–12). По мере выноса масла в середине и засыхания хвоста сдвигаться ногами влево на 2 доски каждые 1.5–2 игры, сохраняя точку выхода шара на брейкпоинте (board 8). Использовать матовый Solid (Phaze II).',
-    category: 'Паттерн масла',
-    createdAt: Date.now() - 3 * 24 * 3600 * 1000,
-    updatedAt: Date.now() - 3 * 24 * 3600 * 1000,
-    isPinned: true,
-    tags: ['Масло', 'Траектория', 'Phaze II'],
-  },
-  {
-    id: 'note_2',
-    title: 'Контроль тайминга: пауза на 3-м шаге и свободный мах',
-    content:
-      'Чек-лист перед каждым броском: 1) Плечи параллельно линии фола; 2) Не сжимать большой палец в шаре; 3) На 3-м шаге позволить маху свободно взлететь за счёт гравитации, без мышечного напряжения в верхней точке; 4) Фиксация позы до падения кеглей.',
-    category: 'Техника и хват',
-    createdAt: Date.now() - 5 * 24 * 3600 * 1000,
-    updatedAt: Date.now() - 5 * 24 * 3600 * 1000,
-    isPinned: true,
-    tags: ['Тайминг', 'Мах', 'Стойка'],
-  },
-  {
-    id: 'note_3',
-    title: 'Итоги квалификации Открытого Кубка (Серия 6 игр)',
-    content:
-      'Средний результат 214.3. Первые 3 игры шли отлично на Black Widow 3.0. В 4-й игре начались овер-реакции на сухом брейке — переход на перламутровый Attention Star вернул угол входа в карман. Основной резерв очков — добивание 7-й и 10-й кеглей (было 2 открытых фрейма).',
-    category: 'Турнир',
-    createdAt: Date.now() - 7 * 24 * 3600 * 1000,
-    updatedAt: Date.now() - 7 * 24 * 3600 * 1000,
-    isPinned: false,
-    tags: ['Турнир', 'Кубок', 'Attention Star'],
-  },
-];
+export const DEFAULT_NOTES: BowlingNote[] = [];
 
 export function loadSavedNotes(): BowlingNote[] {
-  if (typeof window === 'undefined') return DEFAULT_NOTES;
+  if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY_NOTES);
     if (!raw) {
-      saveNotes(DEFAULT_NOTES);
-      return DEFAULT_NOTES;
+      return [];
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : DEFAULT_NOTES;
+    return Array.isArray(parsed) ? parsed : [];
   } catch (e) {
     console.error('Failed to load bowling notes', e);
-    return DEFAULT_NOTES;
+    return [];
   }
 }
 

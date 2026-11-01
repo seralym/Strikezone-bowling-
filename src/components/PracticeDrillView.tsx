@@ -10,6 +10,7 @@ import { BallVisual } from './BallVisual';
 import {
   Target,
   Check,
+  CheckCircle2,
   X,
   RotateCcw,
   Save,
@@ -332,6 +333,17 @@ export const PracticeDrillView: React.FC<PracticeDrillViewProps> = ({
     setActiveTab('history');
   };
 
+  // Finish practice session and return to home
+  const handleFinishPractice = () => {
+    if (attemptsCount > 0) {
+      handleSaveToStatistics();
+    }
+    if (onNotification) {
+      onNotification('Тренировка завершена');
+    }
+    onBackToHome();
+  };
+
   // 10-pin triangle rows:
   // Row 4: 7, 8, 9, 10
   // Row 3: 4, 5, 6
@@ -348,14 +360,23 @@ export const PracticeDrillView: React.FC<PracticeDrillViewProps> = ({
     <div className="space-y-6 max-w-6xl mx-auto animate-in fade-in duration-200">
       {/* Top Header & Navigation */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-800">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <button
             type="button"
             onClick={onBackToHome}
-            className="p-2 rounded-xl bg-stone-900 border border-stone-800 hover:border-amber-500/40 text-stone-300 hover:text-white transition-all flex items-center gap-1.5 text-xs font-semibold"
+            className="p-2 rounded-xl bg-stone-900 border border-stone-800 hover:border-amber-500/40 text-stone-300 hover:text-white transition-all flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4 text-amber-400" />
             <span>Главная</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleFinishPractice}
+            className="p-2 px-3 rounded-xl bg-stone-900 border border-stone-800 hover:border-red-500/50 text-stone-200 hover:text-red-300 transition-all flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
+            title="Завершить текущую тренировку и вернуться на главную"
+          >
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <span>Завершить</span>
           </button>
           <div>
             <h1 className="text-xl sm:text-2xl font-extrabold text-stone-100 font-display flex items-center gap-2">
@@ -720,38 +741,38 @@ export const PracticeDrillView: React.FC<PracticeDrillViewProps> = ({
 
                 {/* Live Session Counters Grid */}
                 <div className="grid grid-cols-4 gap-2 pt-2 border-t border-stone-800/80 text-center">
-                  <div className="p-2.5 rounded-xl bg-stone-950 border border-stone-800">
-                    <span className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold block">
+                  <div className="p-2 sm:p-3 rounded-xl bg-stone-950 border border-stone-800 shadow-sm flex flex-col justify-center">
+                    <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-400 font-semibold block">
                       Бросков
                     </span>
-                    <span className="text-lg font-black font-mono text-stone-100">
+                    <span className="text-xl sm:text-2xl font-black font-mono text-stone-100 tabular-nums leading-tight mt-0.5">
                       {attemptsCount}
                     </span>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-stone-950 border border-stone-800">
-                    <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-semibold block">
+                  <div className="p-2 sm:p-3 rounded-xl bg-stone-950 border border-stone-800 shadow-sm flex flex-col justify-center">
+                    <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-emerald-400 font-semibold block">
                       Сбито
                     </span>
-                    <span className="text-lg font-black font-mono text-emerald-400">
+                    <span className="text-xl sm:text-2xl font-black font-mono text-emerald-400 tabular-nums leading-tight mt-0.5">
                       {convertedCount}
                     </span>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-stone-950 border border-stone-800">
-                    <span className="text-[10px] uppercase tracking-wider text-red-400 font-semibold block">
+                  <div className="p-2 sm:p-3 rounded-xl bg-stone-950 border border-stone-800 shadow-sm flex flex-col justify-center">
+                    <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-red-400 font-semibold block">
                       Промахов
                     </span>
-                    <span className="text-lg font-black font-mono text-red-400">
+                    <span className="text-xl sm:text-2xl font-black font-mono text-red-400 tabular-nums leading-tight mt-0.5">
                       {missedCount}
                     </span>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-stone-950 border border-stone-800">
-                    <span className="text-[10px] uppercase tracking-wider text-amber-400 font-semibold block">
+                  <div className="p-2 sm:p-3 rounded-xl bg-stone-950 border border-stone-800 shadow-sm flex flex-col justify-center">
+                    <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-amber-400 font-semibold block">
                       Точность
                     </span>
-                    <span className="text-lg font-black font-mono text-amber-400">
+                    <span className="text-xl sm:text-2xl font-black font-mono text-amber-400 tabular-nums leading-tight mt-0.5">
                       {conversionRate}%
                     </span>
                   </div>
@@ -803,20 +824,32 @@ export const PracticeDrillView: React.FC<PracticeDrillViewProps> = ({
                   />
                 </div>
 
-                {/* Save Button */}
-                <button
-                  type="button"
-                  onClick={handleSaveToStatistics}
-                  disabled={attemptsCount === 0}
-                  className={`w-full py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-md ${
-                    attemptsCount > 0
-                      ? 'bg-amber-500 hover:bg-amber-400 text-stone-950 active:scale-95 shadow-amber-500/20 cursor-pointer'
-                      : 'bg-stone-800 text-stone-500 cursor-not-allowed opacity-60'
-                  }`}
-                >
-                  <Save className="w-4 h-4" />
-                  <span>Сохранить в статистику игрока</span>
-                </button>
+                {/* Save & Finish Buttons */}
+                <div className="space-y-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleSaveToStatistics}
+                    disabled={attemptsCount === 0}
+                    className={`w-full py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-md ${
+                      attemptsCount > 0
+                        ? 'bg-amber-500 hover:bg-amber-400 text-stone-950 active:scale-95 shadow-amber-500/20 cursor-pointer'
+                        : 'bg-stone-800 text-stone-500 cursor-not-allowed opacity-60'
+                    }`}
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Сохранить в статистику игрока</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleFinishPractice}
+                    className="w-full py-2.5 px-4 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-800 hover:border-red-500/40 text-stone-300 hover:text-red-200 font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                    title="Завершить текущую тренировку и вернуться на главную"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>Завершить тренировку</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

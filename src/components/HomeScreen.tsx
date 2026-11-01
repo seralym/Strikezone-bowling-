@@ -99,29 +99,41 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <div className="flex flex-wrap gap-1.5">
                 <button
                   type="button"
-                  onClick={() => onQuickStartPractice([7, 10])}
-                  className="px-2.5 py-1.5 rounded-lg bg-stone-950/80 hover:bg-amber-500/20 text-stone-300 hover:text-amber-300 border border-stone-800 hover:border-amber-500/40 text-xs font-medium transition-all"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onQuickStartPractice([7, 10]);
+                  }}
+                  className="px-2.5 py-1.5 rounded-lg bg-stone-950/80 hover:bg-amber-500/20 text-stone-300 hover:text-amber-300 border border-stone-800 hover:border-amber-500/40 text-xs font-medium transition-all cursor-pointer"
                 >
                   ⚡ Сплит 7-10
                 </button>
                 <button
                   type="button"
-                  onClick={() => onQuickStartPractice([10])}
-                  className="px-2.5 py-1.5 rounded-lg bg-stone-950/80 hover:bg-amber-500/20 text-stone-300 hover:text-amber-300 border border-stone-800 hover:border-amber-500/40 text-xs font-medium transition-all"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onQuickStartPractice([10]);
+                  }}
+                  className="px-2.5 py-1.5 rounded-lg bg-stone-950/80 hover:bg-amber-500/20 text-stone-300 hover:text-amber-300 border border-stone-800 hover:border-amber-500/40 text-xs font-medium transition-all cursor-pointer"
                 >
                   🎯 10-я кегля
                 </button>
                 <button
                   type="button"
-                  onClick={() => onQuickStartPractice([7])}
-                  className="px-2.5 py-1.5 rounded-lg bg-stone-950/80 hover:bg-amber-500/20 text-stone-300 hover:text-amber-300 border border-stone-800 hover:border-amber-500/40 text-xs font-medium transition-all"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onQuickStartPractice([7]);
+                  }}
+                  className="px-2.5 py-1.5 rounded-lg bg-stone-950/80 hover:bg-amber-500/20 text-stone-300 hover:text-amber-300 border border-stone-800 hover:border-amber-500/40 text-xs font-medium transition-all cursor-pointer"
                 >
                   🎯 7-я кегля
                 </button>
                 <button
                   type="button"
-                  onClick={() => onQuickStartPractice([2, 8, 10])}
-                  className="px-2.5 py-1.5 rounded-lg bg-stone-950/80 hover:bg-amber-500/20 text-stone-300 hover:text-amber-300 border border-stone-800 hover:border-amber-500/40 text-xs font-medium transition-all"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onQuickStartPractice([2, 8, 10]);
+                  }}
+                  className="px-2.5 py-1.5 rounded-lg bg-stone-950/80 hover:bg-amber-500/20 text-stone-300 hover:text-amber-300 border border-stone-800 hover:border-amber-500/40 text-xs font-medium transition-all cursor-pointer"
                 >
                   ⚡ Сплит 2-8-10
                 </button>
@@ -133,8 +145,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="pt-3 border-t border-stone-800/80 flex items-center gap-2">
             <button
               type="button"
-              onClick={() => onNavigate('practice')}
-              className="flex-1 py-2.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-amber-500/20"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('practice');
+              }}
+              className="flex-1 py-2.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-amber-500/20 cursor-pointer"
             >
               <Target className="w-4 h-4" />
               <span>Открыть практику</span>
@@ -142,8 +157,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
             <button
               type="button"
-              onClick={onStartClassicGame}
-              className="py-2.5 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all"
+              onClick={(e) => {
+                e.preventDefault();
+                onStartClassicGame();
+              }}
+              className="py-2.5 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               title="Начать классическую партию из 10 фреймов"
             >
               <RotateCcw className="w-3.5 h-3.5 text-emerald-400" />
@@ -209,8 +227,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="pt-3 border-t border-stone-800/80 flex items-center gap-2">
             <button
               type="button"
-              onClick={() => onNavigate('tournaments')}
-              className="flex-1 py-2.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-amber-500/20"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('tournaments');
+              }}
+              className="flex-1 py-2.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-amber-500/20 cursor-pointer"
             >
               <Trophy className="w-4 h-4" />
               <span>Все турниры</span>
@@ -218,8 +239,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
             <button
               type="button"
-              onClick={onOpenTournamentModal}
-              className="py-2.5 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all"
+              onClick={(e) => {
+                e.preventDefault();
+                onOpenTournamentModal();
+              }}
+              className="py-2.5 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               title="Настроить активный турнир"
             >
               <span>+ Новый</span>
@@ -297,8 +321,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="pt-3 border-t border-stone-800/80 flex items-center gap-2">
             <button
               type="button"
-              onClick={() => onNavigate('arsenal')}
-              className="flex-1 py-2.5 px-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-cyan-500/20"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('arsenal');
+              }}
+              className="flex-1 py-2.5 px-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-cyan-500/20 cursor-pointer"
             >
               <CircleDot className="w-4 h-4" />
               <span>Открыть арсенал</span>
@@ -360,8 +387,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="pt-3 border-t border-stone-800/80 flex items-center gap-2">
             <button
               type="button"
-              onClick={() => onNavigate('centers')}
-              className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-emerald-500/20"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('centers');
+              }}
+              className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-emerald-500/20 cursor-pointer"
             >
               <Building2 className="w-4 h-4" />
               <span>Управление центрами</span>
@@ -423,8 +453,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="pt-3 border-t border-stone-800/80 flex items-center gap-2">
             <button
               type="button"
-              onClick={() => onNavigate('patterns')}
-              className="flex-1 py-2.5 px-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-cyan-500/20"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('patterns');
+              }}
+              className="flex-1 py-2.5 px-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-cyan-500/20 cursor-pointer"
             >
               <Droplets className="w-4 h-4" />
               <span>Открыть программы масла</span>
@@ -480,8 +513,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="pt-3 border-t border-stone-800/80 flex items-center gap-2">
             <button
               type="button"
-              onClick={() => onNavigate('notes')}
-              className="flex-1 py-2.5 px-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-cyan-500/20"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('notes');
+              }}
+              className="flex-1 py-2.5 px-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-cyan-500/20 cursor-pointer"
             >
               <BookOpen className="w-4 h-4" />
               <span>Открыть заметки</span>
@@ -542,8 +578,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="pt-3 border-t border-stone-800/80 flex items-center gap-2">
             <button
               type="button"
-              onClick={() => onNavigate('settings')}
-              className="flex-1 py-2.5 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-100 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('settings');
+              }}
+              className="flex-1 py-2.5 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-100 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
             >
               <Settings className="w-4 h-4 text-amber-400" />
               <span>Перейти в настройки</span>
