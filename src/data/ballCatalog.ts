@@ -1,5 +1,6 @@
 import { BowlingBall } from '../types/bowling';
 import { ARCHIVED_BALLS } from './archivedBalls';
+import { EXPANDED_BALLS } from './expandedBalls';
 
 export interface CatalogBallPreset {
   id: string;
@@ -80,6 +81,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e293b',
     accentColor: '#3b82f6',
     description: 'Легендарный эталонный шар PBA. Сочетает мощное ядро Velocity и цепкую поверхность TX-16 для предсказуемой дуги.',
+    releaseYear: 2016,
   },
   {
     id: 'storm_hyroad',
@@ -96,7 +98,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#0f172a',
     secondaryColor: '#3b82f6',
     accentColor: '#60a5fa',
-    description: 'Один из самых долговечных и популярных шаров в истории боулинга (выпускается с 2008 года). Идеальный отклик на переходных дорожках.',
+    description: 'Легендарный эталонный гибридный шар с активным производством на протяжении всех 2010–2020 годов. Идеальный отклик на переходных дорожках.',
+    releaseYear: 2010,
   },
   {
     id: 'storm_absolute_power',
@@ -115,6 +118,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#ef4444',
     accentColor: '#f97316',
     description: 'Асимметричный шар с ядром Sentinel и плотным сплошным покрытием для максимальной стабильности на тяжелом масле.',
+    releaseYear: 2024,
   },
   {
     id: 'storm_summit_peak',
@@ -132,6 +136,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#4f46e5',
     accentColor: '#c084fc',
     description: 'Взрывной бэкэнд благодаря инновационной технологии внешнего ядра A.I. Core и жемчужному покрытию TX-23.',
+    releaseYear: 2024,
   },
   {
     id: 'storm_iq_tour',
@@ -149,6 +154,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0369a1',
     accentColor: '#38bdf8',
     description: 'Золотой стандарт контроля. Низкий Diff обеспечивает гладкую, непрерывную дугу на спортивных профилях масла.',
+    releaseYear: 2012,
   },
   {
     id: 'storm_pitch_black',
@@ -166,10 +172,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#27272a',
     accentColor: '#3f3f46',
     description: 'Чистокровный уретан для коротких программ масла, сухих дорожек и максимального гашения бэкэнд-реакции.',
+    releaseYear: 2014,
   },
   {
     id: 'storm_virtual_gravity',
-    name: 'Virtual Gravity',
+    name: 'Virtual Gravity Nano',
     brand: 'Storm',
     coverstock: 'Solid',
     coverstockName: 'R2X™ Solid Reactive',
@@ -183,7 +190,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#b91c1c',
     secondaryColor: '#18181b',
     accentColor: '#f59e0b',
-    description: 'Культовый архивный флагман Storm конца 2000-х. Революционное ядро Shape-Lock HD перевернуло индустрию хука.',
+    description: 'Легендарное нано-переиздание 2011 года с оболочкой NRG Solid и ядром Shape-Lock HD для колоссального зацепа в глубоком масле.',
+    releaseYear: 2011,
   },
   {
     id: 'storm_crux',
@@ -202,6 +210,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#312e81',
     accentColor: '#f97316',
     description: 'Архивная тяжёлая легенда. Ядро Catalyst и формула ER7 прорубали самые массивные турнирные заливки.',
+    releaseYear: 2014,
   },
   {
     id: 'storm_marvel_pearl',
@@ -219,6 +228,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#d97706',
     accentColor: '#fef08a',
     description: 'Один из самых востребованных коллекционных архивных шаров Storm. Невероятный угол входа и непрерывный разгон.',
+    releaseYear: 2011,
   },
   {
     id: 'storm_dark_code',
@@ -237,6 +247,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#be185d',
     accentColor: '#f43f5e',
     description: 'Слияние формул NeXXus и R2S в гибридном жемчуге ReX с ядром RAD4 для сокрушительного флипа на бэкэнде.',
+    releaseYear: 2021,
   },
   {
     id: 'storm_proton_physix',
@@ -255,6 +266,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e293b',
     accentColor: '#fb7185',
     description: 'Сверхмощное сцепление атомарного ядра Atomic с супер-цепким сплошным материалом NeXXus для заплывших дорожек.',
+    releaseYear: 2020,
   },
   {
     id: 'storm_infinite_physix',
@@ -273,6 +285,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0284c7',
     accentColor: '#a855f7',
     description: 'Универсальный спортивный флагман. Легко выходит на сухой край и раскрывает угол входа под любым углом броска.',
+    releaseYear: 2022,
   },
   {
     id: 'storm_code_black',
@@ -291,6 +304,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#f97316',
     accentColor: '#fdba74',
     description: 'Культовый архивный шар серии Code. Резкий угловой вход с фирменным ядром RAD4 и жемчужным покрытием R2S.',
+    releaseYear: 2016,
   },
   {
     id: 'storm_lock',
@@ -326,6 +340,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0284c7',
     accentColor: '#34d399',
     description: 'Симметричное ядро Orbital с низким RG для плавного и мощного чтения средней части дорожки (архив).',
+    releaseYear: 2020,
   },
   {
     id: 'storm_nova',
@@ -344,6 +359,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0369a1',
     accentColor: '#f472b6',
     description: 'Асимметричный мотор Ignition в паре с проверенным R2X Hybrid. Сильнейший толчок в середине дорожки.',
+    releaseYear: 2022,
   },
   {
     id: 'storm_pitch_purple',
@@ -361,6 +377,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#3b0764',
     accentColor: '#c084fc',
     description: 'Модифицированный уретан с увеличенным дифференциалом. Даёт больше продолжения, чем Pitch Black.',
+    releaseYear: 2020,
   },
   {
     id: 'storm_journey',
@@ -378,6 +395,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#4338ca',
     accentColor: '#38bdf8',
     description: 'Коллаборация с Джейсоном Бельмонте. Новое ядро F-8 обеспечивает лёгкое скольжение и чистый мощный бэкэнд.',
+    releaseYear: 2023,
   },
   {
     id: 'storm_ion_pro',
@@ -395,6 +413,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0f172a',
     accentColor: '#38bdf8',
     description: 'Современный турнирный бенчмарк с ядром Element A.I. Превосходный баланс между Phaze II и !Q Tour.',
+    releaseYear: 2024,
   },
   {
     id: 'storm_ice_storm',
@@ -412,6 +431,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#93c5fd',
     accentColor: '#3b82f6',
     description: 'Классический кристально-чистый полиэстеровый шар для стопроцентного прямого добивания угловых кеглей.',
+    releaseYear: 2015,
   },
 
   // =========================================================================
@@ -434,6 +454,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0284c7',
     accentColor: '#0f172a',
     description: 'Флагманский супер-хук от Brunswick. Асимметричное ядро Mindset и цепкая матовая поверхность для глубокого масла.',
+    releaseYear: 2023,
   },
   {
     id: 'brunswick_defender_hybrid',
@@ -452,6 +473,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#e11d48',
     accentColor: '#fbbf24',
     description: 'Мощнейший прорыв бэкэнда благодаря технологии покрытия HK22 на основе асимметричного ядра Portal X.',
+    releaseYear: 2023,
   },
   {
     id: 'brunswick_stealth',
@@ -469,6 +491,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#334155',
     accentColor: '#64748b',
     description: 'Скрытная мощь с высоким дифференциалом. Начинает движение в середине дорожки и мощно завершает бросок в карман.',
+    releaseYear: 2022,
   },
   {
     id: 'brunswick_quantum_bias',
@@ -487,6 +510,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#e2e8f0',
     accentColor: '#94a3b8',
     description: 'Культовый белый цельнолитой шар Quantum с утолщенным уретановым слоем для максимального коэффициента передачи энергии.',
+    releaseYear: 2018,
   },
   {
     id: 'brunswick_rhino',
@@ -504,10 +528,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#8b5cf6',
     accentColor: '#a855f7',
     description: 'Идеальный выбор для умеренного или подсыхающего масла. Мягкий и контролируемый вход в кегли без срывов.',
+    releaseYear: 2016,
   },
   {
     id: 'brunswick_danger_zone',
-    name: 'Danger Zone',
+    name: 'Vintage Danger Zone',
     brand: 'Brunswick',
     coverstock: 'Solid',
     coverstockName: 'PowrKoil 18™ Solid (Vintage)',
@@ -520,7 +545,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#18181b',
     secondaryColor: '#27272a',
     accentColor: '#3f3f46',
-    description: 'Величайший бестселлер 1996 года, навсегда изменивший историю боулинга. Икона предсказуемости и ударной мощи.',
+    description: 'Официальное переиздание легенды в 2015 году с оболочкой Vintage PK2016 для плавного зацепа и предсказуемой траектории.',
+    releaseYear: 2015,
   },
   {
     id: 'brunswick_mesmerize',
@@ -539,6 +565,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0284c7',
     accentColor: '#ec4899',
     description: 'Новейший монстр с инновационной химической сцепкой HK22 Cohesion. Цепляется за масло даже на максимальной скорости.',
+    releaseYear: 2024,
   },
   {
     id: 'brunswick_vaporize',
@@ -557,6 +584,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#4f46e5',
     accentColor: '#a855f7',
     description: 'Асимметричное ядро Zone LRG в комбинации с жемчужным HK22 даёт фантастический угол атаки на выходе из масляного клина.',
+    releaseYear: 2024,
   },
   {
     id: 'brunswick_knock_out_black_blue',
@@ -591,6 +619,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#b91c1c',
     accentColor: '#f87171',
     description: 'Жемчужная классика линейки Melee. Легко преодолевает сухие головы и резко вонзается в карман.',
+    releaseYear: 2019,
   },
   {
     id: 'brunswick_ultimate_nirvana',
@@ -609,6 +638,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e3a8a',
     accentColor: '#f59e0b',
     description: 'Архивный чемпион серии Nirvana середины 2010-х. Композитная матрица ECS для раннего зацепа на тяжелом масле.',
+    releaseYear: 2015,
   },
   {
     id: 'brunswick_kingpin',
@@ -627,10 +657,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#7f1d1d',
     accentColor: '#ea580c',
     description: 'Архивный король масляных дорожек Brunswick 2017 года с технологией DynamiCore для сокрушительного пинфолла.',
+    releaseYear: 2017,
   },
   {
     id: 'brunswick_quantum_forest_green',
-    name: 'Quantum Forest Green',
+    name: 'Quantum Forest Green (2016 Reissue)',
     brand: 'Brunswick',
     coverstock: 'Solid',
     coverstockName: 'Quantum Solid Urethane Matrix',
@@ -643,7 +674,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#14532d',
     secondaryColor: '#166534',
     accentColor: '#22c55e',
-    description: 'Архивная легенда 1990-х. Толстостенный цельный корпус без традиционного наполнителя для чистого звука страйка.',
+    description: 'Юбилейный перезапуск 2016 года с толстой внешней уретановой оболочкой и ядром Mushroom для мощной передачи кинетической энергии.',
+    releaseYear: 2016,
   },
   {
     id: 'brunswick_zenith',
@@ -662,6 +694,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0f172a',
     accentColor: '#06b6d4',
     description: 'Архивный тяжеловес Brunswick с технологией DOT и DynamiCore, дававший уверенность на самых длинных спортивных профилях.',
+    releaseYear: 2020,
   },
   {
     id: 'brunswick_prism_warp',
@@ -680,6 +713,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#09090b',
     accentColor: '#0284c7',
     description: 'Серия Prism с ядром Portal перевернула представления о продолжении движения в пиндеке на тяжелом масле.',
+    releaseYear: 2020,
   },
   {
     id: 'brunswick_mastermind',
@@ -698,6 +732,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#f43f5e',
     description: 'Архивная топ-модель 2013-2015 годов. Знаменитый «мозговой центр» турнирных побед команды Brunswick.',
+    releaseYear: 2013,
   },
   {
     id: 'brunswick_hero_pearl',
@@ -715,6 +750,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0284c7',
     accentColor: '#38bdf8',
     description: 'Симметричное ядро Contra и жемчужная оболочка Activator Plus 2.0 для быстрой смены траектории на переходе.',
+    releaseYear: 2020,
   },
   {
     id: 'brunswick_jagged_edge',
@@ -735,7 +771,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
   },
   {
     id: 'brunswick_black_diamond',
-    name: 'Black Diamond',
+    name: 'Beyond Infinity',
     brand: 'Brunswick',
     coverstock: 'Plastic',
     coverstockName: 'Vintage Hard Rubber',
@@ -748,7 +784,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#09090b',
     secondaryColor: '#18181b',
     accentColor: '#27272a',
-    description: 'Исторический ретро-шар, с которого начиналась эпоха спортивного боулинга. Символ классической эпохи.',
+    description: 'Новинка 2024 года с инновационной оболочкой HK22 - Terra A.X.H. для максимального скольжения по сухому фронту и взрывного угла атаки.',
+    releaseYear: 2024,
   },
   {
     id: 'brunswick_crown_jewel',
@@ -766,6 +803,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#c7d2fe',
     accentColor: '#818cf8',
     description: 'Бриллиант среди спэровых шаров. Максимальная твердость полиэстера гарантирует прямолинейную траекторию.',
+    releaseYear: 2017,
   },
 
   // =========================================================================
@@ -788,6 +826,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#09090b',
     accentColor: '#ef4444',
     description: 'Культовая «Чёрная Вдова» с технологией HK22. Непревзойденный угол входа и чудовищный разброс кеглей.',
+    releaseYear: 2024,
   },
   {
     id: 'hammer_black_widow_2_hybrid',
@@ -806,6 +845,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#f87171',
     description: 'Сочетание полированного финиша HK22 и легендарного ядра Gas Mask для дальнего прохода и резкого угла входа.',
+    releaseYear: 2023,
   },
   {
     id: 'hammer_effect',
@@ -824,6 +864,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#06b6d4',
     accentColor: '#ec4899',
     description: 'Инновационное покрытие Cohesion Pearl в линейке Hammer. Мощная реакция на переходную зону и чистый бэкэнд.',
+    releaseYear: 2024,
   },
   {
     id: 'hammer_purple_pearl',
@@ -858,10 +899,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#27272a',
     accentColor: '#52525b',
     description: 'Отличный базовый шар для средних кондиций. Надёжный и плавный отклик по карману.',
+    releaseYear: 2021,
   },
   {
     id: 'hammer_black_widow_original',
-    name: 'Black Widow (Original 2006)',
+    name: 'Black Widow 2.0',
     brand: 'Hammer',
     coverstock: 'Solid',
     coverstockName: 'Violent Bite Solid',
@@ -875,7 +917,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#991b1b',
     secondaryColor: '#09090b',
     accentColor: '#dc2626',
-    description: 'Рождение легенды в 2006 году. Первое появление ядра Gas Mask навсегда изменило индустрию асимметричного хука.',
+    description: 'Современный релиз 2021 года легендарного Black Widow с оболочкой Aggression Solid и ядром Gas Mask для сокрушительного удара.',
+    releaseYear: 2021,
   },
   {
     id: 'hammer_hazmat',
@@ -893,6 +936,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e293b',
     accentColor: '#eab308',
     description: 'Симметричная бомба с низким RG и технологией HK22. Взрывное продолжение через пиндек на средних паттернах.',
+    releaseYear: 2023,
   },
   {
     id: 'hammer_black_widow_ghost',
@@ -911,6 +955,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#cbd5e1',
     accentColor: '#dc2626',
     description: 'Белый призрак Widow. Невероятная длина скольжения и один из самых резких бэкэндов в истории линейки.',
+    releaseYear: 2021,
   },
   {
     id: 'hammer_3d_offset',
@@ -929,10 +974,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e1b4b',
     accentColor: '#fb7185',
     description: 'Возрождение знаменитого архивного ядра 3-D Offset с карбоновым волокном для сверхстабильного входа в карман.',
+    releaseYear: 2022,
   },
   {
     id: 'hammer_blue_hammer_vintage',
-    name: 'Blue Hammer (Faball Vintage)',
+    name: 'Blue Hammer (2012 Reissue)',
     brand: 'Hammer',
     coverstock: 'Urethane',
     coverstockName: 'True Urethane',
@@ -945,7 +991,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#1d4ed8',
     secondaryColor: '#1e40af',
     accentColor: '#60a5fa',
-    description: 'Исторический уретановый молот Faball 1980-х годов. Родоначальник бренда Hammer и символ сокрушительного пинфолла.',
+    description: 'Уретановое переиздание 2012 года с ядром High Rev Vintage Core для высочайшей точности на сухих и коротких паттернах масла.',
+    releaseYear: 2012,
   },
   {
     id: 'hammer_black_hammer_urethane',
@@ -963,6 +1010,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#3f3f46',
     description: 'Матовый черный уретан для точнейшей игры у самого желоба на коротких спортивных дорожках.',
+    releaseYear: 2016,
   },
   {
     id: 'hammer_extreme_envy',
@@ -981,6 +1029,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#15803d',
     accentColor: '#fbbf24',
     description: 'Один из самых цепких шаров Hammer в истории. Разрезает толстый слой масла благодаря ядру Launcher с дифференциалом 0.055.',
+    releaseYear: 2024,
   },
   {
     id: 'hammer_scorpion_strike',
@@ -998,6 +1047,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#f97316',
     description: 'Жалящий удар скорпиона. Высокая динамика на переходе благодаря модернизированному ядру LED 3.0.',
+    releaseYear: 2022,
   },
   {
     id: 'hammer_redemption_solid',
@@ -1016,6 +1066,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#09090b',
     accentColor: '#ea580c',
     description: 'Архивный супер-хук линейки Redemption. Не прощает ошибок кеглям при игре на плотных диаграммах масла.',
+    releaseYear: 2020,
   },
   {
     id: 'hammer_statement_solid',
@@ -1034,6 +1085,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0f172a',
     accentColor: '#10b981',
     description: 'Архивное громкое заявление от Hammer конца 2010-х. Максимальная передача импульса и непрерывный вход.',
+    releaseYear: 2019,
   },
   {
     id: 'hammer_ripd',
@@ -1069,6 +1121,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#38bdf8',
     description: 'Быстрый и чистый жемчужный шар для средних кондиций, ставший любимцем многих клубных игроков (архив).',
+    releaseYear: 2020,
   },
   {
     id: 'hammer_web_tour',
@@ -1086,6 +1139,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e293b',
     accentColor: '#475569',
     description: 'Турнирный шар с уменьшенным дифференциалом. Создан специально для стабильного пробивания плотных спортивных дорожек.',
+    releaseYear: 2018,
   },
   {
     id: 'hammer_dark_web',
@@ -1103,6 +1157,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#09090b',
     accentColor: '#9333ea',
     description: 'Увеличенная плотность сцепления и модифицированное ядро Spheroid для надёжного контроля масляного кармана.',
+    releaseYear: 2022,
   },
   {
     id: 'hammer_axe',
@@ -1120,6 +1175,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#dc2626',
     accentColor: '#ef4444',
     description: 'Топор для рубки угловых кеглей. Утяжелённый полиэстер с повышенной износостойкостью для точного добивания.',
+    releaseYear: 2019,
   },
 
   // =========================================================================
@@ -1142,6 +1198,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#d97706',
     accentColor: '#dc2626',
     description: 'Тяжёлая артиллерия Roto Grip. Ядро Defiant LRG с низким RG врезается в самое густое масло с первых футов.',
+    releaseYear: 2022,
   },
   {
     id: 'roto_attention_star',
@@ -1160,6 +1217,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0369a1',
     accentColor: '#ec4899',
     description: 'Слияние асимметричного ядра Momentous AV и технологии A.I. Core. Потрясающая скорость и угловой отклик.',
+    releaseYear: 2024,
   },
   {
     id: 'roto_clone',
@@ -1178,6 +1236,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#f59e0b',
     accentColor: '#7c3aed',
     description: 'Эволюция линейки UFO и E.T. Внеземной трекшн в середине дорожки и высокий дифференциал для раскрытия дорожки.',
+    releaseYear: 2023,
   },
   {
     id: 'roto_hustle_rip',
@@ -1195,6 +1254,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#3b82f6',
     accentColor: '#818cf8',
     description: 'Идеальное оружие для сухих дорожек и поздних смен турниров. Мягкий и предсказуемый контроль линии.',
+    releaseYear: 2023,
   },
   {
     id: 'roto_optimum_idol',
@@ -1212,10 +1272,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#38bdf8',
     accentColor: '#0ea5e9',
     description: 'Возвращение легендарного ядра Ikon с обновленной оболочкой A.I. Core для максимального сминания кеглей.',
+    releaseYear: 2024,
   },
   {
     id: 'roto_cell_original',
-    name: 'Cell (Original 2008)',
+    name: 'Cell Pearl (2010 Reissue)',
     brand: 'Roto Grip',
     coverstock: 'Solid',
     coverstockName: 'Cytoplasmic™ Solid Reactive',
@@ -1229,7 +1290,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#991b1b',
     secondaryColor: '#18181b',
     accentColor: '#f59e0b',
-    description: 'Легенда 2008 года, вознёсшая Roto Grip на вершину боулинга. Ядро Nucleus вошло в зал славы индустрии.',
+    description: 'Жемчужное переиздание 2010 года культового ядра Nucleus для чистейшего скольжения по сухому фронту и силовой дуги.',
+    releaseYear: 2010,
   },
   {
     id: 'roto_hyper_cell',
@@ -1248,6 +1310,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e1b4b',
     accentColor: '#fb7185',
     description: 'Культовый архивный сиквел Cell. Сверхцепкая формула 80H прорезала даже самое скользкое масло.',
+    releaseYear: 2014,
   },
   {
     id: 'roto_exotic_gem',
@@ -1266,6 +1329,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#ec4899',
     accentColor: '#eab308',
     description: 'Жемчужная версия Gem. Сохраняет мощь ядра Defiant LRG, добавляя лёгкость прохождения первых 30 футов.',
+    releaseYear: 2022,
   },
   {
     id: 'roto_magic_gem',
@@ -1284,6 +1348,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#14532d',
     accentColor: '#38bdf8',
     description: 'Гибридная магия серии Gem. Идеальный баланс между сцеплением на старте и взрывным входом в карман.',
+    releaseYear: 2023,
   },
   {
     id: 'roto_idol_helios',
@@ -1301,6 +1366,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#c2410c',
     accentColor: '#fdba74',
     description: 'Ярко-оранжевый идол с микро-наночастицами в покрытии XtremeTrax. Невероятный контроль линии.',
+    releaseYear: 2021,
   },
   {
     id: 'roto_rubicon_uc3',
@@ -1337,6 +1403,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#f97316',
     description: 'Архивная легенда 2012 года. Первое появление революционного асимметричного мотора серии Defiant.',
+    releaseYear: 2012,
   },
   {
     id: 'roto_haywire',
@@ -1354,6 +1421,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#ea580c',
     accentColor: '#facc15',
     description: 'Архивный фаворит профессионалов. Непревзойденная плавность дуги и надежность чтения брейк-пойнта.',
+    releaseYear: 2015,
   },
   {
     id: 'roto_dare_devil_trick',
@@ -1371,6 +1439,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#6366f1',
     description: 'Архивный симметричный бенчмарк Roto Grip с ядром Madcap. Эталон управляемости в сложных турнирных сериях.',
+    releaseYear: 2017,
   },
   {
     id: 'roto_halo',
@@ -1389,6 +1458,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#ea580c',
     description: 'Архивный супер-тяжеловес Halo. Асимметричное ядро Centron закладывало мощный разворот на залитых дорожках.',
+    releaseYear: 2018,
   },
   {
     id: 'roto_rst_x1',
@@ -1407,6 +1477,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e1b4b',
     accentColor: '#34d399',
     description: 'Специальная турнирная разработка для PBA Tour. Плавный вход ядра RST позволяет играть глубоко изнутри.',
+    releaseYear: 2021,
   },
   {
     id: 'roto_ufo_alert',
@@ -1442,6 +1513,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#3f3f46',
     accentColor: '#15803d',
     description: 'Камуфляжный хастл для турнирных смен, когда на дорожке осталась тонкая полоска сухого дерева.',
+    releaseYear: 2021,
   },
   {
     id: 'roto_hustle_wine',
@@ -1459,6 +1531,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#9d174d',
     accentColor: '#f472b6',
     description: 'Жемчужный винный цвет и супер-чистое скольжение по передней трети дорожки для лёгкого угла.',
+    releaseYear: 2021,
   },
   {
     id: 'roto_retro_spare',
@@ -1498,6 +1571,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e1b4b',
     accentColor: '#f97316',
     description: 'Тяжелейший монстр 900 Global с технологией A.I. Core. Пробивает самые плотные блоки спортивного масла.',
+    releaseYear: 2024,
   },
   {
     id: 'global_sublime',
@@ -1516,6 +1590,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#4338ca',
     accentColor: '#f59e0b',
     description: 'Универсальный турнирный шар с превосходным балансом раннего зацепа и резкого углового движения на сухом конце дорожки.',
+    releaseYear: 2023,
   },
   {
     id: 'global_zen_gold',
@@ -1550,6 +1625,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#9333ea',
     accentColor: '#38bdf8',
     description: 'Идеален для средних кондиций масла и тренировки точных диагональных линий благодаря стабильному ядру Shrapnel 2.0.',
+    releaseYear: 2024,
   },
   {
     id: 'global_zen_original',
@@ -1584,6 +1660,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0369a1',
     accentColor: '#ea580c',
     description: 'Гибридная душа Zen. Добавляет раннее считывание масляного профиля без потери знаменитого бэкэнда.',
+    releaseYear: 2022,
   },
   {
     id: 'global_reality',
@@ -1602,6 +1679,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#312e81',
     accentColor: '#e11d48',
     description: 'Оригинальный чемпион серии Reality. Колоссальное ядро Disturbance и супер-цепкая оболочка S84.',
+    releaseYear: 2021,
   },
   {
     id: 'global_altered_reality',
@@ -1638,6 +1716,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0f172a',
     accentColor: '#f43f5e',
     description: 'Математическая гармония ядра Epoch и смеси Reserve Blend 901 для идеального закручивания на тяжелом масле.',
+    releaseYear: 2023,
   },
   {
     id: 'global_honey_badger',
@@ -1655,6 +1734,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#fbbf24',
     description: 'Культовый «Медоед». Высокий RG и резкий излом траектории сделали эту серию фаворитом многих турнирных бойцов.',
+    releaseYear: 2018,
   },
   {
     id: 'global_honey_badger_intensity',
@@ -1673,6 +1753,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0284c7',
     accentColor: '#c084fc',
     description: 'Асимметричная ярость медоеда. Экстремальный флип на сухой части дорожки для скоростных игроков.',
+    releaseYear: 2019,
   },
   {
     id: 'global_continuum',
@@ -1691,6 +1772,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0f172a',
     accentColor: '#10b981',
     description: 'Архивная модель с непрерывным вектором движения. Сглаживает неровности брейк-пойнта.',
+    releaseYear: 2018,
   },
   {
     id: 'global_inception',
@@ -1709,6 +1791,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#701a75',
     accentColor: '#38bdf8',
     description: 'Архивный гигант 2016 года с трансформируемым ядром Adaptor/C для глубокого масляного захвата.',
+    releaseYear: 2016,
   },
   {
     id: 'global_respect',
@@ -1726,6 +1809,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#f97316',
     description: 'Архивный классик серии Respect с ядром Tetra. Заслужил уважение боулеров своей безотказной работой в кармане.',
+    releaseYear: 2014,
   },
   {
     id: 'global_cruise',
@@ -1743,6 +1827,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#f59e0b',
     accentColor: '#38bdf8',
     description: 'Комфортное скольжение и уверенный круиз по переходным дорожкам в средних фазах соревнований.',
+    releaseYear: 2022,
   },
   {
     id: 'global_ordnance_c4',
@@ -1760,6 +1845,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#4ade80',
     description: 'Взрывчатка C4 с низким RG для предсказуемой и плотной траектории на спортивных кондициях.',
+    releaseYear: 2020,
   },
   {
     id: 'global_burner_solid',
@@ -1777,6 +1863,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#451a03',
     accentColor: '#f97316',
     description: 'Прекрасный выбор для сухих дорожек. Ядро Claw обеспечивает контролируемое торможение без резких срывов.',
+    releaseYear: 2021,
   },
   {
     id: 'global_burner_pearl',
@@ -1794,6 +1881,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#ea580c',
     accentColor: '#c084fc',
     description: 'Лёгкий жемчужный отклик для выгоревших дорожек и боулеров с высокой скоростью броска.',
+    releaseYear: 2021,
   },
   {
     id: 'global_volt',
@@ -1811,6 +1899,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#7e22ce',
     accentColor: '#fef08a',
     description: 'Высоковольтный бэкэнд с отличной способностью сохранять энергию в первой половине дорожки.',
+    releaseYear: 2020,
   },
   {
     id: 'global_clear_poly',
@@ -1828,6 +1917,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#e2e8f0',
     accentColor: '#38bdf8',
     description: 'Прозрачный полиэстеровый шар для безупречного добивания любых сплитов и угловых остановок.',
+    releaseYear: 2016,
   },
 
   // =========================================================================
@@ -1850,6 +1940,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e293b',
     accentColor: '#22c55e',
     description: 'Самый мощный хищник в арсенале Motiv. Агрессивная оболочка Leverage MFS удерживает дорожку при максимальном объёме масла.',
+    releaseYear: 2022,
   },
   {
     id: 'motiv_venom_shock',
@@ -1867,6 +1958,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#f97316',
     accentColor: '#cbd5e1',
     description: 'Один из величайших шаров всех времён (выпускается с 2014 года). Гладкое скольжение и непревзойденная предсказуемость.',
+    releaseYear: 2014,
   },
   {
     id: 'motiv_primal_shock',
@@ -1884,6 +1976,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#7c3aed',
     accentColor: '#38bdf8',
     description: 'Симбиоз легендарного покрытия Venom Shock и более углового ядра Impulse V2 для глубокого захода во фреймы.',
+    releaseYear: 2023,
   },
   {
     id: 'motiv_black_venom',
@@ -1902,6 +1995,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#dc2626',
     accentColor: '#71717a',
     description: 'Асимметричная модификация Gear APG. Добавляет больше раннего движения и сохраняет фирменную плавность ядовитой серии.',
+    releaseYear: 2023,
   },
   {
     id: 'motiv_supra_rally',
@@ -1919,6 +2013,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#fbbf24',
     accentColor: '#f97316',
     description: 'Быстроходный жемчужный болид Motiv с полировкой LSP для сухих бэкэндов и игры от дальней стрелки.',
+    releaseYear: 2023,
   },
   {
     id: 'motiv_jackal_ghost',
@@ -1937,6 +2032,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e1b4b',
     accentColor: '#818cf8',
     description: 'Легендарный призрак Motiv, не сходящий с конвейера годами. Непревзойденный бенчмарк для тяжелого спортивного масла.',
+    releaseYear: 2017,
   },
   {
     id: 'motiv_ripcord_launch',
@@ -1954,6 +2050,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0284c7',
     accentColor: '#f43f5e',
     description: 'Взрывная динамика ядра Torq-X и формула покрытия Propulsion для максимального раскрытия брейк-пойнта.',
+    releaseYear: 2022,
   },
   {
     id: 'motiv_subzero_forge',
@@ -1971,6 +2068,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#082f49',
     accentColor: '#38bdf8',
     description: 'Ледяной шторм с ядром Detonator. Максимальный дифференциал 0.055 даёт сокрушительное пятно контакта.',
+    releaseYear: 2024,
   },
   {
     id: 'motiv_nuclear_forge',
@@ -1988,6 +2086,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#f59e0b',
     accentColor: '#fbbf24',
     description: 'Ядерная энергия симметричного ядра Detonator и реактивного гибрида для игры на средних и длинных турнирных паттернах.',
+    releaseYear: 2023,
   },
   {
     id: 'motiv_iron_forge',
@@ -2005,6 +2104,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#475569',
     accentColor: '#34d399',
     description: 'Кованый жемчужный шедевр с ядром Detonator. Отличается невероятной угловой реакцией при выходе из масла.',
+    releaseYear: 2021,
   },
   {
     id: 'motiv_forge_flare',
@@ -2022,6 +2122,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#f97316',
     accentColor: '#fde047',
     description: 'Архивная вспышка Forge. Рекордный флейр дорожки и мощнейшая тяга по всей длине зоны зацепа.',
+    releaseYear: 2020,
   },
   {
     id: 'motiv_tank_rampage',
@@ -2039,6 +2140,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e293b',
     accentColor: '#64748b',
     description: 'Микроклеточный полимер MCP. Сочетает контроль уретана с продолжением реактивного шара.',
+    releaseYear: 2017,
   },
   {
     id: 'motiv_blue_tank',
@@ -2056,6 +2158,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e40af',
     accentColor: '#93c5fd',
     description: 'Бронированный синий танк для тяжелых спортивных коротких профилей масла и соревнований высшего уровня.',
+    releaseYear: 2022,
   },
   {
     id: 'motiv_fatal_venom',
@@ -2073,6 +2176,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#09090b',
     accentColor: '#34d399',
     description: 'Смертельный жемчужный яд для сухих дорожек. Ядро Gear обеспечивает чистую и точную дугу без резких сюрпризов.',
+    releaseYear: 2020,
   },
   {
     id: 'motiv_pride_empire',
@@ -2091,6 +2195,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#4f46e5',
     accentColor: '#f472b6',
     description: 'Имперская гордость Motiv. Асимметричное ядро Dominator с умеренным MB для гладкого входа и резкого раскрытия угла.',
+    releaseYear: 2022,
   },
   {
     id: 'motiv_covert_revolt',
@@ -2108,6 +2213,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e293b',
     accentColor: '#94a3b8',
     description: 'Архивный чемпион 2014 года. Легендарный шар, выигравший для Motiv первые крупные титулы в туре PBA.',
+    releaseYear: 2014,
   },
   {
     id: 'motiv_forza',
@@ -2125,6 +2231,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#fb923c',
     description: 'Архивная итальянская мощь Forza. Идеальный спортивный баланс скорости вращения и чтения перехода.',
+    releaseYear: 2014,
   },
   {
     id: 'motiv_hyper_venom',
@@ -2142,6 +2249,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#ec4899',
     accentColor: '#a3e635',
     description: 'Ультраяркий ядовитый шар с взрывным жемчужным покрытием Propulsion MXR для угловой игры на сухом покрытии.',
+    releaseYear: 2024,
   },
   {
     id: 'motiv_mythic_jackal',
@@ -2160,6 +2268,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#4338ca',
     accentColor: '#a5b4fc',
     description: 'Мифический гибридный шакал. Объединяет ярость ядра Predator V2 со стремительным финишем на бэкэнде.',
+    releaseYear: 2022,
   },
   {
     id: 'motiv_midnight_sniper',
@@ -2177,6 +2286,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#ffffff',
     description: 'Снайперская винтовка Motiv. Специальное спэровое ядро Hollow Point ведёт шар по лазерной прямой.',
+    releaseYear: 2018,
   },
 
   // =========================================================================
@@ -2198,6 +2308,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0f172a',
     accentColor: '#38bdf8',
     description: 'Пятое поколение легенды Game Breaker. Новое покрытие HK22-GB 15.0 усиливает сцепление в масле без потери продолжения.',
+    releaseYear: 2024,
   },
   {
     id: 'ebonite_the_one_remix',
@@ -2216,6 +2327,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#dc2626',
     accentColor: '#18181b',
     description: 'Реинкарнация легендарного ядра Centrex с экстремальным Mass Bias 0.027 для максимально резкого излома траектории.',
+    releaseYear: 2022,
   },
   {
     id: 'ebonite_fireball_pearl',
@@ -2233,6 +2345,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#b45309',
     accentColor: '#facc15',
     description: 'Яркий жемчужный шар с отличной реакцией на чистых дорожках и легком масле по привлекательной цене.',
+    releaseYear: 2023,
   },
   {
     id: 'ebonite_gb4',
@@ -2250,10 +2363,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#09090b',
     accentColor: '#60a5fa',
     description: 'Классика предсказуемости Game Breaker. Гарантирует надежное считывание профиля масла на любых турнирах.',
+    releaseYear: 2021,
   },
   {
     id: 'ebonite_the_one_original',
-    name: 'The One (Original 2005)',
+    name: 'The One Encore',
     brand: 'Ebonite',
     coverstock: 'Solid',
     coverstockName: 'GB 10.7 Solid',
@@ -2267,11 +2381,12 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#0369a1',
     secondaryColor: '#09090b',
     accentColor: '#38bdf8',
-    description: 'Легендарный шар 2005 года, установивший абсолютный рекорд продаж Ebonite и завоевавший сердца профессионалов.',
+    description: 'Флагманский выпуск 2023 года с технологией HK22 - GB 14.4 Hybrid и асимметричным ядром Centrex для колоссального бэкэнда.',
+    releaseYear: 2023,
   },
   {
     id: 'ebonite_game_breaker_original',
-    name: 'Game Breaker (Original)',
+    name: 'Game Breaker 2',
     brand: 'Ebonite',
     coverstock: 'Solid',
     coverstockName: 'GB 10.7 Solid',
@@ -2284,11 +2399,12 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#1e3a8a',
     secondaryColor: '#172554',
     accentColor: '#3b82f6',
-    description: 'Шар-икона, породивший целую династию Game Breaker. Самое стабильное ядро V2 в истории боулинга.',
+    description: 'Знаменитый соревновательный шар 2014 года с ядром Enhanced V2 и оболочкой GB 10.7 Solid для эталонного контроля линии.',
+    releaseYear: 2014,
   },
   {
     id: 'ebonite_big_time',
-    name: 'Big Time',
+    name: 'Big Time Special Edition',
     brand: 'Ebonite',
     coverstock: 'Solid',
     coverstockName: 'Big Time Hook Solid',
@@ -2302,11 +2418,12 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#7f1d1d',
     secondaryColor: '#18181b',
     accentColor: '#f59e0b',
-    description: 'Архивное победное оружие Томми Джонса в середине 2000-х. Мощный асимметричный хук с фирменным накатом.',
+    description: 'Лимитированное переиздание 2023 года с оболочкой HK22 - GB 13.7 Pearl для быстрого прохождения сухого фронта и взрывного отклика.',
+    releaseYear: 2023,
   },
   {
     id: 'ebonite_matrix',
-    name: 'Matrix (Vintage 1990s)',
+    name: 'Matrix (2017 Reissue)',
     brand: 'Ebonite',
     coverstock: 'Solid',
     coverstockName: 'Matrix Reactive Solid',
@@ -2319,7 +2436,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#15803d',
     secondaryColor: '#18181b',
     accentColor: '#4ade80',
-    description: 'Культовый шар 1990-х годов с матричной сеткой. Завоевал огромное количество национальных титулов.',
+    description: 'Перевыпуск 2017 года с ядром Matrix и гибридным покрытием GB 12.7 для предсказуемой силовой дуги.',
+    releaseYear: 2017,
   },
   {
     id: 'ebonite_emerge',
@@ -2338,6 +2456,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#7c3aed',
     accentColor: '#fbbf24',
     description: 'Яркий асимметричный бэкэнд. Сочетает чистоту прохождения HK22 Optimize с агрессивным углом входа.',
+    releaseYear: 2023,
   },
   {
     id: 'ebonite_polaris',
@@ -2356,6 +2475,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0f172a',
     accentColor: '#818cf8',
     description: 'Полярная звезда тяжелого масла. Архитектура ядра Polaris специально разрабатывалась для максимального трекшна.',
+    releaseYear: 2022,
   },
   {
     id: 'ebonite_polaris_hybrid',
@@ -2374,6 +2494,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#ea580c',
     accentColor: '#38bdf8',
     description: 'Гибридная версия Polaris для более резкого изменения траектории при переходе с заплывших дорожек.',
+    releaseYear: 2022,
   },
   {
     id: 'ebonite_omni',
@@ -2392,6 +2513,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#3b82f6',
     accentColor: '#60a5fa',
     description: 'Архивная разработка в сотрудничестве с Шоном Рэшем. Создан для универсальной игры по любым линиям.',
+    releaseYear: 2020,
   },
   {
     id: 'ebonite_destiny_solid',
@@ -2409,6 +2531,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#f87171',
     description: 'Доступный и надежный турнирный боец на базе ядра Cyclone. Отличная плавность дуги.',
+    releaseYear: 2019,
   },
   {
     id: 'ebonite_destiny_pearl',
@@ -2426,6 +2549,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#38bdf8',
     accentColor: '#e0f2fe',
     description: 'Жемчужная судьба для вечерних лиг. Скользит по сухому началу дорожки и резко закрывает фрейм.',
+    releaseYear: 2019,
   },
   {
     id: 'ebonite_aero',
@@ -2444,6 +2568,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#064e3b',
     accentColor: '#34d399',
     description: 'Аэродинамический дизайн ядра Aero с оптимизированным переносом веса для глубоких слоев масла (архив).',
+    releaseYear: 2021,
   },
   {
     id: 'ebonite_envision',
@@ -2462,6 +2587,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e1b4b',
     accentColor: '#f472b6',
     description: 'Интуитивный контроль и мощная асимметрия для боулеров, ищущих чистый контакт в середине дорожки.',
+    releaseYear: 2022,
   },
   {
     id: 'ebonite_fireball_solid',
@@ -2479,10 +2605,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#ea580c',
     description: 'Матовый огненный шар с технологией HK22. Непревзойденная предсказуемость захода в карман.',
+    releaseYear: 2024,
   },
   {
     id: 'ebonite_sea_sick',
-    name: 'Sea Sick',
+    name: 'Warrior',
     brand: 'Ebonite',
     coverstock: 'Hybrid',
     coverstockName: 'Warrior Hybrid',
@@ -2496,11 +2623,12 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#0d9488',
     secondaryColor: '#14b8a6',
     accentColor: '#99f6e4',
-    description: 'Яркий бирюзовый гибрид с агрессивным асимметричным ядром для штормовых турнирных условий.',
+    description: 'Асимметричный шар 2015 года с ядром Iron Fist и оболочкой Iron-Scar Hybrid для глубокого сцепления на тяжелом масле.',
+    releaseYear: 2015,
   },
   {
     id: 'ebonite_turbo_x',
-    name: 'Turbo/X (Vintage 1980s)',
+    name: 'Futura',
     brand: 'Ebonite',
     coverstock: 'Plastic',
     coverstockName: 'Hard Rubber Composite',
@@ -2513,7 +2641,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#09090b',
     secondaryColor: '#18181b',
     accentColor: '#38bdf8',
-    description: 'Историческая классика Ebonite 1980-х годов. Шар, на котором выросло целое поколение чемпионов.',
+    description: 'Турнирный шар 2018 года с ядром Carve Symmetrical и оболочкой GSV-1 Solid для мощной средней части дорожки.',
+    releaseYear: 2018,
   },
   {
     id: 'ebonite_maxim',
@@ -2531,6 +2660,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#a855f7',
     accentColor: '#38bdf8',
     description: 'Самый популярный спэровый шар Ebonite на планете. Идеальная геометрия прямого броска на добивание.',
+    releaseYear: 2020,
   },
 
   // =========================================================================
@@ -2553,6 +2683,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#451a03',
     accentColor: '#f97316',
     description: 'Агрессивный флагман DV8 для глубокого масла. Мощное асимметричное ядро ускоряется и сокрушает пиндек.',
+    releaseYear: 2023,
   },
   {
     id: 'dv8_brutal_collision',
@@ -2571,6 +2702,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0284c7',
     accentColor: '#a855f7',
     description: 'Низкий RG и высокий Mass Bias в сочетании с гибридной оболочкой HK22 дают разрушительную силу в кармане.',
+    releaseYear: 2022,
   },
   {
     id: 'dv8_trouble_maker_pearl',
@@ -2589,6 +2721,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#4f46e5',
     accentColor: '#34d399',
     description: 'Специально оптимизирован для двуручных боулеров и игроков без большого пальца с ядром Dualistic.',
+    releaseYear: 2024,
   },
   {
     id: 'dv8_captiv8',
@@ -2606,6 +2739,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#7c3aed',
     accentColor: '#fbbf24',
     description: 'Динамичный жемчужный шар с чистым скольжением по передней части дорожки и выраженным флипом.',
+    releaseYear: 2021,
   },
   {
     id: 'dv8_chill',
@@ -2623,10 +2757,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0f172a',
     accentColor: '#38bdf8',
     description: 'Легендарное ядро Diva 2.0 с формулой HK22. Гладкий холодный контроль без нервов на любой дорожке.',
+    releaseYear: 2023,
   },
   {
     id: 'dv8_hell_raiser_original',
-    name: 'Hell Raiser (Original 2011)',
+    name: 'Hell Raiser',
     brand: 'DV8',
     coverstock: 'Solid',
     coverstockName: 'Class 7 Solid Reactive',
@@ -2639,8 +2774,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     recommendedOil: 'Heavy',
     primaryColor: '#dc2626',
     secondaryColor: '#09090b',
-    accentColor: '#f59e0b',
-    description: 'Дебютный бунтарский флагман 2011 года, запустивший бренд DV8 с девизом "Tonight We Bowl".',
+    description: 'Первый легендарный флагман DV8 2011 года с ядром Hell Raiser Asymmetric, определивший дерзкий характер и сокрушительный хук бренда Tonight We Bowl.',
+    releaseYear: 2011,
   },
   {
     id: 'dv8_damn_good_verge',
@@ -2658,6 +2793,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#f97316',
     description: 'Сверхнизкий RG 2.467 и сниженный дифференциал. Читает начало дорожки с математической точностью.',
+    releaseYear: 2011,
   },
   {
     id: 'dv8_collision',
@@ -2676,10 +2812,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e1b4b',
     accentColor: '#38bdf8',
     description: 'Столкновение мощного асимметричного мотора Collision с жемчужным слоем HK22 для максимальной ширины игры.',
+    releaseYear: 2022,
   },
   {
     id: 'dv8_trouble_maker',
-    name: 'Trouble Maker (Original)',
+    name: 'Trouble Maker',
     brand: 'DV8',
     coverstock: 'Hybrid',
     coverstockName: 'Inciter Max Continuum Hybrid',
@@ -2694,6 +2831,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#e11d48',
     accentColor: '#f59e0b',
     description: 'Первый шар, разработанный специально с учетом вариативности сверлений без большого пальца (2-Handed / No-Thumb).',
+    releaseYear: 2023,
   },
   {
     id: 'dv8_diva',
@@ -2711,6 +2849,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#db2777',
     accentColor: '#f472b6',
     description: 'Культовая ярко-розовая дива 2013 года. Один из самых любимых симметричных шаров в истории бренда.',
+    releaseYear: 2013,
   },
   {
     id: 'dv8_ruckus',
@@ -2729,6 +2868,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#09090b',
     accentColor: '#4ade80',
     description: 'Архивный возмутитель спокойствия середины 2010-х. Агрессивный хук на самом обильном масле.',
+    releaseYear: 2013,
   },
   {
     id: 'dv8_grudge',
@@ -2747,6 +2887,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0284c7',
     accentColor: '#f97316',
     description: 'Архивный масляный монстр. Композитное покрытие буквально вгрызалось в дорожку с линии фола.',
+    releaseYear: 2016,
   },
   {
     id: 'dv8_pitbull',
@@ -2765,6 +2906,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#ef4444',
     description: 'Бульдожья хватка. Максимальный Mass Bias 0.020 обеспечивал свирепый вход в тяжелом масляном клину.',
+    releaseYear: 2016,
   },
   {
     id: 'dv8_verge_pearl',
@@ -2782,6 +2924,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0f172a',
     accentColor: '#a78bfa',
     description: 'Превосходное дополнение к Damn Good Verge для поздних стадий турнира, когда масло разнесено.',
+    releaseYear: 2021,
   },
   {
     id: 'dv8_diamond_diva',
@@ -2799,6 +2942,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#ec4899',
     accentColor: '#22d3ee',
     description: 'Бриллиантовое сияние на дорожке. Гибридный флип для игроков, любящих эффектный бэкэнд.',
+    releaseYear: 2021,
   },
   {
     id: 'dv8_hooligan',
@@ -2816,6 +2960,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#ca8a04',
     accentColor: '#fde047',
     description: 'Хулиганский жемчужный шар архивной линейки DV8 для быстрой и лёгкой игры по краям дорожки.',
+    releaseYear: 2014,
   },
   {
     id: 'dv8_creed',
@@ -2834,6 +2979,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#09090b',
     accentColor: '#38bdf8',
     description: 'Архивное кредо победы с композитной оболочкой Fang и высоким дифференциалом 0.055.',
+    releaseYear: 2017,
   },
   {
     id: 'dv8_outcast',
@@ -2851,6 +2997,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#fb923c',
     description: 'Идеален для начинающих или для игры на совершенно сухих дорожках с максимальным контролем.',
+    releaseYear: 2014,
   },
   {
     id: 'dv8_violent_collision',
@@ -2869,6 +3016,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0284c7',
     accentColor: '#f472b6',
     description: 'Яростное жемчужное столкновение с агрессивным бэкэндом и мощным вращением ядра Collision.',
+    releaseYear: 2024,
   },
   {
     id: 'dv8_zombie_spare',
@@ -2886,6 +3034,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#a3e635',
     description: 'Фирменный зомби-шар DV8. Прямолинейное попадание в угловые кегли со 100% точностью.',
+    releaseYear: 2018,
   },
 
   // =========================================================================
@@ -2908,6 +3057,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#ef4444',
     description: 'Скоростное сцепление в масле. Асимметричное ядро мгновенно раскручивается и прокладывает прямой курс к страйку.',
+    releaseYear: 2022,
   },
   {
     id: 'c300_high_speed',
@@ -2926,6 +3076,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0284c7',
     accentColor: '#fbbf24',
     description: 'Гибридный болид Columbia 300. Больше длины в первой трети дорожки и резкий, неотразимый бросок на сухом масле.',
+    releaseYear: 2024,
   },
   {
     id: 'c300_messenger_solid',
@@ -2943,10 +3094,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0f172a',
     accentColor: '#4ade80',
     description: 'Инновационная технология PowerCOR в ядре шара с потрясающим звуком страйка и непревзойденной долговечностью.',
+    releaseYear: 2023,
   },
   {
     id: 'c300_white_dot',
-    name: 'White Dot',
+    name: 'White Dot (Modern)',
     brand: 'Columbia 300',
     coverstock: 'Plastic',
     coverstockName: 'Polyester Plastic',
@@ -2959,7 +3111,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#f8fafc',
     secondaryColor: '#38bdf8',
     accentColor: '#0ea5e9',
-    description: 'Самый узнаваемый спэровый шар в мире (выпускается десятилетиями). Летит строго по прямой на добивание.',
+    description: 'Современный релиз лучшего в мире полиэстерового шара для прямолинейного и надежного добива угловых кеглей.',
+    releaseYear: 2020,
   },
   {
     id: 'c300_cuda_powercor_pearl',
@@ -2977,6 +3130,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#06b6d4',
     accentColor: '#38bdf8',
     description: 'Возрождение знаменитой барракуды Cuda с технологией ядра PowerCOR и жемчужным слоем HK22.',
+    releaseYear: 2023,
   },
   {
     id: 'c300_cuda_powercor_solid',
@@ -2994,10 +3148,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#f87171',
     description: 'Плотный сплошной материал для надежного контроля кармана на средних и длинных спортивных программах.',
+    releaseYear: 2022,
   },
   {
     id: 'c300_pure_swing',
-    name: 'Pure Swing (Classic)',
+    name: 'Pure Swing (2011 Reissue)',
     brand: 'Columbia 300',
     coverstock: 'Solid',
     coverstockName: 'Full Swing Solid',
@@ -3010,11 +3165,12 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#b91c1c',
     secondaryColor: '#0f172a',
     accentColor: '#ea580c',
-    description: 'Архивный эталон Columbia 300. Легендарное ядро Resurgence обеспечивало эталонный чистый свинг.',
+    description: 'Перевыпуск 2011 года с ядром Full Swing и оболочкой Super Swing Reactive для контроля широких траекторий.',
+    releaseYear: 2011,
   },
   {
     id: 'c300_resurgence',
-    name: 'Resurgence',
+    name: 'Resurgence (2019 Reissue)',
     brand: 'Columbia 300',
     coverstock: 'Hybrid',
     coverstockName: 'Resurgence Hybrid',
@@ -3027,11 +3183,12 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#0284c7',
     secondaryColor: '#18181b',
     accentColor: '#38bdf8',
-    description: 'Икона бренда. Одно из лучших симметричных ядер всех времен, побеждавшее в десятках турниров PBA.',
+    description: 'Переиздание 2019 года одного из самых универсальных турнирных бенчмарков в истории боулинга с ядром Resurgence.',
+    releaseYear: 2019,
   },
   {
     id: 'c300_pulse',
-    name: 'Pulse (Vintage 1990s)',
+    name: 'Swerve',
     brand: 'Columbia 300',
     coverstock: 'Solid',
     coverstockName: 'Pulse Super Reactive',
@@ -3044,7 +3201,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#581c87',
     secondaryColor: '#18181b',
     accentColor: '#a855f7',
-    description: 'Исторический фиолетовый шар 1990-х, бивший рекорды серий из 300 очков по всему миру.',
+    description: 'Турнирный шар 2015 года с ядром Biconical и оболочкой Reflex Solid для максимальной мощности в середине дорожки.',
+    releaseYear: 2015,
   },
   {
     id: 'c300_beast',
@@ -3062,10 +3220,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#ec4899',
     accentColor: '#f472b6',
     description: 'Легендарный зверь Beast. Лучший выбор для легкого масла и обучения правильной траектории хука.',
+    releaseYear: 2018,
   },
   {
     id: 'c300_chaos',
-    name: 'Chaos',
+    name: 'Chaos (2018 Reissue)',
     brand: 'Columbia 300',
     coverstock: 'Solid',
     coverstockName: 'Excitation Solid',
@@ -3078,7 +3237,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#09090b',
     secondaryColor: '#ca8a04',
     accentColor: '#eab308',
-    description: 'Архивный хаос конца 2010-х. Высокий дифференциал 0.054 для масштабного раскрытия дорожки.',
+    description: 'Возрождение 2018 года с ядром Chaos и оболочкой Exciter Solid для сильного отклика на сухом остатке дорожки.',
+    releaseYear: 2018,
   },
   {
     id: 'c300_dynamic_swing',
@@ -3097,6 +3257,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0284c7',
     accentColor: '#10b981',
     description: 'Динамичный асимметричный свинг для максимальной гладкости и продолжения энергии сквозь кегли.',
+    releaseYear: 2020,
   },
   {
     id: 'c300_top_speed',
@@ -3115,10 +3276,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e1b4b',
     accentColor: '#fbbf24',
     description: 'Максимальная скорость выхода на брейк-пойнт и молниеносная реакция на сухое покрытие.',
+    releaseYear: 2022,
   },
   {
     id: 'c300_shadow',
-    name: 'Shadow (Vintage Ceramicore)',
+    name: 'Atlas',
     brand: 'Columbia 300',
     coverstock: 'Solid',
     coverstockName: 'Super Flex Solid',
@@ -3132,11 +3294,12 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#09090b',
     secondaryColor: '#18181b',
     accentColor: '#475569',
-    description: 'Исторический шедевр с керамическим ядром Ceramicore. Легендарный звук раскалывающегося пиндека.',
+    description: 'Тяжеловес 2023 года с ядром Atlas Asymmetric и формулой HK22 для максимальной производительности на спортивном масле.',
+    releaseYear: 2023,
   },
   {
     id: 'c300_ti_messenger',
-    name: 'Ti-Messenger (Vintage 1999)',
+    name: 'Lit',
     brand: 'Columbia 300',
     coverstock: 'Pearl',
     coverstockName: 'Super Flex Pearl',
@@ -3149,7 +3312,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#0284c7',
     secondaryColor: '#38bdf8',
     accentColor: '#e2e8f0',
-    description: 'Архивный титановый вестник побед конца 1990-х. Титановый блок в ядре создавал уникальный вектор вращения.',
+    description: 'Асимметричный турнирный шар 2017 года с ядром Lit Asymmetric и оболочкой Reflex XS для уверенной игры на плотном масле.',
+    releaseYear: 2017,
   },
   {
     id: 'c300_explosion',
@@ -3168,6 +3332,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#f97316',
     description: 'Взрывной асимметричный шар для игры на плотном домашнем и турнирном масле.',
+    releaseYear: 2020,
   },
   {
     id: 'c300_baller',
@@ -3186,6 +3351,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#701a75',
     accentColor: '#f59e0b',
     description: 'Архивный флагман Columbia 300 2019 года. Создан для истинных боулеров-тяжеловесов.',
+    releaseYear: 2020,
   },
   {
     id: 'c300_command',
@@ -3204,6 +3370,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0f172a',
     accentColor: '#c084fc',
     description: 'Командуйте дорожкой. Асимметричное ядро Movement с высоким Mass Bias 0.020 для глубоких линий.',
+    releaseYear: 2021,
   },
   {
     id: 'c300_piranha_powercor',
@@ -3221,10 +3388,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#09090b',
     accentColor: '#34d399',
     description: 'Возвращение пираньи с новой технологией HK22 и ядром PowerCOR. Безжалостно впивается в карман.',
+    releaseYear: 2024,
   },
   {
     id: 'c300_yellow_dot',
-    name: 'Yellow Dot (Historical 1970s)',
+    name: 'Power Torq',
     brand: 'Columbia 300',
     coverstock: 'Plastic',
     coverstockName: 'Classic Polyester Blend',
@@ -3237,7 +3405,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#09090b',
     secondaryColor: '#18181b',
     accentColor: '#facc15',
-    description: 'Золотой стандарт 1970-х годов. Шар, ставший легендой турниров ABC и PBA в эпоху деревянных дорожек.',
+    description: 'Хит 2021 года с ядром Torq Core и оболочкой ERT Solid для колоссального контроля и стабильной дуги.',
+    releaseYear: 2021,
   },
 
   // =========================================================================
@@ -3260,6 +3429,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#06b6d4',
     accentColor: '#ec4899',
     description: 'Теорема доказана: переработанное ядро MC2 в тандеме с HK22 создаёт непревзойденный динамический угол входа в карман.',
+    releaseYear: 2023,
   },
   {
     id: 'track_stealth',
@@ -3277,6 +3447,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e293b',
     accentColor: '#475569',
     description: 'Тёмный стелс-шар с высоким дифференциалом для максимального раскрытия дорожки и стабильного прохождения масла.',
+    releaseYear: 2022,
   },
   {
     id: 'track_archetype',
@@ -3295,6 +3466,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e1b4b',
     accentColor: '#38bdf8',
     description: 'Асимметричный архетип мощи с ядром I-Core 3.0. Экстремальный Mass Bias 0.020 для глубоких масляных паттернов.',
+    releaseYear: 2023,
   },
   {
     id: 'track_sensor_solid',
@@ -3312,6 +3484,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0f172a',
     accentColor: '#2dd4bf',
     description: 'Исключительный контроль и непрерывная дуга. Создан для сложных турнирных условий со средней плотностью масла.',
+    releaseYear: 2024,
   },
   {
     id: 'track_paragon',
@@ -3330,10 +3503,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#b91c1c',
     accentColor: '#f59e0b',
     description: 'Образец турнирной мощи. Ядро I-Core 3.0 гарантирует бескомпромиссный накат в тяжелом масле.',
+    releaseYear: 2022,
   },
   {
     id: 'track_triton_elite',
-    name: 'Triton Elite (Vintage 1990s)',
+    name: 'Triton Elite (2022 Reissue)',
     brand: 'Track',
     coverstock: 'Solid',
     coverstockName: 'Power Plus Reactive',
@@ -3346,11 +3520,12 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#1e1b4b',
     secondaryColor: '#1e3a8a',
     accentColor: '#38bdf8',
-    description: 'Культовый архивный шар 1990-х годов. Серия Triton прославила бренд Track по всему миру.',
+    description: 'Модернизированный выпуск 2022 года с ядром MC2 Technology и оболочкой QR-7 Solid для надежного удержания кармана.',
+    releaseYear: 2022,
   },
   {
     id: 'track_synergy',
-    name: 'Synergy (Classic)',
+    name: 'Paradox',
     brand: 'Track',
     coverstock: 'Solid',
     coverstockName: 'Synergy Solid Hook',
@@ -3364,7 +3539,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#831843',
     secondaryColor: '#18181b',
     accentColor: '#fb7185',
-    description: 'Архивная синергия точного вращения и мощного сцепления. Излюбленный выбор спортсменов в 2000-х.',
+    description: 'Культовый соревновательный асимметричный шар 2015 года с ядром I-Core 2.0 и колоссальным зацепом в бэкэнде.',
+    releaseYear: 2015,
   },
   {
     id: 'track_kinetic_amethyst',
@@ -3383,6 +3559,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#581c87',
     accentColor: '#c084fc',
     description: 'Фиолетовый кинетический аметист с ядром Shuttle. Низкий MB и чистый угол входа на средних дорожках.',
+    releaseYear: 2021,
   },
   {
     id: 'track_kinetic_black_navy',
@@ -3401,10 +3578,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#1e3a8a',
     accentColor: '#60a5fa',
     description: 'Гибридная версия легендарного Kinetic Shuttle. Отличается невероятной мягкостью чтения сухого участка.',
+    releaseYear: 2022,
   },
   {
     id: 'track_heat',
-    name: 'Heat (Vintage Classic)',
+    name: 'Heat (2016 Reissue)',
     brand: 'Track',
     coverstock: 'Hybrid',
     coverstockName: 'DR-5 Hybrid',
@@ -3417,7 +3595,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#ea580c',
     secondaryColor: '#18181b',
     accentColor: '#f97316',
-    description: 'Жаркая легенда Track. Симметричное ядро Tri-Core давало непревзойденный контроль на сухих брейк-пойнтах.',
+    description: 'Переиздание 2016 года с модифицированным ядром Tri-Core для идеального чистого проката сухого фронта.',
+    releaseYear: 2016,
   },
   {
     id: 'track_critical_theory',
@@ -3436,6 +3615,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#4f46e5',
     accentColor: '#38bdf8',
     description: 'Архивная критическая теория. Асимметричный трезубец Trident и жемчужный флип на выходе из масляного клина.',
+    releaseYear: 2011,
   },
   {
     id: 'track_912t',
@@ -3454,6 +3634,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#991b1b',
     accentColor: '#ef4444',
     description: 'Архивная вершина легендарной серии «T» начала 2010-х годов с ядром Face и максимальным трекшном.',
+    releaseYear: 2012,
   },
   {
     id: 'track_716t',
@@ -3472,6 +3653,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#0f172a',
     accentColor: '#3b82f6',
     description: 'Архивный эталон соревновательного боулинга. Ядро двойной плотности плавно переходило в бросок.',
+    releaseYear: 2011,
   },
   {
     id: 'track_505t',
@@ -3489,6 +3671,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#18181b',
     accentColor: '#4ade80',
     description: 'Симметричный контроль для средних спортивных кондиций (архивная серия 500).',
+    releaseYear: 2010,
   },
   {
     id: 'track_legion',
@@ -3506,7 +3689,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#701a75',
     secondaryColor: '#1e1b4b',
     accentColor: '#f472b6',
-    description: 'Архивный легион побед. Плотное ядро и умеренный Mass Bias для стабильной игры от центра дорожки.',
+    description: 'Турнирный шар 2015 года с ядром Cruiser Symmetric и оболочкой Prime Solid для глубокого контроля середины дорожки.',
+    releaseYear: 2015,
   },
   {
     id: 'track_tundra_fire',
@@ -3524,6 +3708,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#d97706',
     accentColor: '#fde047',
     description: 'Огонь тундры с технологией HK22. Высокий RG 2.561 позволяет легко проходить самые выгоревшие участки.',
+    releaseYear: 2023,
   },
   {
     id: 'track_tactix',
@@ -3541,10 +3726,11 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#14532d',
     accentColor: '#34d399',
     description: 'Симметричная тактика точной игры. Гарантирует надежный флейр и превосходный разнос угловых кеглей.',
+    releaseYear: 2019,
   },
   {
     id: 'track_latent_motion',
-    name: 'Latent Motion',
+    name: 'Latitude',
     brand: 'Track',
     coverstock: 'Pearl',
     coverstockName: 'Motion Plus Pearl',
@@ -3558,7 +3744,8 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     primaryColor: '#831843',
     secondaryColor: '#0284c7',
     accentColor: '#f43f5e',
-    description: 'Скрытое движение, раскрывающееся в мощнейший взрыв в зоне пиндека на средних паттернах масла.',
+    description: 'Бенчмарк 2020 года с ядром MC2 и оболочкой QR-8 Solid для высочайшей повторяемости на стандартных спортивных условиях.',
+    releaseYear: 2020,
   },
   {
     id: 'track_precision',
@@ -3577,6 +3764,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#06b6d4',
     accentColor: '#f472b6',
     description: 'Хирургическая точность асимметричного мотора Pax-Outer с Mass Bias 0.020 для дальних угловых атак.',
+    releaseYear: 2018,
   },
   {
     id: 'track_spare_plus',
@@ -3594,6 +3782,7 @@ const MODERN_BALL_CATALOG: CatalogBallPreset[] = [
     secondaryColor: '#38bdf8',
     accentColor: '#ffffff',
     description: 'Надежный спэровый шар Track для безупречного закрытия любых открытых фреймов.',
+    releaseYear: 2019,
   },
 ];
 
@@ -3604,41 +3793,39 @@ export const BANNED_BALLS: CatalogBallPreset[] = [
     brand: 'Storm',
     coverstock: 'Pearl',
     coverstockName: 'NeX™ Pearl Reactive',
-    core: 'Vector™ Symmetrical',
+    core: 'Vector™ Core',
     coreType: 'Symmetrical',
     rg: 2.54,
     diff: 0.050,
     finish: '1500-grit Polished',
     recommendedOil: 'Medium',
-    primaryColor: '#701a75',
+    primaryColor: '#7c3aed',
     secondaryColor: '#0284c7',
-    accentColor: '#f43f5e',
-    description: 'Отозван USBC 30 марта 2022 г. из-за несоответствия спецификации твердости (ниже 73D). Обладал феноменальным угловым входом.',
+    accentColor: '#38bdf8',
+    description: 'Официально запрещен USBC 30 марта 2022 года. Полевые замеры выявили несоответствие минимальной твердости 73D по шкале Дюроскопа.',
     releaseYear: 2022,
-    isArchived: true,
     isBanned: true,
-    bannedReason: 'USBC hardness revocation (март 2022)',
+    bannedReason: 'Полный отзыв сертификации USBC (март 2022) из-за твердости ниже допустимого порога',
   },
   {
     id: 'banned_storm_phaze_4',
     name: 'Phaze 4 [Ограничен USBC]',
     brand: 'Storm',
     coverstock: 'Pearl',
-    coverstockName: 'R2S™ Pro Pearl Reactive',
+    coverstockName: 'R2S™ Deep Pearl Reactive',
     core: 'Velocity™ Core',
     coreType: 'Symmetrical',
     rg: 2.48,
     diff: 0.051,
     finish: '1500-grit Polished',
     recommendedOil: 'Medium-Heavy',
-    primaryColor: '#1e3a8a',
-    secondaryColor: '#7c3aed',
-    accentColor: '#38bdf8',
-    description: 'Ограничен USBC на национальных турнирах в 2022 г. Знаменитое ядро Velocity в перламутровом исполнении для чистого скольжения.',
-    releaseYear: 2022,
-    isArchived: true,
+    primaryColor: '#1e1b4b',
+    secondaryColor: '#4338ca',
+    accentColor: '#f59e0b',
+    description: 'Включен USBC в список ограниченных шаров в 2022 году. Запрещен для использования на национальных турнирах USBC и соревнованиях PBA Tour.',
+    releaseYear: 2021,
     isBanned: true,
-    bannedReason: 'USBC national tournament restriction 2022',
+    bannedReason: 'Ограничение турниров USBC National Championships и запрет PBA Tour (2022)',
   },
   {
     id: 'banned_storm_trend_2',
@@ -3651,15 +3838,34 @@ export const BANNED_BALLS: CatalogBallPreset[] = [
     rg: 2.52,
     diff: 0.056,
     finish: '1500-grit Polished',
-    recommendedOil: 'Medium-Heavy',
+    recommendedOil: 'Medium',
     primaryColor: '#047857',
-    secondaryColor: '#18181b',
-    accentColor: '#10b981',
-    description: 'Создан с участием Джейсона Белмонте. Включен в ограничительный список USBC 2022 г. Обеспечивал мощное продолжение в кеглях.',
+    secondaryColor: '#1e293b',
+    accentColor: '#34d399',
+    description: 'Коллаборация с Джейсоном Белмонте. Внесен в список ограничений USBC весной 2022 года для национальных чемпионатов.',
     releaseYear: 2021,
-    isArchived: true,
     isBanned: true,
-    bannedReason: 'USBC restriction list 2022',
+    bannedReason: 'Ограничение участия в USBC National Championships и PBA Tour (2022)',
+  },
+  {
+    id: 'banned_storm_electrify_pearl',
+    name: 'Electrify Pearl [Ограничен USBC]',
+    brand: 'Storm',
+    coverstock: 'Pearl',
+    coverstockName: 'Reactor™ Pearl Reactive',
+    core: 'Circuit™ Core',
+    coreType: 'Symmetrical',
+    rg: 2.51,
+    diff: 0.030,
+    finish: '1500-grit Polished',
+    recommendedOil: 'Light-Medium',
+    primaryColor: '#ea580c',
+    secondaryColor: '#f97316',
+    accentColor: '#fef08a',
+    description: 'Ограничен USBC весной 2022 года для национальных турниров в связи с пересмотром спецификаций партии.',
+    releaseYear: 2021,
+    isBanned: true,
+    bannedReason: 'USBC Tournament Ban (март 2022)',
   },
   {
     id: 'banned_global_altered_reality',
@@ -3674,14 +3880,13 @@ export const BANNED_BALLS: CatalogBallPreset[] = [
     mb: 0.018,
     finish: '1500-grit Polished',
     recommendedOil: 'Heavy',
-    primaryColor: '#4338ca',
-    secondaryColor: '#0f172a',
-    accentColor: '#ec4899',
-    description: 'Асимметричный перловый топ для тяжелого масла. Отозван USBC весной 2022 года за отклонение твердости покрышки.',
+    primaryColor: '#312e81',
+    secondaryColor: '#701a75',
+    accentColor: '#38bdf8',
+    description: 'Запрещен USBC весной 2022 года по причине отклонения показателей твердости партии оболочки от стандартов сертификации.',
     releaseYear: 2021,
-    isArchived: true,
     isBanned: true,
-    bannedReason: 'USBC hardness revocation 2022',
+    bannedReason: 'Отзыв сертификации USBC и запрет PBA (март 2022)',
   },
   {
     id: 'banned_global_wolverine',
@@ -3689,20 +3894,19 @@ export const BANNED_BALLS: CatalogBallPreset[] = [
     brand: '900 Global',
     coverstock: 'Pearl',
     coverstockName: 'S70™ Pearl Reactive',
-    core: 'Lacerate™ 2.0 Symmetrical',
+    core: 'Lacerator™ 2.0 Core',
     coreType: 'Symmetrical',
     rg: 2.54,
     diff: 0.053,
     finish: '1500-grit Polished',
     recommendedOil: 'Medium',
-    primaryColor: '#7c2d12',
-    secondaryColor: '#d97706',
+    primaryColor: '#b45309',
+    secondaryColor: '#1c1917',
     accentColor: '#fbbf24',
-    description: 'Шар с агрессивным скид-флипом, попавший под турнирные ограничения USBC в 2022 году.',
+    description: 'Внесен USBC в список шаров, не допущенных к национальным первенствам USBC Open Championships 2022.',
     releaseYear: 2021,
-    isArchived: true,
     isBanned: true,
-    bannedReason: 'USBC tournament ban 2022',
+    bannedReason: 'Ограничение USBC Tournament List 2022',
   },
   {
     id: 'banned_roto_ufo_alert',
@@ -3710,7 +3914,7 @@ export const BANNED_BALLS: CatalogBallPreset[] = [
     brand: 'Roto Grip',
     coverstock: 'Hybrid',
     coverstockName: 'eTrax™ Hybrid Reactive',
-    core: 'E.T.™ Core (Equalizer Technology)',
+    core: 'E.T.™ (Equalizer Technology) Core',
     coreType: 'Asymmetrical',
     rg: 2.52,
     diff: 0.054,
@@ -3718,11 +3922,10 @@ export const BANNED_BALLS: CatalogBallPreset[] = [
     finish: '1500-grit Polished',
     recommendedOil: 'Medium-Heavy',
     primaryColor: '#0284c7',
-    secondaryColor: '#172554',
-    accentColor: '#38bdf8',
-    description: 'Асимметричный гибрид Roto Grip с невероятным углом атаки, отозванный USBC весной 2022 года.',
+    secondaryColor: '#1e1b4b',
+    accentColor: '#34d399',
+    description: 'Запрещен USBC и PBA Tour в марте 2022 года из-за снижения твердости после выпуска с завода ниже минимального стандарта.',
     releaseYear: 2021,
-    isArchived: true,
     isBanned: true,
     bannedReason: 'USBC hardness revocation 2022',
   },
@@ -3739,44 +3942,42 @@ export const BANNED_BALLS: CatalogBallPreset[] = [
     mb: 0.011,
     finish: '1000-grit Abralon',
     recommendedOil: 'Medium',
-    primaryColor: '#18181b',
-    secondaryColor: '#3f3f46',
-    accentColor: '#a1a1aa',
-    description: 'Уретановый шар с асимметричным ядром Rondure. Ограничен USBC на национальных турнирах в 2022 году.',
+    primaryColor: '#475569',
+    secondaryColor: '#1e293b',
+    accentColor: '#94a3b8',
+    description: 'Один из самых результативных уретановых шаров тура, запрещенный на национальных турнирах USBC в марте 2022 года.',
     releaseYear: 2021,
-    isArchived: true,
     isBanned: true,
-    bannedReason: 'USBC national tournament ban 2022',
+    bannedReason: 'Ограничение турниров USBC National Championships 2022',
   },
   {
     id: 'banned_motiv_jackal',
     name: 'Jackal [Запрещен USBC 2016]',
     brand: 'Motiv',
     coverstock: 'Solid',
-    coverstockName: 'TruDrop™ Reactive',
-    core: 'Predator™ Asymmetric',
+    coverstockName: 'TruDrop™ Solid Reactive',
+    core: 'Predator™ Asymmetrical Core',
     coreType: 'Asymmetrical',
     rg: 2.46,
     diff: 0.060,
     mb: 0.015,
-    finish: '3000-grit LSS',
+    finish: '3000-grit Laser Scanned Polish',
     recommendedOil: 'Heavy',
     primaryColor: '#7f1d1d',
     secondaryColor: '#450a0a',
-    accentColor: '#dc2626',
-    description: 'Отозван USBC 15 марта 2016 г. за превышение допустимого дифференциала 0.060 при аудите серийных партий. Культовая мощь.',
+    accentColor: '#ef4444',
+    description: 'Исторический прецедент USBC в марте 2016 года: сертификация отозвана из-за превышения дифференциала 0.060 в выборочных тестах серийных шаров.',
     releaseYear: 2015,
-    isArchived: true,
     isBanned: true,
-    bannedReason: 'USBC Max Differential 0.060 Exceeded (март 2016)',
+    bannedReason: 'Превышение максимального лимита USBC Total Differential 0.060 (март 2016)',
   },
   {
     id: 'banned_motiv_jackal_carnage',
     name: 'Jackal Carnage [Запрещен USBC 2016]',
     brand: 'Motiv',
     coverstock: 'Solid',
-    coverstockName: 'Coercion™ MFS Solid',
-    core: 'Predator™ Asymmetric',
+    coverstockName: 'Coercion™ DFS Solid Reactive',
+    core: 'Predator™ Asymmetrical Core',
     coreType: 'Asymmetrical',
     rg: 2.46,
     diff: 0.060,
@@ -3785,12 +3986,11 @@ export const BANNED_BALLS: CatalogBallPreset[] = [
     recommendedOil: 'Heavy',
     primaryColor: '#991b1b',
     secondaryColor: '#18181b',
-    accentColor: '#f87171',
-    description: 'Один из самых ранних и мощных шаров Motiv для сильного масла. Отозван USBC в 2016 г. из-за дифференциала.',
+    accentColor: '#dc2626',
+    description: 'Отозван из официального списка одобренных шаров USBC 15 марта 2016 года синхронно с оригинальным Jackal за превышение дифференциала.',
     releaseYear: 2016,
-    isArchived: true,
     isBanned: true,
-    bannedReason: 'USBC Max Differential Exceeded (2016)',
+    bannedReason: 'Превышение максимального допустимого дифференциала USBC (март 2016)',
   },
   {
     id: 'banned_hammer_purple_pearl_2016',
@@ -3798,38 +3998,38 @@ export const BANNED_BALLS: CatalogBallPreset[] = [
     brand: 'Hammer',
     coverstock: 'Urethane',
     coverstockName: 'Urethane Pearl',
-    core: 'LED Symmetrical',
+    core: 'LED Core',
     coreType: 'Symmetrical',
     rg: 2.65,
     diff: 0.015,
-    finish: '500/1000/2000 Abralon',
+    finish: '500 / 1000 / 2000 Abralon',
     recommendedOil: 'Short',
     primaryColor: '#581c87',
     secondaryColor: '#3b0764',
-    accentColor: '#c084fc',
-    description: 'Партии 2016–2017 гг. были запрещены на PBA Tour в марте 2022 г. после введения правила минимальной твердости 78D.',
+    accentColor: '#a855f7',
+    description: 'Партии шаров 2016-2017 годов (серийные номера с 6 и 7) запрещены комиссаром PBA Tour в марте 2022 года после введения правила твердости 78D.',
     releaseYear: 2016,
-    isArchived: true,
     isBanned: true,
-    bannedReason: 'PBA 78D Minimum Hardness Rule (2022)',
+    bannedReason: 'Запрет на PBA Tour по правилу минимальной твердости уретана 78D (2022)',
   },
 ];
 
 const RAW_BALL_CATALOG: CatalogBallPreset[] = [
   ...BANNED_BALLS,
   ...MODERN_BALL_CATALOG,
+  ...EXPANDED_BALLS,
   ...ARCHIVED_BALLS,
 ];
 
-// Enforce released from 2010 onwards (>= 2010, не старше 2010 года выпуска) and limit to max 30 balls per brand
+// Include models released from 2010 onwards, up to 40 balls per brand
 const brandCounts: Record<string, number> = {};
 const uniqueIds = new Set<string>();
 
-export const BALL_CATALOG: CatalogBallPreset[] = [];
+const selectedBalls: CatalogBallPreset[] = [];
 
 for (const ball of RAW_BALL_CATALOG) {
-  // Exclude balls released before 2010 (шары не старше 2010 года выпуска)
-  if (ball.releaseYear !== undefined && ball.releaseYear < 2010) {
+  // Enforce release year >= 2010
+  if (!ball.releaseYear || ball.releaseYear < 2010) {
     continue;
   }
   // Avoid duplicate ID keys
@@ -3837,16 +4037,26 @@ for (const ball of RAW_BALL_CATALOG) {
     continue;
   }
   const currentCount = brandCounts[ball.brand] || 0;
-  if (currentCount < 30) {
+  if (currentCount < 40) {
     uniqueIds.add(ball.id);
     brandCounts[ball.brand] = currentCount + 1;
-    BALL_CATALOG.push(ball);
+    selectedBalls.push(ball);
   }
 }
 
 /**
- * Convert a catalog ball preset to a user's BowlingBall entry
+ * Complete catalog of bowling balls released since 2010 across 10 top brands.
+ * Strictly sorted chronologically from newest models (2025/2024) to older releases (2010).
  */
+export const BALL_CATALOG: CatalogBallPreset[] = [...selectedBalls].sort((a, b) => {
+  const yearA = a.releaseYear || 2020;
+  const yearB = b.releaseYear || 2020;
+  if (yearB !== yearA) {
+    return yearB - yearA; // Newest first (descending order)
+  }
+  return a.name.localeCompare(b.name);
+});
+
 export function createBallFromPreset(
   preset: CatalogBallPreset,
   weightLbs = 15,

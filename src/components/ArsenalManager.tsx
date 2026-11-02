@@ -17,6 +17,7 @@ import {
   Palette,
   Sliders,
   Gauge,
+  AlertTriangle,
 } from 'lucide-react';
 import { BallVisual } from './BallVisual';
 import {
@@ -87,7 +88,7 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
   const [ballSubView, setBallSubView] = useState<'my_bag' | 'catalog'>('my_bag');
   const [catalogBrand, setCatalogBrand] = useState<string>('Все');
   const [catalogSearch, setCatalogSearch] = useState<string>('');
-  const [catalogEraFilter, setCatalogEraFilter] = useState<'all' | 'modern' | 'archived'>('all');
+  const [catalogEraFilter, setCatalogEraFilter] = useState<'all' | 'modern' | 'archived' | 'banned'>('all');
 
   // Modals state
   const [isBallModalOpen, setIsBallModalOpen] = useState(false);
@@ -714,11 +715,11 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
               </div>
             </div>
 
-            {/* Bottom row: Era filter toggle (All / Modern / Archived Legends) */}
-            <div className="flex items-center justify-between gap-2 pt-2 border-t border-stone-800/80">
-              <div className="flex items-center gap-1.5 text-xs">
+            {/* Bottom row: Category filter toggle (All / Modern / Archived / Banned) */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-stone-800/80">
+              <div className="flex flex-wrap items-center gap-1.5 text-xs">
                 <span className="text-[11px] text-stone-500 font-semibold uppercase tracking-wider hidden sm:inline">
-                  Эпоха:
+                  Категории:
                 </span>
                 <button
                   type="button"
@@ -746,7 +747,7 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
                       : 'bg-stone-950 text-stone-400 hover:text-stone-200 border border-stone-800'
                   }`}
                 >
-                  Современные ({BALL_CATALOG.filter((b) => !b.isArchived).length})
+                  Новинки 2020-2025 ({BALL_CATALOG.filter((b) => (b.releaseYear || 2020) >= 2020 && !b.isBanned).length})
                 </button>
                 <button
                   type="button"
@@ -760,17 +761,33 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
                       : 'bg-stone-950 text-amber-400 border border-amber-500/30 hover:border-amber-500/60'
                   }`}
                 >
-                  <span>★ Архивные с 2010 г. ({BALL_CATALOG.filter((b) => b.isArchived).length})</span>
+                  <span>Модели 2010-2019 ({BALL_CATALOG.filter((b) => (b.releaseYear || 2020) < 2020 && !b.isBanned).length})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCatalogEraFilter('banned');
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                    catalogEraFilter === 'banned'
+                      ? 'bg-red-500 text-stone-950 shadow-xs'
+                      : 'bg-stone-950 text-red-400 border border-red-500/30 hover:border-red-500/60'
+                  }`}
+                >
+                  <AlertTriangle className="w-3 h-3 text-red-400" />
+                  <span>Запрещенные USBC/PBA ({BALL_CATALOG.filter((b) => b.isBanned).length})</span>
                 </button>
               </div>
 
               <span className="text-[11px] text-stone-500 font-mono">
                 {BALL_CATALOG.filter((p) => {
                   if (catalogBrand !== 'Все' && p.brand !== catalogBrand) return false;
-                  if (catalogEraFilter === 'modern' && p.isArchived) return false;
-                  if (catalogEraFilter === 'archived' && !p.isArchived) return false;
+                  if (catalogEraFilter === 'modern' && ((p.releaseYear || 2020) < 2020 || p.isBanned)) return false;
+                  if (catalogEraFilter === 'archived' && ((p.releaseYear || 2020) >= 2020 || p.isBanned)) return false;
+                  if (catalogEraFilter === 'banned' && !p.isBanned) return false;
                   return true;
-                }).length} моделей
+                }).length} моделей (отсортированы от новинок к старым)
               </span>
             </div>
           </div>
@@ -780,14 +797,16 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
             {BALL_CATALOG
               .filter((preset) => {
                 if (catalogBrand !== 'Все' && preset.brand !== catalogBrand) return false;
-                if (catalogEraFilter === 'modern' && preset.isArchived) return false;
-                if (catalogEraFilter === 'archived' && !preset.isArchived) return false;
+                if (catalogEraFilter === 'modern' && ((preset.releaseYear || 2020) < 2020 || preset.isBanned)) return false;
+                if (catalogEraFilter === 'archived' && ((preset.releaseYear || 2020) >= 2020 || preset.isBanned)) return false;
+                if (catalogEraFilter === 'banned' && !preset.isBanned) return false;
                 if (catalogSearch.trim()) {
                   const q = catalogSearch.toLowerCase();
                   return (
                     preset.name.toLowerCase().includes(q) ||
                     preset.brand.toLowerCase().includes(q) ||
-                    preset.coverstockName.toLowerCase().includes(q)
+                    preset.coverstockName.toLowerCase().includes(q) ||
+                    String(preset.releaseYear).includes(q)
                   );
                 }
                 return true;
@@ -800,7 +819,9 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
                 return (
                   <div
                     key={preset.id}
-                    className="rounded-3xl bg-stone-900/90 border border-stone-800 hover:border-amber-500/50 p-5 space-y-3.5 transition-all shadow-xl flex flex-col justify-between group"
+                    className={`rounded-3xl bg-stone-900/90 border p-5 space-y-3.5 transition-all shadow-xl flex flex-col justify-between group ${
+                      preset.isBanned ? 'border-red-900/50 hover:border-red-500/60' : 'border-stone-800 hover:border-amber-500/50'
+                    }`}
                   >
                     <div className="space-y-3">
                       {/* Ball Header: Realistic 3D Visual + Brand & Model */}
@@ -818,18 +839,20 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
 
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-1">
-                            <div className="flex items-center gap-1.5 min-w-0">
+                            <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
                               <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block shrink-0">
                                 {preset.brand}
                               </span>
+                              <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-stone-950 border border-stone-800 text-stone-300 shrink-0">
+                                {preset.releaseYear} г.
+                              </span>
                               {preset.isBanned && (
-                                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-red-950/90 text-red-300 border border-red-500/50 truncate" title={preset.bannedReason}>
-                                  Запрещен USBC
-                                </span>
-                              )}
-                              {preset.isArchived && !preset.isBanned && (
-                                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 truncate">
-                                  Ретро {preset.releaseYear ? `’${String(preset.releaseYear).slice(-2)}` : ''}
+                                <span
+                                  className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-red-950/90 text-red-300 border border-red-500/50 flex items-center gap-1 shrink-0"
+                                  title={preset.bannedReason}
+                                >
+                                  <AlertTriangle className="w-2.5 h-2.5 text-red-400 shrink-0" />
+                                  <span>{preset.bannedReason?.includes('PBA') ? 'Запрещён PBA' : 'Запрещён USBC'}</span>
                                 </span>
                               )}
                             </div>
@@ -920,6 +943,16 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
                         </div>
                       </div>
 
+                      {preset.isBanned && (
+                        <div className="p-2.5 rounded-xl bg-red-950/60 border border-red-500/50 text-xs text-red-200 flex items-start gap-2 shadow-inner">
+                          <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
+                          <div className="space-y-0.5 min-w-0">
+                            <span className="font-bold text-red-300 text-[11px] block">Официальный запрет USBC / PBA</span>
+                            <p className="text-[10px] text-red-200/90 leading-tight">{preset.bannedReason}</p>
+                          </div>
+                        </div>
+                      )}
+
                       <p className="text-xs text-stone-400 line-clamp-2">
                         {preset.description}
                       </p>
@@ -962,9 +995,20 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
                   size="sm"
                 />
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-amber-400">
-                    {activePresetToAdd.brand}
-                  </span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] uppercase font-bold text-amber-400">
+                      {activePresetToAdd.brand}
+                    </span>
+                    <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-stone-950 border border-stone-800 text-stone-300">
+                      {activePresetToAdd.releaseYear} г.
+                    </span>
+                    {activePresetToAdd.isBanned && (
+                      <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-red-950/90 text-red-300 border border-red-500/50 flex items-center gap-1">
+                        <AlertTriangle className="w-2.5 h-2.5 text-red-400" />
+                        <span>{activePresetToAdd.bannedReason?.includes('PBA') ? 'Запрещён PBA' : 'Запрещён USBC'}</span>
+                      </span>
+                    )}
+                  </div>
                   <h3 className="text-base font-bold text-stone-100 font-display">
                     {activePresetToAdd.name}
                   </h3>
@@ -982,6 +1026,16 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
                 <X className="w-5 h-5" />
               </button>
             </div>
+
+            {activePresetToAdd.isBanned && (
+              <div className="p-3 rounded-xl bg-red-950/60 border border-red-500/50 text-xs text-red-200 flex items-start gap-2.5">
+                <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                <div className="space-y-0.5 min-w-0">
+                  <strong className="text-red-300 font-bold block">Внимание: Шар запрещён к официальным турнирам</strong>
+                  <p className="text-[11px] text-red-200/90">{activePresetToAdd.bannedReason}</p>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-4 text-xs">
               {/* Select Weight */}
