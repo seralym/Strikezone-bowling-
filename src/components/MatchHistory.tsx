@@ -21,7 +21,6 @@ interface MatchHistoryProps {
   onDeleteMatch: (id: string) => void;
   onImportMatches: (jsonStr: string) => void;
   onExportMatches: () => void;
-  onResetDemo: () => void;
 }
 
 export const MatchHistory: React.FC<MatchHistoryProps> = ({
@@ -29,7 +28,6 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({
   onDeleteMatch,
   onImportMatches,
   onExportMatches,
-  onResetDemo,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [tournamentFilter, setTournamentFilter] = useState<string>('all');
@@ -319,17 +317,8 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({
           <p className="text-sm text-stone-400 max-w-md mx-auto">
             {searchTerm
               ? 'Попробуйте изменить поисковый запрос'
-              : 'Сыграйте и сохраните партию во вкладке «Игра» или загрузите примеры матчей.'}
+              : 'Сыграйте и сохраните партию во вкладке «Текущая игра».'}
           </p>
-          {!searchTerm && (
-            <button
-              type="button"
-              onClick={onResetDemo}
-              className="mt-3 px-4 py-2 rounded-xl bg-amber-500 text-stone-950 font-semibold text-sm hover:bg-amber-400 transition-colors shadow-sm"
-            >
-              Загрузить примеры матчей
-            </button>
-          )}
         </div>
       )}
 

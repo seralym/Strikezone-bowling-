@@ -707,14 +707,15 @@ export default function App() {
     }
   };
 
-  const handleResetDemo = () => {
+  const handleClearData = () => {
     localStorage.removeItem('strikezone_matches_v1');
     localStorage.removeItem('strikezone_saved_tournaments_v1');
     localStorage.removeItem('strikezone_practice_drills_v1');
-    setMatches(loadSavedMatches());
-    setSavedTournaments(loadSavedTournaments());
-    setPracticeDrills(loadPracticeDrills());
-    showToast('История очищена (чистая база)');
+    localStorage.removeItem('strikezone_notes_v1');
+    setMatches([]);
+    setSavedTournaments([]);
+    setPracticeDrills([]);
+    showToast('Все локальные данные очищены (чистая база)');
   };
 
   // Visual Theme class wrapper
@@ -1226,7 +1227,7 @@ export default function App() {
             onUpdateSettings={handleUpdateSettings}
             onExportData={handleExportMatches}
             onImportData={handleImportMatches}
-            onResetDemo={handleResetDemo}
+            onClearData={handleClearData}
             onNotification={showToast}
           />
         )}

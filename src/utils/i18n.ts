@@ -152,7 +152,7 @@ export interface Translations {
   dataSectionDesc: string;
   exportDataBtn: string;
   importDataBtn: string;
-  resetDemoBtn: string;
+  clearDataBtn: string;
   settingsSavedToast: string;
 }
 
@@ -301,7 +301,7 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
     dataSectionDesc: 'Экспорт и импорт сыгранных партий, арсенала и настроек',
     exportDataBtn: 'Экспортировать JSON',
     importDataBtn: 'Импортировать JSON',
-    resetDemoBtn: 'Загрузить демо-данные',
+    clearDataBtn: 'Очистить данные',
     settingsSavedToast: 'Настройки сохранены',
   },
 
@@ -449,7 +449,7 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
     dataSectionDesc: 'Export and import your played matches, arsenal, and settings',
     exportDataBtn: 'Export JSON',
     importDataBtn: 'Import JSON',
-    resetDemoBtn: 'Load Demo Data',
+    clearDataBtn: 'Clear All Data',
     settingsSavedToast: 'Settings updated',
   },
 
@@ -597,7 +597,7 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
     dataSectionDesc: 'Spiele und Einstellungen exportieren oder importieren',
     exportDataBtn: 'JSON exportieren',
     importDataBtn: 'JSON importieren',
-    resetDemoBtn: 'Demo-Daten laden',
+    clearDataBtn: 'Daten löschen',
     settingsSavedToast: 'Einstellungen gespeichert',
   },
 
@@ -745,7 +745,7 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
     dataSectionDesc: 'Exporter ou importer vos parties et votre équipement',
     exportDataBtn: 'Exporter JSON',
     importDataBtn: 'Importer JSON',
-    resetDemoBtn: 'Charger données démo',
+    clearDataBtn: 'Effacer les données',
     settingsSavedToast: 'Paramètres enregistrés',
   },
 
@@ -893,7 +893,7 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
     dataSectionDesc: 'Exporta o importa tus partidas y equipamiento',
     exportDataBtn: 'Exportar JSON',
     importDataBtn: 'Importar JSON',
-    resetDemoBtn: 'Cargar datos demo',
+    clearDataBtn: 'Borrar datos',
     settingsSavedToast: 'Ajustes guardados',
   },
 
@@ -1041,7 +1041,7 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
     dataSectionDesc: 'Exporte ou importe partidas disputadas e arsenal',
     exportDataBtn: 'Exportar JSON',
     importDataBtn: 'Importar JSON',
-    resetDemoBtn: 'Carregar dados demo',
+    clearDataBtn: 'Limpar dados',
     settingsSavedToast: 'Configurações salvas',
   },
 };

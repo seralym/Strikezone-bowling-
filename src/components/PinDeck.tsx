@@ -1,6 +1,6 @@
 import React, { useRef, useCallback, useEffect } from 'react';
 import { PinNumber } from '../types/bowling';
-import { Hand, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 interface PinDeckProps {
   standingBefore: PinNumber[];
@@ -107,58 +107,65 @@ export const PinDeck: React.FC<PinDeckProps> = ({
     [standingBefore]
   );
 
-  // Check if coordinates fall strictly inside the pin pyramid plus one pin width margin from its edges.
-  // All interactions outside this expanded zone are ignored by pin touch logic and interpreted as page scrolling.
+  // Check if coordinates fall strictly inside the triangular pyramid envelope within pin boundaries.
+  // All interactions outside this triangle are ignored by pin touch logic and interpreted as page scrolling.
   const isPointInPyramidZone = useCallback((clientX: number, clientY: number): boolean => {
-    // 1. Calculate the bounding envelope of all 10 pins
-    const pinElements = document.querySelectorAll<HTMLElement>('[data-pin-number]');
-    if (pinElements.length > 0) {
-      let minLeft = Infinity;
-      let maxRight = -Infinity;
-      let minTop = Infinity;
-      let maxBottom = -Infinity;
-      let totalWidth = 0;
-      let count = 0;
-
-      pinElements.forEach((el) => {
-        const r = el.getBoundingClientRect();
-        if (r.width > 0 && r.height > 0) {
-          if (r.left < minLeft) minLeft = r.left;
-          if (r.right > maxRight) maxRight = r.right;
-          if (r.top < minTop) minTop = r.top;
-          if (r.bottom > maxBottom) maxBottom = r.bottom;
-          totalWidth += r.width;
-          count++;
-        }
-      });
-
-      if (count > 0) {
-        const avgPinWidth = totalWidth / count;
-        // Bounded strictly by pyramid edges + 1 pin width margin
-        const zoneLeft = minLeft - avgPinWidth;
-        const zoneRight = maxRight + avgPinWidth;
-        const zoneTop = minTop - avgPinWidth;
-        const zoneBottom = maxBottom + avgPinWidth;
-
-        return (
-          clientX >= zoneLeft &&
-          clientX <= zoneRight &&
-          clientY >= zoneTop &&
-          clientY <= zoneBottom
-        );
+    // 1. Direct hit on any pin button is always in the pin pyramid
+    if (typeof document !== 'undefined') {
+      const elAtPoint = document.elementFromPoint(clientX, clientY);
+      if (elAtPoint?.closest('[data-pin-number]')) {
+        return true;
       }
     }
 
-    // 2. Safe fallback to container rect with 36px (1 pin width) margin
+    const pin7 = document.querySelector<HTMLElement>('[data-pin-number="7"]');
+    const pin10 = document.querySelector<HTMLElement>('[data-pin-number="10"]');
+    const pin1 = document.querySelector<HTMLElement>('[data-pin-number="1"]');
+
+    if (pin7 && pin10 && pin1) {
+      const r7 = pin7.getBoundingClientRect();
+      const r10 = pin10.getBoundingClientRect();
+      const r1 = pin1.getBoundingClientRect();
+
+      if (r7.width > 0 && r10.width > 0 && r1.width > 0) {
+        const topY = Math.min(r7.top, r10.top);
+        const bottomY = r1.bottom;
+
+        // Check vertical bounds strictly within pins
+        if (clientY < topY || clientY > bottomY) {
+          return false;
+        }
+
+        // Left slanted boundary: from Pin 7 (top-left) to Pin 1 (bottom-left)
+        const dxL = r1.left - r7.left;
+        const dyL = r1.bottom - r7.top;
+        const tL = dyL > 0 ? (clientY - r7.top) / dyL : 0;
+        const xLeftBound = r7.left + tL * dxL;
+
+        // Right slanted boundary: from Pin 10 (top-right) to Pin 1 (bottom-right)
+        const dxR = r1.right - r10.right;
+        const dyR = r1.bottom - r10.top;
+        const tR = dyR > 0 ? (clientY - r10.top) / dyR : 0;
+        const xRightBound = r10.right + tR * dxR;
+
+        return clientX >= xLeftBound && clientX <= xRightBound;
+      }
+    }
+
+    // Safe fallback using pyramid container with triangular interpolation within borders
     const container = pyramidContainerRef.current?.getBoundingClientRect();
     if (!container) return false;
-    const pinWidth = 36;
-    return (
-      clientX >= container.left - pinWidth &&
-      clientX <= container.right + pinWidth &&
-      clientY >= container.top - pinWidth &&
-      clientY <= container.bottom + pinWidth
-    );
+    const topY = container.top;
+    const bottomY = container.bottom;
+
+    if (clientY < topY || clientY > bottomY) return false;
+
+    const t = Math.max(0, Math.min(1, (clientY - container.top) / (container.height || 1)));
+    const midX = container.left + container.width / 2;
+    const leftAtY = container.left + t * (midX - container.left);
+    const rightAtY = container.right - t * (container.right - midX);
+
+    return clientX >= leftAtY && clientX <= rightAtY;
   }, []);
 
   // Helper to process a touch / pointer coordinate and toggle the underlying or nearest standing pin
@@ -179,8 +186,9 @@ export const PinDeck: React.FC<PinDeckProps> = ({
     [disabled, isPointInPyramidZone, findNearestStandingPin, standingBefore, safeTogglePin]
   );
 
-  // Native non-passive touch listeners attached directly to the pyramid element
-  // Blocks scroll ONLY when interacting inside the pyramid + 1 pin width zone
+  // Native touch listeners attached directly to the pyramid element:
+  // - Tap and swipe inside the pin pyramid are EXCLUSIVELY for selecting pins
+  // - Any movement outside this zone is EXCLUSIVELY for smooth native page scrolling
   useEffect(() => {
     const el = pyramidContainerRef.current;
     if (!el) return;
@@ -188,28 +196,35 @@ export const PinDeck: React.FC<PinDeckProps> = ({
     const onTouchStart = (e: TouchEvent) => {
       if (disabled || e.touches.length === 0) return;
       const touch = e.touches[0];
-      if (!isPointInPyramidZone(touch.clientX, touch.clientY)) {
-        // Outside the expanded pyramid zone: do NOT prevent default, leave to browser page scroll
+
+      if (isPointInPyramidZone(touch.clientX, touch.clientY)) {
+        // Touch starts INSIDE the pyramid: exclusively for selecting pins
+        isSwipingRef.current = true;
+        swipedPinsInCurrentGestureRef.current.clear();
+        handlePointIntersection(touch.clientX, touch.clientY);
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+      } else {
+        // Touch starts OUTSIDE the pyramid: exclusively for page scrolling
         isSwipingRef.current = false;
-        return;
       }
-      isSwipingRef.current = true;
-      swipedPinsInCurrentGestureRef.current.clear();
-      handlePointIntersection(touch.clientX, touch.clientY);
     };
 
     const onTouchMove = (e: TouchEvent) => {
       if (!isSwipingRef.current || disabled || e.touches.length === 0) return;
       const touch = e.touches[0];
-      if (!isPointInPyramidZone(touch.clientX, touch.clientY)) {
-        // Drifted outside the pyramid + 1 pin width zone: stop pin gesture
+
+      // If finger remains inside the pyramid: swipe across pins
+      if (isPointInPyramidZone(touch.clientX, touch.clientY)) {
+        if (e.cancelable) {
+          e.preventDefault(); // Block page scroll strictly while swiping pins inside the pyramid
+        }
+        handlePointIntersection(touch.clientX, touch.clientY);
+      } else {
+        // If finger drifted outside the pyramid: stop pin selection
         isSwipingRef.current = false;
-        return;
       }
-      if (e.cancelable) {
-        e.preventDefault(); // Block page scroll strictly inside the pyramid + 1 pin width margin!
-      }
-      handlePointIntersection(touch.clientX, touch.clientY);
     };
 
     const onTouchEnd = () => {
@@ -217,7 +232,7 @@ export const PinDeck: React.FC<PinDeckProps> = ({
       swipedPinsInCurrentGestureRef.current.clear();
     };
 
-    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchstart', onTouchStart, { passive: false });
     el.addEventListener('touchmove', onTouchMove, { passive: false });
     el.addEventListener('touchend', onTouchEnd, { passive: true });
     el.addEventListener('touchcancel', onTouchEnd, { passive: true });
@@ -276,22 +291,16 @@ export const PinDeck: React.FC<PinDeckProps> = ({
         </div>
       )}
 
-      {/* Swipe touch indicator badge with scroll available hint */}
-      <div className="relative flex items-center justify-center gap-1.5 mb-2 text-[11px] text-stone-400 font-medium">
-        <Hand className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-        <span>Выбор кеглей в зоне пирамиды (отступ 1 кегля) · Скролл страницы активен вокруг</span>
-      </div>
-
       {/* Outer wrapper: full width with pan-y touch-action so all outer zones scroll the page */}
       <div
         className="relative flex flex-col items-center justify-center py-1 sm:py-2 select-none w-full touch-pan-y"
         style={{ touchAction: 'pan-y' }}
       >
-        {/* Pin Pyramid Interactive Zone: bounded strictly to pyramid with 1 pin width padding */}
+        {/* Pin Pyramid Interactive Zone: touch-pan-y allows vertical scrolling outside the pins */}
         <div
           ref={pyramidContainerRef}
-          className="pin-deck-pyramid-zone relative inline-flex flex-col items-center justify-center p-3.5 sm:p-4 select-none touch-none mx-auto"
-          style={{ touchAction: 'none' }}
+          className="pin-deck-pyramid-zone relative inline-flex flex-col items-center justify-center p-3.5 sm:p-4 select-none touch-pan-y mx-auto"
+          style={{ touchAction: 'pan-y' }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}

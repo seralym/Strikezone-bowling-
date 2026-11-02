@@ -20,7 +20,7 @@ interface SettingsViewProps {
   onUpdateSettings: (newSettings: AppSettings) => void;
   onExportData: () => void;
   onImportData: (jsonStr: string) => void;
-  onResetDemo: () => void;
+  onClearData: () => void;
   onNotification?: (msg: string) => void;
 }
 
@@ -29,7 +29,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onUpdateSettings,
   onExportData,
   onImportData,
-  onResetDemo,
+  onClearData,
   onNotification,
 }) => {
   const t = getTranslation(settings.language);
@@ -366,11 +366,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
           <button
             type="button"
-            onClick={onResetDemo}
-            className="px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-stone-200 text-xs font-semibold transition-colors flex items-center gap-2 border border-stone-800 ml-auto"
+            onClick={onClearData}
+            title="Очистить все сохранённые матчи и данные"
+            className="px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-red-950/40 text-stone-400 hover:text-red-400 text-xs font-semibold transition-colors flex items-center gap-2 border border-stone-800 hover:border-red-800/60 ml-auto cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>{t.resetDemoBtn}</span>
+            <span>{t.clearDataBtn}</span>
           </button>
         </div>
       </div>
