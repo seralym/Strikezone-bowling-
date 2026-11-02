@@ -22,83 +22,7 @@ const STORAGE_KEY_SAVED_TOURNAMENTS = 'strikezone_saved_tournaments_v1';
 const STORAGE_KEY_PRACTICE_DRILLS = 'strikezone_practice_drills_v1';
 const STORAGE_KEY_NOTES = 'strikezone_bowler_notes_v1';
 
-export const DEFAULT_BALLS: BowlingBall[] = [
-  {
-    id: 'ball_1',
-    name: 'Storm Phaze II',
-    brand: 'Storm',
-    weightLbs: 15,
-    coverstock: 'Solid',
-    isPrimaryStrikeBall: true,
-    isSpareBall: false,
-    color: '#1d4ed8',
-    primaryColor: '#1d4ed8',
-    secondaryColor: '#b91c1c',
-    accentColor: '#38bdf8',
-    finish: '3000 Grit Abralon',
-    coreType: 'Symmetrical',
-    rg: 2.48,
-    diff: 0.051,
-    presetId: 'storm_phaze_2',
-    notes: 'Основной страйковый шар для среднего и обильного масла',
-  },
-  {
-    id: 'ball_2',
-    name: 'Hammer Black Widow 3.0',
-    brand: 'Hammer',
-    weightLbs: 15,
-    coverstock: 'Solid',
-    isPrimaryStrikeBall: false,
-    isSpareBall: false,
-    color: '#171717',
-    primaryColor: '#171717',
-    secondaryColor: '#dc2626',
-    accentColor: '#f97316',
-    finish: '2000 Micro Pad',
-    coreType: 'Asymmetrical',
-    rg: 2.50,
-    diff: 0.058,
-    presetId: 'hammer_black_widow_3_0',
-    notes: 'Флагманский шар с ядром Gas Mask для плотного масляного брейка',
-  },
-  {
-    id: 'ball_3',
-    name: 'Roto Grip Attention Star',
-    brand: 'Roto Grip',
-    weightLbs: 15,
-    coverstock: 'Pearl',
-    isPrimaryStrikeBall: false,
-    isSpareBall: false,
-    color: '#e11d48',
-    primaryColor: '#e11d48',
-    secondaryColor: '#1e3a8a',
-    accentColor: '#ffffff',
-    finish: 'Reacta Gloss™',
-    coreType: 'Asymmetrical',
-    rg: 2.48,
-    diff: 0.049,
-    presetId: 'roto_grip_attention_star',
-    notes: 'Перламутровый шар с ультрабыстрым переворотом на брейкпоинте',
-  },
-  {
-    id: 'ball_4',
-    name: 'Columbia 300 White Dot',
-    brand: 'Columbia 300',
-    weightLbs: 14,
-    coverstock: 'Plastic',
-    isPrimaryStrikeBall: false,
-    isSpareBall: true,
-    color: '#94a3b8',
-    primaryColor: '#94a3b8',
-    secondaryColor: '#cbd5e1',
-    accentColor: '#f1f5f9',
-    finish: 'Crown Factory Polish',
-    coreType: 'Symmetrical',
-    rg: 2.69,
-    diff: 0.010,
-    notes: 'Прямой пластиковый шар для точного добивания спэаров (7 и 10 кегли)',
-  },
-];
+export const DEFAULT_BALLS: BowlingBall[] = [];
 
 export const KEGEL_SAMPLE_DIAGRAM_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 580" width="900" height="580" style="background:%230c0a09;font-family:sans-serif;">
   <rect width="900" height="580" fill="%230c0a09"/>
@@ -183,83 +107,23 @@ export const KEGEL_SAMPLE_DIAGRAM_SVG = `data:image/svg+xml;utf8,<svg xmlns="htt
   </defs>
 </svg>`;
 
-export const DEFAULT_OIL_PATTERNS: OilPattern[] = [
-  {
-    id: 'pattern_1',
-    name: 'House Shot (41 фут)',
-    competitionName: 'Тренировка / Клубная лига',
-    lengthFt: 41,
-    category: 'House',
-    volumeMl: 22.4,
-    ratio: '8.5:1',
-    notes: 'Стандартная домашняя программа, мягкая траектория',
-  },
-  {
-    id: 'pattern_2',
-    name: 'Kegel Main Street (41 фут)',
-    competitionName: 'Кубок Города 2026',
-    lengthFt: 41,
-    category: 'Challenge',
-    volumeMl: 19.3,
-    ratio: '3.6:1',
-    notes: 'Сложный турнирный профиль с плотным центром',
-    imageUrl: KEGEL_SAMPLE_DIAGRAM_SVG,
-    imageName: 'kegel_main_street_diagram.svg',
-  },
-  {
-    id: 'pattern_3',
-    name: 'PBA Shark (43 фута)',
-    competitionName: 'Чемпионат Федерации',
-    lengthFt: 43,
-    category: 'Sport',
-    volumeMl: 26.2,
-    ratio: '2.1:1',
-    notes: 'Длинное спортивное масло высокой плотности',
-  },
-];
+export const DEFAULT_OIL_PATTERNS: OilPattern[] = [];
 
-export const DEFAULT_CENTERS: BowlingCenter[] = [
-  {
-    id: 'center_1',
-    name: 'Боулинг-центр «Галактика»',
-    city: 'Москва',
-    address: 'пр-т Мира, 119',
-    lanesCount: 24,
-    surface: 'Синтетика (Synthetic)',
-  },
-  {
-    id: 'center_2',
-    name: 'Brunswick Strike Club',
-    city: 'Москва',
-    address: 'Ленинградский пр-т, 36',
-    lanesCount: 16,
-    surface: 'Синтетика (Synthetic)',
-  },
-  {
-    id: 'center_3',
-    name: 'Клуб «Арена Боулинг»',
-    city: 'Санкт-Петербург',
-    address: 'ул. Садовая, 28',
-    lanesCount: 12,
-    surface: 'Синтетика (Synthetic)',
-  },
-];
+export const DEFAULT_CENTERS: BowlingCenter[] = [];
 
 export const DEFAULT_USER_CONFIG: UserPersonalConfig = {
   name: 'Игрок',
   style: 'Правша',
   hand: 'Правша',
   avatarColor: '#f59e0b',
-  bio: 'Боулер',
-  balls: DEFAULT_BALLS,
-  oilPatterns: DEFAULT_OIL_PATTERNS,
-  centers: DEFAULT_CENTERS,
-  activeBallId: 'ball_1',
-  activeOilPatternId: 'pattern_1',
-  activeCenterId: 'center_1',
+  bio: '',
+  balls: [],
+  oilPatterns: [],
+  centers: [],
+  activeBallId: undefined,
+  activeOilPatternId: undefined,
+  activeCenterId: undefined,
 };
-
-
 
 export function loadUserPersonalConfig(): UserPersonalConfig {
   if (typeof window === 'undefined') return DEFAULT_USER_CONFIG;
@@ -271,26 +135,14 @@ export function loadUserPersonalConfig(): UserPersonalConfig {
     }
     const parsed = JSON.parse(raw);
     const resolvedStyle = parsed.style || (parsed.hand === 'Левша' ? 'Левша' : 'Правша');
-    const parsedPatterns: OilPattern[] =
-      parsed.oilPatterns && parsed.oilPatterns.length > 0 ? parsed.oilPatterns : DEFAULT_OIL_PATTERNS;
-    const upgradedPatterns = parsedPatterns.map((p) => {
-      if (p.id === 'pattern_2' && !p.imageUrl) {
-        return {
-          ...p,
-          imageUrl: KEGEL_SAMPLE_DIAGRAM_SVG,
-          imageName: 'kegel_main_street_diagram.svg',
-        };
-      }
-      return p;
-    });
 
     return {
       ...DEFAULT_USER_CONFIG,
       ...parsed,
       style: resolvedStyle,
-      balls: parsed.balls && parsed.balls.length > 0 ? parsed.balls : DEFAULT_BALLS,
-      oilPatterns: upgradedPatterns,
-      centers: parsed.centers && parsed.centers.length > 0 ? parsed.centers : DEFAULT_CENTERS,
+      balls: Array.isArray(parsed.balls) ? parsed.balls : [],
+      oilPatterns: Array.isArray(parsed.oilPatterns) ? parsed.oilPatterns : [],
+      centers: Array.isArray(parsed.centers) ? parsed.centers : [],
     };
   } catch (err) {
     console.error('Failed to load user config', err);

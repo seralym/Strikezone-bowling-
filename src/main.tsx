@@ -1,6 +1,10 @@
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+import { registerSW } from 'virtual:pwa-register';
+
+// Register PWA service worker for offline support and updates
+registerSW({ immediate: true });
 
 // Prevent unwanted page reloads / form navigations in preview environment
 if (typeof window !== 'undefined') {

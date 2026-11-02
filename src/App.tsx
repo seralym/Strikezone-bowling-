@@ -718,6 +718,32 @@ export default function App() {
     showToast('Все локальные данные очищены (чистая база)');
   };
 
+  // Reset only statistics and game history, leaving profile, balls, oil patterns, centers intact
+  const handleResetStats = () => {
+    saveMatches([]);
+    setMatches([]);
+    savePracticeDrills([]);
+    setPracticeDrills([]);
+    const defaultPlayer = createEmptyPlayerGame(userConfig.name);
+    const cleanMatch: MatchRecord = {
+      id: 'match_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9),
+      date: new Date().toISOString(),
+      title: 'Одиночная игра',
+      laneNumber: 1,
+      centerId: userConfig.centers[0]?.id,
+      centerName: userConfig.centers[0]?.name,
+      oilPatternId: userConfig.oilPatterns[0]?.id,
+      oilPatternName: userConfig.oilPatterns[0]?.name,
+      ballId: userConfig.balls[0]?.id,
+      ballName: userConfig.balls[0]?.name,
+      players: [defaultPlayer],
+    };
+    setActiveMatch(cleanMatch);
+    saveActiveMatch(cleanMatch);
+    setSelectedPinsToKnock([]);
+    showToast('Статистика и история игр успешно сброшены');
+  };
+
   // Visual Theme class wrapper
   const themeClass = useMemo(() => {
     switch (settings.theme) {
@@ -1205,6 +1231,7 @@ export default function App() {
             language={settings.language}
             onNotification={showToast}
             onExportData={handleExportMatches}
+            onResetStats={handleResetStats}
           />
         )}
 

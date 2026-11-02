@@ -29,6 +29,8 @@ import {
   Trash2,
   Image as ImageIcon,
   Download,
+  RotateCcw,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface PlayerProfileProps {
@@ -40,6 +42,7 @@ interface PlayerProfileProps {
   onNotification?: (msg: string) => void;
   initialSubTab?: 'stats' | 'arsenal' | 'centers' | 'patterns';
   onExportData?: () => void;
+  onResetStats?: () => void;
 }
 
 export const PlayerProfile: React.FC<PlayerProfileProps> = ({
@@ -51,9 +54,11 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({
   onNotification,
   initialSubTab,
   onExportData,
+  onResetStats,
 }) => {
   const t = getTranslation(language);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
   // Sub-tabs within player profile: Stats, Arsenal, Centers, or Oil Patterns
   const [activeSubTab, setActiveSubTab] = useState<'stats' | 'arsenal' | 'centers' | 'patterns'>(
@@ -283,7 +288,7 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({
             </div>
           </div>
 
-          {/* Header Action buttons: Export JSON & Edit Profile */}
+          {/* Header Action buttons: Export JSON, Reset Stats & Edit Profile */}
           <div className="shrink-0 flex flex-wrap items-center gap-2.5">
             {onExportData && (
               <button
@@ -294,6 +299,17 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({
               >
                 <Download className="w-4 h-4 text-emerald-400" />
                 <span>Экспорт в JSON</span>
+              </button>
+            )}
+            {onResetStats && (
+              <button
+                type="button"
+                onClick={() => setIsResetModalOpen(true)}
+                className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-stone-800 hover:bg-red-950/40 text-stone-300 hover:text-red-300 border border-stone-700/80 hover:border-red-800/60 transition-all font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 active:scale-95 shadow-md cursor-pointer"
+                title="Сброс всей накопленной статистики и истории партий"
+              >
+                <RotateCcw className="w-4 h-4 text-red-400" />
+                <span>Сброс статистики</span>
               </button>
             )}
             {!isEditing ? (
@@ -609,6 +625,76 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({
             onUpdateConfig={onUpdateConfig}
             onNotification={onNotification}
           />
+        </div>
+      )}
+
+      {/* Confirmation Modal for Resetting Statistics */}
+      {isResetModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div
+            className="w-full max-w-md bg-stone-900 border border-stone-800 rounded-2xl p-6 shadow-2xl relative text-left"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start gap-3.5">
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 shrink-0">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-bold text-stone-100">
+                  Сброс всей статистики
+                </h3>
+                <p className="text-xs text-stone-400 mt-1">
+                  Вы уверены, что хотите сбросить накопленную статистику? Это действие необратимо.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 p-3.5 rounded-xl bg-stone-950/70 border border-stone-800/70 space-y-2 text-xs">
+              <div className="text-stone-300 font-semibold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                Будет удалено:
+              </div>
+              <ul className="text-stone-400 list-disc list-inside space-y-1 pl-1">
+                <li>Вся история сыгранных матчей и сессий ({matches.length})</li>
+                <li>Рассчитанный средний счёт, рекорды и страйк-рейт</li>
+                <li>Журнал тренировочных заданий и серий</li>
+              </ul>
+
+              <div className="pt-2 text-stone-300 font-semibold flex items-center gap-1.5 border-t border-stone-800/60 mt-3">
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                Останется без изменений:
+              </div>
+              <ul className="text-stone-400 list-disc list-inside space-y-1 pl-1">
+                <li>Ваш профиль (имя, аватар, стиль броска)</li>
+                <li>Личный арсенал шаров ({userConfig.balls.length})</li>
+                <li>Сохранённые диаграммы масла ({userConfig.oilPatterns.length})</li>
+                <li>Добавленные боулинг-центры ({userConfig.centers.length})</li>
+              </ul>
+            </div>
+
+            <div className="mt-6 flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setIsResetModalOpen(false)}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-medium text-xs sm:text-sm transition-all"
+              >
+                Отмена
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsResetModalOpen(false);
+                  if (onResetStats) {
+                    onResetStats();
+                  }
+                }}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-600/30 active:scale-95 cursor-pointer"
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span>Да, сбросить статистику</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
