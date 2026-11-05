@@ -73,6 +73,11 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
 }) => {
   const t = getTranslation(settings.language);
 
+  // Safe fallback arrays for collections
+  const safeCenters = userConfig?.centers || [];
+  const safePatterns = userConfig?.oilPatterns || [];
+  const safeBalls = userConfig?.balls || [];
+
   // Filter: 'all' | 'series' | 'single' | 'active' | 'completed'
   const [filter, setFilter] = useState<'all' | 'series' | 'single' | 'active' | 'completed'>('all');
 
@@ -93,13 +98,13 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
   const [tournamentType, setTournamentType] = useState<TournamentFormatType>('single');
   const [season, setSeason] = useState<string>('');
   const [includeInStats, setIncludeInStats] = useState<boolean>(true);
-  const [centerId, setCenterId] = useState<string>(userConfig.centers[0]?.id || '');
+  const [centerId, setCenterId] = useState<string>(safeCenters[0]?.id || '');
   const [startDate, setStartDate] = useState<string>(new Date().toISOString().slice(0, 10));
   const [endDate, setEndDate] = useState<string>(
     new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10)
   );
-  const [oilPatternId, setOilPatternId] = useState<string>(userConfig.oilPatterns[0]?.id || '');
-  const [ballId, setBallId] = useState<string>(userConfig.balls[0]?.id || '');
+  const [oilPatternId, setOilPatternId] = useState<string>(safePatterns[0]?.id || '');
+  const [ballId, setBallId] = useState<string>(safeBalls[0]?.id || '');
   const [laneNumber, setLaneNumber] = useState<number | ''>(4);
   const [format, setFormat] = useState<string>('Клубная лига / 4 игры в зачёт');
   const [isRegular, setIsRegular] = useState<boolean>(true);
@@ -155,11 +160,11 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
     setTournamentType('single');
     setSeason(new Date().getFullYear().toString());
     setIncludeInStats(true);
-    setCenterId(userConfig.activeCenterId || userConfig.centers[0]?.id || '');
+    setCenterId(userConfig?.activeCenterId || safeCenters[0]?.id || '');
     setStartDate(new Date().toISOString().slice(0, 10));
     setEndDate(new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10));
-    setOilPatternId(userConfig.activeOilPatternId || userConfig.oilPatterns[0]?.id || '');
-    setBallId(userConfig.activeBallId || userConfig.balls[0]?.id || '');
+    setOilPatternId(userConfig?.activeOilPatternId || safePatterns[0]?.id || '');
+    setBallId(userConfig?.activeBallId || safeBalls[0]?.id || '');
     setLaneNumber(4);
     setFormat('Регулярная лига');
     setIsRegular(true);
@@ -173,11 +178,11 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
     setTournamentType(tourn.tournamentType || (tourn.stages && tourn.stages.length > 0 ? 'series' : 'single'));
     setSeason(tourn.season || (tourn.startDate ? new Date(tourn.startDate).getFullYear().toString() : new Date().getFullYear().toString()));
     setIncludeInStats(tourn.includeInStats !== false);
-    setCenterId(tourn.centerId || userConfig.centers[0]?.id || '');
+    setCenterId(tourn.centerId || safeCenters[0]?.id || '');
     setStartDate(tourn.startDate || new Date().toISOString().slice(0, 10));
     setEndDate(tourn.endDate || tourn.startDate || new Date().toISOString().slice(0, 10));
-    setOilPatternId(tourn.oilPatternId || userConfig.oilPatterns[0]?.id || '');
-    setBallId(tourn.ballId || userConfig.balls[0]?.id || '');
+    setOilPatternId(tourn.oilPatternId || safePatterns[0]?.id || '');
+    setBallId(tourn.ballId || safeBalls[0]?.id || '');
     setLaneNumber(typeof tourn.laneNumber === 'number' ? tourn.laneNumber : 4);
     setFormat(tourn.format || '');
     setIsRegular(!!tourn.isRegular);
@@ -195,9 +200,9 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
         ? `Серия турниров ${season ? `(${season})` : ''}`
         : `Турнир от ${startDate || new Date().toLocaleDateString('ru-RU')}`);
 
-    const center = userConfig.centers.find((c) => c.id === centerId) || userConfig.centers[0];
-    const pattern = userConfig.oilPatterns.find((p) => p.id === oilPatternId) || userConfig.oilPatterns[0];
-    const ball = userConfig.balls.find((b) => b.id === ballId) || userConfig.balls[0];
+    const center = safeCenters.find((c) => c.id === centerId) || safeCenters[0];
+    const pattern = safePatterns.find((p) => p.id === oilPatternId) || safePatterns[0];
+    const ball = safeBalls.find((b) => b.id === ballId) || safeBalls[0];
 
     if (editingId) {
       // Edit existing
@@ -318,9 +323,9 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
     setStageEndDate(new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString().slice(0, 10));
 
     // Default center from userConfig if available
-    if (userConfig.centers.length > 0) {
+    if (safeCenters.length > 0) {
       setStageCenterMode('preset');
-      setStageCenterId(userConfig.activeCenterId || userConfig.centers[0]?.id || '');
+      setStageCenterId(userConfig?.activeCenterId || safeCenters[0]?.id || '');
       setStageCustomCenter('');
     } else {
       setStageCenterMode('custom');
@@ -329,9 +334,9 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
     }
 
     // Default oil pattern from userConfig if available
-    if (userConfig.oilPatterns.length > 0) {
+    if (safePatterns.length > 0) {
       setStageOilPatternMode('preset');
-      setStageOilPatternId(userConfig.activeOilPatternId || userConfig.oilPatterns[0]?.id || '');
+      setStageOilPatternId(userConfig?.activeOilPatternId || safePatterns[0]?.id || '');
       setStageCustomOilPattern('');
     } else {
       setStageOilPatternMode('custom');
@@ -353,7 +358,7 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
     setStageEndDate(stage.endDate || stage.startDate || new Date().toISOString().slice(0, 10));
 
     // Center preset vs custom detection
-    const centerMatch = userConfig.centers.find((c) => c.id === stage.centerId);
+    const centerMatch = safeCenters.find((c) => c.id === stage.centerId);
     if (centerMatch) {
       setStageCenterMode('preset');
       setStageCenterId(stage.centerId || '');
@@ -363,13 +368,13 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
       setStageCenterId('');
       setStageCustomCenter(stage.centerName);
     } else {
-      setStageCenterMode(userConfig.centers.length > 0 ? 'preset' : 'custom');
-      setStageCenterId(userConfig.centers[0]?.id || '');
+      setStageCenterMode(safeCenters.length > 0 ? 'preset' : 'custom');
+      setStageCenterId(safeCenters[0]?.id || '');
       setStageCustomCenter('');
     }
 
     // Oil pattern preset vs custom detection
-    const patternMatch = userConfig.oilPatterns.find((p) => p.id === stage.oilPatternId);
+    const patternMatch = safePatterns.find((p) => p.id === stage.oilPatternId);
     if (patternMatch) {
       setStageOilPatternMode('preset');
       setStageOilPatternId(stage.oilPatternId || '');
@@ -379,8 +384,8 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
       setStageOilPatternId('');
       setStageCustomOilPattern(stage.oilPatternName);
     } else {
-      setStageOilPatternMode(userConfig.oilPatterns.length > 0 ? 'preset' : 'custom');
-      setStageOilPatternId(userConfig.oilPatterns[0]?.id || '');
+      setStageOilPatternMode(safePatterns.length > 0 ? 'preset' : 'custom');
+      setStageOilPatternId(safePatterns[0]?.id || '');
       setStageCustomOilPattern('');
     }
 
@@ -394,14 +399,14 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
     e.preventDefault();
     if (!stageTournamentId) return;
 
-    const centerPreset = userConfig.centers.find((c) => c.id === stageCenterId);
+    const centerPreset = safeCenters.find((c) => c.id === stageCenterId);
     const finalCenterName =
       stageCenterMode === 'custom'
         ? stageCustomCenter.trim() || 'Пользовательский клуб'
         : (centerPreset?.name || 'Основной клуб');
     const finalCenterId = stageCenterMode === 'custom' ? '' : stageCenterId;
 
-    const patternPreset = userConfig.oilPatterns.find((p) => p.id === stageOilPatternId);
+    const patternPreset = safePatterns.find((p) => p.id === stageOilPatternId);
     const finalOilName =
       stageOilPatternMode === 'custom'
         ? stageCustomOilPattern.trim() || 'Пользовательское масло'
@@ -501,14 +506,14 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
   const handleSelectForActivePlay = (tourn: SavedTournament, stage?: TournamentStage) => {
     const isSeries = tourn.tournamentType === 'series' || (tourn.stages && tourn.stages.length > 0);
 
-    const activeCenterId = stage ? (stage.centerId || '') : (tourn.centerId || userConfig.centers[0]?.id || '');
-    const center = userConfig.centers.find((c) => c.id === activeCenterId);
+    const activeCenterId = stage ? (stage.centerId || '') : (tourn.centerId || safeCenters[0]?.id || '');
+    const center = safeCenters.find((c) => c.id === activeCenterId);
     const finalCenterName =
       stage?.centerName ||
       (center ? center.name : (tourn.centerName || 'Основной клуб'));
 
-    const activePatternId = stage ? (stage.oilPatternId || '') : (tourn.oilPatternId || userConfig.oilPatterns[0]?.id || '');
-    const pattern = userConfig.oilPatterns.find((p) => p.id === activePatternId);
+    const activePatternId = stage ? (stage.oilPatternId || '') : (tourn.oilPatternId || safePatterns[0]?.id || '');
+    const pattern = safePatterns.find((p) => p.id === activePatternId);
     const finalPatternName =
       stage?.oilPatternName ||
       (pattern ? pattern.name : (tourn.oilPatternName || 'Стандартное масло'));
@@ -921,7 +926,7 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
                             const areStageGamesOpen = !!expandedStageGames[stage.id];
 
                             // Matching pattern for oil diagram preview
-                            const matchingStagePattern = userConfig.oilPatterns.find(
+                            const matchingStagePattern = safePatterns.find(
                               (p) =>
                                 (stage.oilPatternId && p.id === stage.oilPatternId) ||
                                 (stage.oilPatternName && p.name.toLowerCase() === stage.oilPatternName.toLowerCase())
@@ -1464,7 +1469,7 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
                       onChange={(e) => setCenterId(e.target.value)}
                       className="w-full px-3 py-2.5 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-amber-500"
                     >
-                      {userConfig.centers.map((c) => (
+                      {safeCenters.map((c) => (
                         <option key={c.id} value={c.id}>
                           {c.name} {c.city ? `(${c.city})` : ''}
                         </option>
@@ -1494,7 +1499,7 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
                         onChange={(e) => setOilPatternId(e.target.value)}
                         className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-amber-500"
                       >
-                        {userConfig.oilPatterns.map((p) => (
+                        {safePatterns.map((p) => (
                           <option key={p.id} value={p.id}>
                             {p.name} ({p.lengthFt} ft)
                           </option>
@@ -1682,7 +1687,7 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
                           : 'text-stone-400 hover:text-stone-200'
                       }`}
                     >
-                      Из базы ({userConfig.centers.length})
+                      Из базы ({safeCenters.length})
                     </button>
                     <button
                       type="button"
@@ -1699,13 +1704,13 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
                 </div>
 
                 {stageCenterMode === 'preset' ? (
-                  userConfig.centers.length > 0 ? (
+                  safeCenters.length > 0 ? (
                     <select
                       value={stageCenterId}
                       onChange={(e) => setStageCenterId(e.target.value)}
                       className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-amber-500"
                     >
-                      {userConfig.centers.map((c) => (
+                      {safeCenters.map((c) => (
                         <option key={c.id} value={c.id}>
                           {c.name} {c.city ? `(${c.city})` : ''} · {c.surface || 'Синтетика'}
                         </option>
@@ -1764,7 +1769,7 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
                           : 'text-stone-400 hover:text-stone-200'
                       }`}
                     >
-                      Из базы ({userConfig.oilPatterns.length})
+                      Из базы ({safePatterns.length})
                     </button>
                     <button
                       type="button"
@@ -1787,7 +1792,7 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
                       onChange={(e) => setStageOilPatternId(e.target.value)}
                       className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-amber-500"
                     >
-                      {userConfig.oilPatterns.map((p) => (
+                      {safePatterns.map((p) => (
                         <option key={p.id} value={p.id}>
                           {p.name} ({p.lengthFt} ft) [{p.category}] {p.competitionName ? `· ${p.competitionName}` : ''}
                         </option>
@@ -1796,7 +1801,7 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
 
                     {/* Quick view diagram button if selected pattern has image */}
                     {(() => {
-                      const selectedPattern = userConfig.oilPatterns.find((p) => p.id === stageOilPatternId);
+                      const selectedPattern = safePatterns.find((p) => p.id === stageOilPatternId);
                       if (selectedPattern?.imageUrl) {
                         return (
                           <div className="flex items-center justify-between p-2 rounded-xl bg-cyan-950/40 border border-cyan-800/40 text-[11px] text-cyan-300">
@@ -1977,7 +1982,7 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
         }}
         onEdit={(t) => openEditModal(t)}
         onCompleteTournament={(t) => handleOpenCompleteModal(t)}
-        oilPatterns={userConfig.oilPatterns}
+        oilPatterns={safePatterns}
         onUpdateMatches={onUpdateMatches}
         onToggleTournamentStats={handleToggleTournamentStats}
       />
@@ -1990,7 +1995,7 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
           if (onUpdateUserConfig) {
             onUpdateUserConfig({
               ...userConfig,
-              oilPatterns: [newPattern, ...userConfig.oilPatterns],
+              oilPatterns: [newPattern, ...safePatterns],
             });
             setOilPatternId(newPattern.id);
             setStageOilPatternId(newPattern.id);

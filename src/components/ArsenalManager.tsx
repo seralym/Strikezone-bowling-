@@ -434,7 +434,7 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
   const handleOpenAddPresetModal = (preset: CatalogBallPreset, initialWeight = 15) => {
     setActivePresetToAdd(preset);
     setPresetWeight(initialWeight);
-    setPresetIsPrimary(userConfig.balls.length === 0);
+    setPresetIsPrimary((userConfig?.balls || []).length === 0);
     setPresetIsSpare(false);
     setPresetDrillingLayout('Pin Up 4x4x2');
     setPresetPinToPap('4.5"');
@@ -445,7 +445,7 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
 
   const handleAddPresetConfirm = () => {
     if (!activePresetToAdd) return;
-    const isFirstBall = userConfig.balls.length === 0;
+    const isFirstBall = (userConfig?.balls || []).length === 0;
     const shouldBePrimary = presetIsPrimary || isFirstBall;
     const baseNewBall = createBallFromPreset(
       activePresetToAdd,
@@ -462,7 +462,7 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
       imageName: presetImageName.trim() || undefined,
     };
 
-    let updatedBalls = [...userConfig.balls];
+    let updatedBalls = [...(userConfig?.balls || [])];
     if (shouldBePrimary) {
       updatedBalls = updatedBalls.map((b) => ({ ...b, isPrimaryStrikeBall: false }));
     }
