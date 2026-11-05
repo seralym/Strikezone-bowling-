@@ -163,7 +163,7 @@ export const OilPatternsManager: React.FC<OilPatternsManagerProps> = ({
       <input
         ref={fileInputRef}
         type="file"
-        accept=".json,application/json,text/plain"
+        accept=".json,application/json,text/plain,*/*"
         onChange={handleImportFileChange}
         className="hidden"
       />

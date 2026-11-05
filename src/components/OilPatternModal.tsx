@@ -95,24 +95,34 @@ export const OilPatternModal: React.FC<OilPatternModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Process & compress uploaded image file to Data URL using HTML5 Canvas (max 1000px, quality 0.7)
+  // Process & compress uploaded file (any image format or PDF diagram)
   const processImageFile = async (file: File, fallbackName?: string) => {
     setErrorMsg(null);
-    const isImage =
-      file.type.startsWith('image/') ||
-      /\.(jpe?g|png|webp|heic|bmp|gif|svg)$/i.test(file.name);
-    if (!isImage) {
-      setErrorMsg('Пожалуйста, выберите файл изображения (PNG, JPG, WebP, HEIC)');
-      return;
-    }
 
     try {
       const compressedDataUrl = await compressImage(file, 1000, 0.7);
-      setImageUrl(compressedDataUrl);
-      setImageName(file.name || fallbackName || 'диаграмма_масла.jpg');
+      if (compressedDataUrl) {
+        setImageUrl(compressedDataUrl);
+        setImageName(file.name || fallbackName || 'диаграмма_масла.jpg');
+      } else {
+        // Fallback: direct FileReader
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const raw = (e.target?.result as string) || '';
+          setImageUrl(raw);
+          setImageName(file.name || fallbackName || 'диаграмма_масла.jpg');
+        };
+        reader.readAsDataURL(file);
+      }
     } catch (err: any) {
-      console.error('Failed to compress oil diagram image', err);
-      setErrorMsg('Не удалось сжать изображение. Попробуйте другой файл.');
+      console.warn('Fallback reading file', err);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const raw = (e.target?.result as string) || '';
+        setImageUrl(raw);
+        setImageName(file.name || fallbackName || 'диаграмма_масла.jpg');
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -324,7 +334,7 @@ export const OilPatternModal: React.FC<OilPatternModalProps> = ({
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*,.png,.jpg,.jpeg,.webp,.heic"
+              accept="image/*,.heic,.heif,.webp,.bmp,.svg,.tiff,.avif,.pdf,*/*"
               onChange={(e) => {
                 handleFileInputChange(e);
                 e.target.value = '';
@@ -350,22 +360,32 @@ export const OilPatternModal: React.FC<OilPatternModalProps> = ({
                 </div>
                 <div>
                   <div className="text-xs font-bold text-stone-200">
-                    Нажмите для выбора файла или перетащите скриншот сюда
+                    Нажмите для выбора файла или перетащите файл сюда
                   </div>
                   <div className="text-[11px] text-stone-500 mt-1">
-                    Поддерживаются PNG, JPG, WebP (или нажмите Ctrl+V для вставки)
+                    Поддерживаются любые файлы: PNG, JPG, WebP, HEIC, PDF (или Ctrl+V)
                   </div>
                 </div>
               </div>
             ) : (
-              /* Attached Image Preview Card */
+              /* Attached Image / PDF Preview Card */
               <div className="p-3 rounded-2xl bg-stone-950 border border-stone-800 space-y-3">
-                <div className="relative rounded-xl overflow-hidden bg-black/60 border border-stone-800/80 flex items-center justify-center max-h-48">
-                  <img
-                    src={imageUrl}
-                    alt="Скриншот диаграммы масла"
-                    className="max-h-48 w-auto object-contain rounded-lg"
-                  />
+                <div className="relative rounded-xl overflow-hidden bg-black/60 border border-stone-800/80 flex items-center justify-center min-h-28 max-h-56">
+                  {imageUrl.startsWith('data:application/pdf') || imageName?.toLowerCase().endsWith('.pdf') ? (
+                    <div className="py-6 flex flex-col items-center justify-center gap-2 text-stone-300">
+                      <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                        <FileText className="w-6 h-6" />
+                      </div>
+                      <span className="text-xs font-bold text-stone-200">Документ PDF прикреплён</span>
+                      <span className="text-[11px] text-stone-400 font-mono truncate max-w-xs">{imageName || 'диаграмма_масла.pdf'}</span>
+                    </div>
+                  ) : (
+                    <img
+                      src={imageUrl}
+                      alt="Скриншот диаграммы масла"
+                      className="max-h-48 w-auto object-contain rounded-lg"
+                    />
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between text-xs pt-1">

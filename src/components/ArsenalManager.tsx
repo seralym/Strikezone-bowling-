@@ -573,30 +573,68 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
     e.target.value = '';
   };
 
-  // HTML5 Canvas image compressor for ball / drilling photo
+  // Universal image / drilling photo processor with Canvas compression & direct fallback
   const handleProcessBallImage = async (file: File, isPreset: boolean = false) => {
     try {
       setIsCompressingBallImage(true);
-      const compressedDataUrl = await compressImage(file, 1000, 0.7);
-      const sizeKb = getImageSizeKb(compressedDataUrl);
+      let dataUrl = await compressImage(file, 1000, 0.7);
+
+      if (!dataUrl) {
+        // Fallback: direct FileReader
+        dataUrl = await new Promise<string>((res) => {
+          const reader = new FileReader();
+          reader.onload = (e) => res((e.target?.result as string) || '');
+          reader.onerror = () => res('');
+          reader.readAsDataURL(file);
+        });
+      }
+
+      if (!dataUrl) {
+        if (onNotification) onNotification('Не удалось прикрепить файл');
+        return;
+      }
+
+      const sizeKb = getImageSizeKb(dataUrl);
 
       if (isPreset) {
-        setPresetImageUrl(compressedDataUrl);
+        setPresetImageUrl(dataUrl);
         setPresetImageName(file.name);
       } else {
         setBallForm((prev) => ({
           ...prev,
-          imageUrl: compressedDataUrl,
+          imageUrl: dataUrl,
           imageName: file.name,
         }));
       }
 
       if (onNotification) {
-        onNotification(`Фото сжато Canvas: ~${sizeKb} КБ (готово к сохранению)`);
+        onNotification(`Фото прикреплено (~${sizeKb} КБ)`);
       }
     } catch (err) {
-      console.error('Failed to compress ball photo', err);
-      if (onNotification) onNotification('Не удалось сжать фото');
+      console.warn('Direct fallback for ball photo', err);
+      try {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const raw = (e.target?.result as string) || '';
+          if (raw) {
+            if (isPreset) {
+              setPresetImageUrl(raw);
+              setPresetImageName(file.name);
+            } else {
+              setBallForm((prev) => ({
+                ...prev,
+                imageUrl: raw,
+                imageName: file.name,
+              }));
+            }
+            if (onNotification) onNotification('Фото успешно прикреплено');
+          }
+        };
+        reader.readAsDataURL(file);
+      } catch (e) {
+        console.error(e);
+        if (onNotification) onNotification('Не удалось сохранить фото');
+      }
     } finally {
       setIsCompressingBallImage(false);
     }
@@ -621,7 +659,7 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
           <input
             ref={importFileRef}
             type="file"
-            accept=".json,application/json,text/plain"
+            accept=".json,application/json,text/plain,*/*"
             onChange={handleImportBallsFromFile}
             className="hidden"
           />
@@ -1536,7 +1574,7 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
                   <input
                     ref={presetImageInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/*,.heic,.heif,.webp,.bmp,.svg,.tiff,.avif,.pdf,*/*"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) handleProcessBallImage(file, true);
@@ -2257,7 +2295,7 @@ export const ArsenalManager: React.FC<ArsenalManagerProps> = ({
                 <input
                   ref={ballImageInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/*,.heic,.heif,.webp,.bmp,.svg,.tiff,.avif,.pdf,*/*"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) handleProcessBallImage(file, false);

@@ -15,10 +15,14 @@ export default defineConfig(() => {
         includeAssets: [
           'favicon.ico',
           'icon.svg',
+          'icon-192.png',
+          'icon-512.png',
           'apple-touch-icon.png',
           'pwa-192x192.png',
           'pwa-512x512.png',
           'pwa-maskable-512x512.png',
+          'manifest.json',
+          'manifest.webmanifest',
         ],
         manifest: {
           id: './',
@@ -33,27 +37,39 @@ export default defineConfig(() => {
           scope: './',
           icons: [
             {
-              src: 'pwa-192x192.png',
+              src: 'icon-192.png?v=2',
               sizes: '192x192',
               type: 'image/png',
               purpose: 'any',
             },
             {
-              src: 'pwa-512x512.png',
+              src: 'icon-512.png?v=2',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'any',
             },
             {
-              src: 'pwa-maskable-512x512.png',
+              src: 'pwa-maskable-512x512.png?v=2',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'maskable',
             },
             {
-              src: 'icon.svg',
+              src: 'icon.svg?v=2',
               sizes: 'any',
               type: 'image/svg+xml',
+              purpose: 'any maskable',
+            },
+            {
+              src: 'pwa-192x192.png?v=2',
+              sizes: '192x192',
+              type: 'image/png',
+              purpose: 'any',
+            },
+            {
+              src: 'pwa-512x512.png?v=2',
+              sizes: '512x512',
+              type: 'image/png',
               purpose: 'any',
             },
           ],

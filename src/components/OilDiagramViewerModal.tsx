@@ -212,9 +212,11 @@ export const OilDiagramViewerModal: React.FC<OilDiagramViewerModalProps> = ({
   };
 
   const handleDownload = () => {
+    const isPdf = pattern.imageUrl!.startsWith('data:application/pdf') || pattern.imageName?.toLowerCase().endsWith('.pdf');
+    const ext = isPdf ? 'pdf' : 'png';
     const link = document.createElement('a');
     link.href = pattern.imageUrl!;
-    link.download = `${pattern.name.replace(/\s+/g, '_')}_oil_diagram.png`;
+    link.download = `${pattern.name.replace(/\s+/g, '_')}_oil_diagram.${ext}`;
     link.click();
   };
 
@@ -380,12 +382,31 @@ export const OilDiagramViewerModal: React.FC<OilDiagramViewerModalProps> = ({
           }}
           title="Скролл колёсиком мыши — зум, зажмите для перемещения, клик — быстрый зум"
         >
-          <img
-            src={pattern.imageUrl}
-            alt={`Диаграмма нанесения масла ${pattern.name}`}
-            draggable={false}
-            className="max-w-[92vw] max-h-[82vh] rounded-2xl object-contain shadow-2xl border border-stone-800/80 bg-black/90 pointer-events-none select-none"
-          />
+          {pattern.imageUrl.startsWith('data:application/pdf') || pattern.imageName?.toLowerCase().endsWith('.pdf') ? (
+            <object
+              data={pattern.imageUrl}
+              type="application/pdf"
+              className="w-[90vw] h-[80vh] rounded-2xl bg-stone-900 border border-stone-800"
+            >
+              <div className="p-8 text-center text-stone-200">
+                <p className="mb-4">Документ PDF: {pattern.name}</p>
+                <a
+                  href={pattern.imageUrl}
+                  download={`${pattern.name.replace(/\s+/g, '_')}_diagram.pdf`}
+                  className="px-4 py-2 rounded-xl bg-amber-500 text-stone-950 font-bold"
+                >
+                  Скачать PDF диаграмму
+                </a>
+              </div>
+            </object>
+          ) : (
+            <img
+              src={pattern.imageUrl}
+              alt={`Диаграмма нанесения масла ${pattern.name}`}
+              draggable={false}
+              className="max-w-[92vw] max-h-[82vh] rounded-2xl object-contain shadow-2xl border border-stone-800/80 bg-black/90 pointer-events-none select-none"
+            />
+          )}
         </div>
 
         {/* Floating Right Arrow Button */}

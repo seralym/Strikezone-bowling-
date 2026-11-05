@@ -424,7 +424,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         <input
           ref={backupFileInputRef}
           type="file"
-          accept=".json,application/json,text/plain"
+          accept=".json,application/json,text/plain,*/*"
           onChange={handleBackupFileInput}
           className="hidden"
         />

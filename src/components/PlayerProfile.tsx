@@ -122,6 +122,15 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({
           if (onNotification) onNotification('Фотография профиля успешно прикреплена!');
         }
       };
+      img.onerror = () => {
+        // Safe fallback: keep raw DataURL if Canvas decode fails
+        setTempAvatarUrl(raw);
+        onUpdateConfig({
+          ...userConfig,
+          avatarUrl: raw,
+        });
+        if (onNotification) onNotification('Фотография профиля успешно прикреплена!');
+      };
       img.src = raw;
     };
     reader.readAsDataURL(file);
@@ -238,7 +247,7 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({
                   if (file) handleAvatarFile(file);
                   e.target.value = '';
                 }}
-                accept="image/*,.png,.jpg,.jpeg,.webp,.heic"
+                accept="image/*,.heic,.heif,.webp,.bmp,.svg,.tiff,.avif,.pdf,*/*"
                 className="hidden"
               />
               <div
