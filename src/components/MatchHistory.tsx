@@ -6,6 +6,7 @@ import {
   Trophy,
   Trash2,
   Eye,
+  EyeOff,
   Download,
   Upload,
   Search,
@@ -21,6 +22,7 @@ interface MatchHistoryProps {
   onDeleteMatch: (id: string) => void;
   onImportMatches: (jsonStr: string) => void;
   onExportMatches: () => void;
+  onToggleMatchIncludeInStats?: (id: string) => void;
 }
 
 export const MatchHistory: React.FC<MatchHistoryProps> = ({
@@ -28,6 +30,7 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({
   onDeleteMatch,
   onImportMatches,
   onExportMatches,
+  onToggleMatchIncludeInStats,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [tournamentFilter, setTournamentFilter] = useState<string>('all');
@@ -197,13 +200,19 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({
               minute: '2-digit',
             });
 
-            const player = match.players[0];
+            const player = match?.players?.[0];
             if (!player) return null;
+
+            const isExcluded = match.includeInStats === false;
 
             return (
               <div
                 key={`${match.id}_${idx}`}
-                className="rounded-2xl bg-stone-900/80 border border-stone-800 hover:border-stone-700 p-4 sm:p-5 transition-all shadow-sm"
+                className={`rounded-2xl p-4 sm:p-5 transition-all shadow-sm ${
+                  isExcluded
+                    ? 'bg-stone-900/50 border border-dashed border-stone-800 opacity-80'
+                    : 'bg-stone-900/80 border border-stone-800 hover:border-stone-700'
+                }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-stone-800/80">
                   <div className="space-y-1">
@@ -211,9 +220,20 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({
                       <span className="font-bold text-stone-100 text-base">
                         {match.title || 'Одиночная партия'}
                       </span>
+                      {match.stageName && (
+                        <span className="text-xs font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/25 px-2 py-0.5 rounded-md">
+                          {match.stageName}
+                        </span>
+                      )}
                       {match.laneNumber && (
                         <span className="text-xs text-stone-400 font-mono">
                           (Дорожка #{match.laneNumber})
+                        </span>
+                      )}
+                      {isExcluded && (
+                        <span className="text-[10px] font-bold text-stone-400 bg-stone-950 border border-stone-700 px-1.5 py-0.5 rounded flex items-center gap-1">
+                          <EyeOff className="w-3 h-3 text-stone-500" />
+                          <span>Вне зачёта</span>
                         </span>
                       )}
                     </div>
@@ -225,6 +245,30 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({
 
                   {/* Actions for match */}
                   <div className="flex items-center gap-2">
+                    {onToggleMatchIncludeInStats && (
+                      <button
+                        type="button"
+                        onClick={() => onToggleMatchIncludeInStats(match.id)}
+                        className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                          !isExcluded
+                            ? 'bg-emerald-950/60 border-emerald-600/40 text-emerald-300 hover:bg-emerald-900/60'
+                            : 'bg-stone-950 border-dashed border-stone-700 text-stone-400 hover:text-stone-200'
+                        }`}
+                        title={!isExcluded ? 'В зачёте (нажмите, чтобы исключить)' : 'Вне зачёта (нажмите, чтобы включить)'}
+                      >
+                        {!isExcluded ? (
+                          <>
+                            <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="hidden sm:inline">В зачёте</span>
+                          </>
+                        ) : (
+                          <>
+                            <EyeOff className="w-3.5 h-3.5 text-stone-500" />
+                            <span className="hidden sm:inline">Вне зачёта</span>
+                          </>
+                        )}
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => setSelectedMatchForDetail(match)}
@@ -256,6 +300,11 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({
                       <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 font-semibold">
                         <Trophy className="w-3.5 h-3.5 text-amber-400" />
                         <span>{match.tournamentName}</span>
+                      </span>
+                    )}
+                    {match.stageName && (
+                      <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-950/70 border border-stone-800 text-amber-300">
+                        <span>{match.stageName}</span>
                       </span>
                     )}
                     {match.centerName && (

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { SavedTournament, MatchRecord, Frame, OilPattern } from '../types/bowling';
-import { computeTournamentSummary } from '../utils/bowlingEngine';
+import { computeTournamentSummary, isMatchInTournament, isMatchIncludedInStats } from '../utils/bowlingEngine';
+import { toggleMatchIncludeInStats } from '../utils/storage';
 import { ScoreBoard } from './ScoreBoard';
 import { OilDiagramViewerModal } from './OilDiagramViewerModal';
 import {
@@ -22,6 +23,11 @@ import {
   CheckCircle2,
   ZoomIn,
   Image as ImageIcon,
+  Layers,
+  Eye,
+  EyeOff,
+  CheckSquare,
+  Square,
 } from 'lucide-react';
 
 interface TournamentDetailModalProps {
@@ -29,10 +35,12 @@ interface TournamentDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   matches: MatchRecord[];
-  onStartPlay: (tournament: SavedTournament) => void;
+  onStartPlay: (tournament: SavedTournament, stageId?: string) => void;
   onEdit: (tournament: SavedTournament) => void;
   onCompleteTournament?: (tournament: SavedTournament) => void;
   oilPatterns?: OilPattern[];
+  onUpdateMatches?: (matches: MatchRecord[]) => void;
+  onToggleTournamentStats?: (tournamentId: string) => void;
 }
 
 export const TournamentDetailModal: React.FC<TournamentDetailModalProps> = ({
@@ -44,16 +52,31 @@ export const TournamentDetailModal: React.FC<TournamentDetailModalProps> = ({
   onEdit,
   onCompleteTournament,
   oilPatterns,
+  onUpdateMatches,
+  onToggleTournamentStats,
 }) => {
   const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
   const [viewingDiagram, setViewingDiagram] = useState<OilPattern | null>(null);
+  const [selectedStageId, setSelectedStageId] = useState<string>('all');
 
   if (!isOpen || !tournament) return null;
 
-  const stats = computeTournamentSummary(tournament, matches);
-  const tournamentPattern = oilPatterns?.find(
-    (p) => p.id === tournament.oilPatternId || p.name === tournament.oilPatternName
-  );
+  const effectiveStageId = selectedStageId === 'all' ? undefined : selectedStageId;
+  const stats = computeTournamentSummary(tournament, matches, undefined, effectiveStageId);
+
+  const isSeries = tournament.tournamentType === 'series' || (tournament.stages && tournament.stages.length > 0);
+  const currentStage = isSeries && selectedStageId !== 'all' ? tournament.stages?.find((s) => s.id === selectedStageId) : null;
+
+  const currentPattern = oilPatterns?.find((p) => {
+    if (currentStage) {
+      return (currentStage.oilPatternId && p.id === currentStage.oilPatternId) ||
+        (currentStage.oilPatternName && p.name.toLowerCase() === currentStage.oilPatternName.toLowerCase());
+    }
+    return (tournament.oilPatternId && p.id === tournament.oilPatternId) ||
+      (tournament.oilPatternName && p.name.toLowerCase() === tournament.oilPatternName.toLowerCase());
+  });
+
+  const tournamentPattern = currentPattern;
   const tournMatches = [...stats.matches].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
@@ -65,12 +88,12 @@ export const TournamentDetailModal: React.FC<TournamentDetailModalProps> = ({
 
   // Chronological order for chart
   const chronMatches = [...tournMatches].reverse();
-  const scores = chronMatches.map((m) => m.players[0]?.totalScore || 0);
+  const scores = chronMatches.map((m) => m?.players?.[0]?.totalScore || 0);
   const minScore = scores.length > 0 ? Math.min(80, Math.floor(Math.min(...scores) / 20) * 20) : 80;
   const maxScore = scores.length > 0 ? Math.max(260, Math.ceil(Math.max(...scores) / 20) * 20) : 300;
 
   const points = chronMatches.map((m, idx) => {
-    const score = m.players[0]?.totalScore || 0;
+    const score = m?.players?.[0]?.totalScore || 0;
     const x =
       chronMatches.length === 1
         ? chartWidth / 2
@@ -129,6 +152,30 @@ export const TournamentDetailModal: React.FC<TournamentDetailModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            {onToggleTournamentStats && (
+              <button
+                type="button"
+                onClick={() => onToggleTournamentStats(tournament.id)}
+                className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                  tournament.includeInStats !== false
+                    ? 'bg-emerald-950/60 border-emerald-600/50 text-emerald-300 hover:bg-emerald-900/60'
+                    : 'bg-stone-950/80 border-dashed border-stone-700 text-stone-400 hover:text-stone-200'
+                }`}
+                title="Включить / исключить турнир из общей статистики"
+              >
+                {tournament.includeInStats !== false ? (
+                  <>
+                    <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>В зачёте</span>
+                  </>
+                ) : (
+                  <>
+                    <EyeOff className="w-3.5 h-3.5 text-stone-500" />
+                    <span>Вне зачёта</span>
+                  </>
+                )}
+              </button>
+            )}
             <button
               type="button"
               onClick={() => onEdit(tournament)}
@@ -149,6 +196,68 @@ export const TournamentDetailModal: React.FC<TournamentDetailModalProps> = ({
         </div>
 
         {/* ========================================================================= */}
+        {/* STAGES SELECTOR TABS (IF MULTI-STAGE TOURNAMENT) */}
+        {/* ========================================================================= */}
+        {(tournament.tournamentType === 'series' || (tournament.stages && tournament.stages.length > 0)) && (
+          <div className="space-y-2 p-3.5 rounded-2xl bg-stone-950/80 border border-stone-800">
+            <div className="flex items-center justify-between text-xs text-stone-400">
+              <span className="font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5" />
+                <span>Этапы турнира</span>
+              </span>
+              <span>{tournament.stages?.length || 0} этапов в серии</span>
+            </div>
+
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+              <button
+                type="button"
+                onClick={() => setSelectedStageId('all')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all ${
+                  selectedStageId === 'all'
+                    ? 'bg-amber-500 text-stone-950 shadow-md'
+                    : 'bg-stone-900 text-stone-300 hover:bg-stone-800 border border-stone-800'
+                }`}
+              >
+                Все этапы ({stats.stageSummaries?.reduce((acc, s) => acc + s.gamesPlayed, 0) || stats.gamesPlayed})
+              </button>
+
+              {tournament.stages?.map((stage, sIdx) => {
+                const stageSummary = stats.stageSummaries?.find((s) => s.stageId === stage.id);
+                const isSelected = selectedStageId === stage.id;
+                const isExcluded = stage.includeInStats === false;
+
+                return (
+                  <button
+                    key={stage.id}
+                    type="button"
+                    onClick={() => setSelectedStageId(stage.id)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all flex items-center gap-1.5 ${
+                      isSelected
+                        ? 'bg-amber-500 text-stone-950 shadow-md'
+                        : isExcluded
+                        ? 'bg-stone-900/60 text-stone-400 hover:bg-stone-800 border border-dashed border-stone-800'
+                        : 'bg-stone-900 text-stone-300 hover:bg-stone-800 border border-stone-800'
+                    }`}
+                  >
+                    <span>{stage.name || `Этап ${sIdx + 1}`}</span>
+                    <span
+                      className={`text-[10px] px-1 rounded font-mono ${
+                        isSelected ? 'bg-stone-950/40 text-stone-950' : 'bg-stone-800 text-stone-400'
+                      }`}
+                    >
+                      {stageSummary?.gamesPlayed || 0}
+                    </span>
+                    {isExcluded && (
+                      <span className="text-[9px] text-stone-500 uppercase font-mono">вне зачёта</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
         {/* QUICK METADATA STRIP & PRIMARY ACTION BUTTON */}
         {/* ========================================================================= */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-stone-950/70 border border-stone-800/80">
@@ -156,11 +265,17 @@ export const TournamentDetailModal: React.FC<TournamentDetailModalProps> = ({
             <div className="flex items-center gap-2 truncate">
               <Calendar className="w-4 h-4 text-amber-400 shrink-0" />
               <div className="truncate">
-                <span className="text-[10px] text-stone-400 block">Период:</span>
+                <span className="text-[10px] text-stone-400 block">
+                  {isSeries && !currentStage ? 'Сезон / Год:' : 'Период проведения:'}
+                </span>
                 <span className="font-semibold text-stone-200">
-                  {tournament.startDate ? new Date(tournament.startDate).toLocaleDateString() : '—'}
-                  {' — '}
-                  {tournament.endDate ? new Date(tournament.endDate).toLocaleDateString() : '—'}
+                  {currentStage ? (
+                    `${currentStage.startDate ? new Date(currentStage.startDate).toLocaleDateString('ru-RU') : '—'} — ${currentStage.endDate ? new Date(currentStage.endDate).toLocaleDateString('ru-RU') : '—'}`
+                  ) : isSeries ? (
+                    tournament.season || '2026'
+                  ) : (
+                    `${tournament.startDate ? new Date(tournament.startDate).toLocaleDateString('ru-RU') : '—'} — ${tournament.endDate ? new Date(tournament.endDate).toLocaleDateString('ru-RU') : '—'}`
+                  )}
                 </span>
               </div>
             </div>
@@ -168,9 +283,15 @@ export const TournamentDetailModal: React.FC<TournamentDetailModalProps> = ({
             <div className="flex items-center gap-2 truncate">
               <Building2 className="w-4 h-4 text-emerald-400 shrink-0" />
               <div className="truncate">
-                <span className="text-[10px] text-stone-400 block">Центр:</span>
+                <span className="text-[10px] text-stone-400 block">
+                  {currentStage ? 'Клуб этапа:' : isSeries ? 'Боулинг-центры:' : 'Боулинг-центр:'}
+                </span>
                 <span className="font-semibold text-stone-200 truncate block">
-                  {tournament.centerName || 'Любой'}
+                  {currentStage
+                    ? (currentStage.centerName || 'Не указан')
+                    : isSeries
+                    ? `По этапам (${tournament.stages?.length || 0})`
+                    : (tournament.centerName || 'Любой клуб')}
                 </span>
               </div>
             </div>
@@ -178,9 +299,26 @@ export const TournamentDetailModal: React.FC<TournamentDetailModalProps> = ({
             <div className="flex items-center gap-2 truncate">
               <Droplets className="w-4 h-4 text-cyan-400 shrink-0" />
               <div className="truncate">
-                <span className="text-[10px] text-stone-400 block">Масло:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] text-stone-400 block">
+                    {currentStage ? 'Масло этапа:' : isSeries ? 'Профиль масла:' : 'Программа масла:'}
+                  </span>
+                  {currentPattern?.imageUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setViewingDiagram(currentPattern)}
+                      className="text-[10px] font-bold text-cyan-400 hover:text-cyan-200 underline cursor-pointer"
+                    >
+                      Схема
+                    </button>
+                  )}
+                </div>
                 <span className="font-semibold text-stone-200 truncate block">
-                  {tournament.oilPatternName || 'Стандарт'}
+                  {currentStage
+                    ? (currentStage.oilPatternName || 'Не указано')
+                    : isSeries
+                    ? 'По этапам'
+                    : (tournament.oilPatternName || 'Стандарт')}
                 </span>
               </div>
             </div>
@@ -191,7 +329,11 @@ export const TournamentDetailModal: React.FC<TournamentDetailModalProps> = ({
                 <span className="text-[10px] text-stone-400 block">Шар / Дорожка:</span>
                 <span className="font-semibold text-stone-200 truncate block">
                   {tournament.ballName || 'Основной'}
-                  {tournament.laneNumber ? ` · Дор. ${tournament.laneNumber}` : ''}
+                  {currentStage?.laneNumber
+                    ? ` · Дор. ${currentStage.laneNumber}`
+                    : tournament.laneNumber
+                    ? ` · Дор. ${tournament.laneNumber}`
+                    : ''}
                 </span>
               </div>
             </div>
@@ -213,12 +355,16 @@ export const TournamentDetailModal: React.FC<TournamentDetailModalProps> = ({
               type="button"
               onClick={() => {
                 onClose();
-                onStartPlay(tournament);
+                onStartPlay(tournament, effectiveStageId);
               }}
               className="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 transition-all"
             >
               <Play className="w-4 h-4 fill-current" />
-              <span>Играть партию в турнире</span>
+              <span>
+                {selectedStageId !== 'all' && tournament.stages?.find((s) => s.id === selectedStageId)
+                  ? `Играть ${tournament.stages.find((s) => s.id === selectedStageId)?.name}`
+                  : 'Играть партию в турнире'}
+              </span>
             </button>
           </div>
         </div>
@@ -514,15 +660,20 @@ export const TournamentDetailModal: React.FC<TournamentDetailModalProps> = ({
           ) : (
             <div className="space-y-2.5">
               {tournMatches.map((m, idx) => {
-                const player = m.players[0];
+                const player = m?.players?.[0];
                 const score = player?.totalScore || 0;
                 const isExpanded = expandedMatchId === m.id;
                 const isClean = player && player.isFinished && player.openFramesCount === 0;
+                const isIncluded = isMatchIncludedInStats(m, [tournament]);
 
                 return (
                   <div
                     key={m.id}
-                    className="rounded-2xl bg-stone-950/90 border border-stone-800 hover:border-stone-700 transition-all overflow-hidden"
+                    className={`rounded-2xl transition-all overflow-hidden ${
+                      !isIncluded
+                        ? 'bg-stone-950/60 border border-dashed border-stone-800 opacity-80'
+                        : 'bg-stone-950/90 border border-stone-800 hover:border-stone-700'
+                    }`}
                   >
                     <div
                       onClick={() => setExpandedMatchId(isExpanded ? null : m.id)}
@@ -538,18 +689,41 @@ export const TournamentDetailModal: React.FC<TournamentDetailModalProps> = ({
                             <span className="font-bold text-stone-100 text-sm truncate">
                               {m.title || `Партия #${tournMatches.length - idx}`}
                             </span>
+                            {m.stageName && (
+                              <span className="text-[10px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/25 px-1.5 py-0.2 rounded">
+                                {m.stageName}
+                              </span>
+                            )}
                             {isClean && (
                               <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.2 rounded flex items-center gap-1">
                                 <ShieldCheck className="w-3 h-3" />
                                 <span>Clean Game</span>
                               </span>
                             )}
+                            {!isIncluded && (
+                              <span className="text-[10px] font-bold text-stone-400 bg-stone-900 border border-stone-700 px-1.5 py-0.2 rounded flex items-center gap-1">
+                                <EyeOff className="w-3 h-3 text-stone-500" />
+                                <span>Вне зачёта</span>
+                              </span>
+                            )}
                           </div>
 
-                          <div className="flex items-center gap-2 text-xs text-stone-400 mt-0.5">
-                            <span>{new Date(m.date).toLocaleDateString()}</span>
+                          <div className="flex items-center gap-2 text-xs text-stone-400 mt-0.5 flex-wrap">
+                            <span>{new Date(m.date).toLocaleDateString('ru-RU')}</span>
                             <span>·</span>
                             <span>{new Date(m.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            {m.centerName && (
+                              <>
+                                <span>·</span>
+                                <span className="text-emerald-400">{m.centerName}</span>
+                              </>
+                            )}
+                            {m.oilPatternName && (
+                              <>
+                                <span>·</span>
+                                <span className="text-cyan-400">{m.oilPatternName}</span>
+                              </>
+                            )}
                             {m.ballName && (
                               <>
                                 <span>·</span>
@@ -566,7 +740,35 @@ export const TournamentDetailModal: React.FC<TournamentDetailModalProps> = ({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-4 shrink-0">
+                      <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+                        {/* 1-click toggle for stats inclusion */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const updated = toggleMatchIncludeInStats(m.id);
+                            if (onUpdateMatches) onUpdateMatches(updated);
+                          }}
+                          className={`p-1.5 sm:px-2 sm:py-1 rounded-lg border text-[11px] font-semibold flex items-center gap-1 transition-all ${
+                            m.includeInStats !== false
+                              ? 'bg-emerald-950/60 border-emerald-600/40 text-emerald-300 hover:bg-emerald-900/60'
+                              : 'bg-stone-900 border-dashed border-stone-700 text-stone-400 hover:text-stone-200'
+                          }`}
+                          title={m.includeInStats !== false ? 'Включено в статистику (нажмите, чтобы исключить)' : 'Исключено из статистики (нажмите, чтобы включить)'}
+                        >
+                          {m.includeInStats !== false ? (
+                            <>
+                              <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                              <span className="hidden sm:inline">В зачёте</span>
+                            </>
+                          ) : (
+                            <>
+                              <EyeOff className="w-3.5 h-3.5 text-stone-500" />
+                              <span className="hidden sm:inline">Вне зачёта</span>
+                            </>
+                          )}
+                        </button>
+
                         <div className="text-right">
                           <div className="text-2xl font-black font-mono text-amber-400 tabular-nums">
                             {score}

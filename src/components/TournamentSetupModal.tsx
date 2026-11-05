@@ -15,6 +15,8 @@ import {
   Image as ImageIcon,
   ZoomIn,
   Shuffle,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 interface TournamentSetupModalProps {
@@ -45,10 +47,14 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
   const [tournamentName, setTournamentName] = useState(
     initialValues?.tournamentName || ''
   );
+  const safeCenters = userConfig?.centers || [];
+  const safePatterns = userConfig?.oilPatterns || [];
+  const safeBalls = userConfig?.balls || [];
+
   const [selectedCenterId, setSelectedCenterId] = useState<string>(
     initialValues?.centerId ||
-      userConfig.activeCenterId ||
-      userConfig.centers[0]?.id ||
+      userConfig?.activeCenterId ||
+      safeCenters[0]?.id ||
       ''
   );
   const [startDate, setStartDate] = useState(
@@ -59,15 +65,15 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
   );
   const [selectedPatternId, setSelectedPatternId] = useState<string>(
     initialValues?.oilPatternId ||
-      userConfig.activeOilPatternId ||
-      userConfig.oilPatterns[0]?.id ||
+      userConfig?.activeOilPatternId ||
+      safePatterns[0]?.id ||
       ''
   );
   const [selectedBallId, setSelectedBallId] = useState<string>(
     initialValues?.ballId ||
-      userConfig.activeBallId ||
-      userConfig.balls.find((b) => b.isPrimaryStrikeBall)?.id ||
-      userConfig.balls[0]?.id ||
+      userConfig?.activeBallId ||
+      safeBalls.find((b) => b.isPrimaryStrikeBall)?.id ||
+      safeBalls[0]?.id ||
       ''
   );
   const [laneNumber, setLaneNumber] = useState<number | ''>(
@@ -76,11 +82,14 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
   const [laneTransitionRule, setLaneTransitionRule] = useState<LaneTransitionRule>(
     initialValues?.laneTransitionRule || 'pairs'
   );
+  const [includeInStats, setIncludeInStats] = useState<boolean>(
+    initialValues?.includeInStats !== undefined ? initialValues.includeInStats : true
+  );
 
   const [isNewPatternModalOpen, setIsNewPatternModalOpen] = useState(false);
   const [viewingPattern, setViewingPattern] = useState<OilPattern | null>(null);
 
-  const selectedPattern = userConfig.oilPatterns.find((p) => p.id === selectedPatternId);
+  const selectedPattern = safePatterns.find((p) => p.id === selectedPatternId);
 
   if (!isOpen) return null;
 
@@ -88,9 +97,9 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
     if (e) e.preventDefault();
 
     const dateFormatted = new Date().toLocaleDateString('ru-RU');
-    const center = userConfig.centers.find((c) => c.id === selectedCenterId) || userConfig.centers[0];
-    const pattern = userConfig.oilPatterns.find((p) => p.id === selectedPatternId) || userConfig.oilPatterns[0];
-    const ball = userConfig.balls.find((b) => b.id === selectedBallId) || userConfig.balls[0];
+    const center = safeCenters.find((c) => c.id === selectedCenterId) || safeCenters[0];
+    const pattern = safePatterns.find((p) => p.id === selectedPatternId) || safePatterns[0];
+    const ball = safeBalls.find((b) => b.id === selectedBallId) || safeBalls[0];
 
     const config: TournamentConfig = {
       tournamentName: tournamentName.trim() || `Турнир от ${dateFormatted}`,
@@ -104,6 +113,10 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
       ballName: ball ? ball.name : 'Основной шар',
       laneNumber: typeof laneNumber === 'number' ? laneNumber : 1,
       laneTransitionRule,
+      includeInStats,
+      tournamentType: initialValues?.tournamentType || 'single',
+      stageId: initialValues?.stageId,
+      stageName: initialValues?.stageName,
     };
 
     onStartTournament(config);
@@ -169,7 +182,7 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
               onChange={(e) => setSelectedCenterId(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-sm focus:outline-none focus:border-amber-500"
             >
-              {userConfig.centers.map((c) => (
+              {safeCenters.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name} {c.city ? `(${c.city})` : ''} · {c.surface || 'Синтетика'}
                 </option>
@@ -233,7 +246,7 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
               onChange={(e) => setSelectedPatternId(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-sm focus:outline-none focus:border-amber-500"
             >
-              {userConfig.oilPatterns.map((p) => (
+              {safePatterns.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name} [{p.category}, {p.lengthFt} ft] {p.competitionName ? `— ${p.competitionName}` : ''}
                 </option>
@@ -277,7 +290,7 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
                 onChange={(e) => setSelectedBallId(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-sm focus:outline-none focus:border-amber-500"
               >
-                {userConfig.balls.map((b) => (
+                {safeBalls.map((b) => (
                   <option key={b.id} value={b.id}>
                     {b.name} ({b.brand}, {b.weightLbs}#, {b.coverstock}) {b.isPrimaryStrikeBall ? '★' : ''}
                   </option>
@@ -326,6 +339,39 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
             </p>
           </div>
 
+          {/* 7. Include in General Stats Toggle */}
+          <div className="p-3 rounded-xl bg-stone-950/60 border border-stone-800/80 flex items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <label
+                htmlFor="tourn-setup-include-stats"
+                className="text-xs font-semibold uppercase tracking-wider text-stone-200 flex items-center gap-1.5 cursor-pointer"
+              >
+                {includeInStats ? (
+                  <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                ) : (
+                  <EyeOff className="w-3.5 h-3.5 text-stone-500" />
+                )}
+                <span>Учитывать в общей статистике</span>
+              </label>
+              <p className="text-[11px] text-stone-400">
+                {includeInStats
+                  ? 'Игры турнира пойдут в общий расчёт среднего счёта, рекордов и страйков'
+                  : 'Игры турнира будут помечены «Вне зачёта» и исключены из общего среднего'}
+              </p>
+            </div>
+
+            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+              <input
+                id="tourn-setup-include-stats"
+                type="checkbox"
+                checked={includeInStats}
+                onChange={(e) => setIncludeInStats(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-stone-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+            </label>
+          </div>
+
           {/* Sticky Bottom Actions Bar - Always active 'Сохранить' button */}
           <div className="sticky bottom-0 bg-stone-900/95 backdrop-blur-md pt-3 pb-1 -mx-5 px-5 sm:-mx-6 sm:px-6 border-t border-stone-800 flex items-center justify-end gap-3 z-10 shadow-lg">
             <button
@@ -372,7 +418,7 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
         isOpen={!!viewingPattern}
         onClose={() => setViewingPattern(null)}
         pattern={viewingPattern}
-        allPatterns={userConfig.oilPatterns}
+        allPatterns={safePatterns}
         onSelectPattern={(next) => setViewingPattern(next)}
       />
     </div>

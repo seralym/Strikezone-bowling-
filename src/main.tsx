@@ -6,25 +6,20 @@ import { registerSW } from 'virtual:pwa-register';
 // Register PWA service worker for offline support and updates
 registerSW({ immediate: true });
 
-// Prevent unwanted page reloads / form navigations in preview environment
+// Prevent unhandled page reloads / empty anchor clicks in preview environment
 if (typeof window !== 'undefined') {
   window.addEventListener(
     'submit',
     (e) => {
       e.preventDefault();
     },
-    true
+    false
   );
 
   document.addEventListener(
     'click',
     (e) => {
       const target = e.target as HTMLElement | null;
-      const button = target?.closest('button');
-      if (button) {
-        // Prevent default submission / navigation action on all buttons
-        e.preventDefault();
-      }
       const anchor = target?.closest('a');
       if (anchor) {
         const href = anchor.getAttribute('href');
@@ -33,7 +28,7 @@ if (typeof window !== 'undefined') {
         }
       }
     },
-    true
+    false
   );
 }
 

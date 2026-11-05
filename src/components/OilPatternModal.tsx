@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { OilPattern } from '../types/bowling';
+import { compressImage, getImageSizeKb } from '../utils/imageCompressor';
 import {
   X,
   Droplets,
@@ -94,8 +95,8 @@ export const OilPatternModal: React.FC<OilPatternModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Process & compress uploaded image file to Data URL
-  const processImageFile = (file: File, fallbackName?: string) => {
+  // Process & compress uploaded image file to Data URL using HTML5 Canvas (max 1000px, quality 0.7)
+  const processImageFile = async (file: File, fallbackName?: string) => {
     setErrorMsg(null);
     const isImage =
       file.type.startsWith('image/') ||
@@ -105,50 +106,14 @@ export const OilPatternModal: React.FC<OilPatternModalProps> = ({
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const rawDataUrl = event.target?.result as string;
-      if (!rawDataUrl) return;
-
-      // Compress and resize using off-screen image & canvas
-      const img = new Image();
-      img.onload = () => {
-        const maxWidth = 1600;
-        const maxHeight = 1600;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxWidth || height > maxHeight) {
-          if (width > height) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          } else {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
-          }
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.86);
-          setImageUrl(compressedDataUrl);
-          setImageName(file.name || fallbackName || 'диаграмма_масла.jpg');
-        } else {
-          setImageUrl(rawDataUrl);
-          setImageName(file.name || fallbackName || 'диаграмма_масла.png');
-        }
-      };
-      img.onerror = () => {
-        setImageUrl(rawDataUrl);
-        setImageName(file.name || fallbackName || 'диаграмма_масла.png');
-      };
-      img.src = rawDataUrl;
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressedDataUrl = await compressImage(file, 1000, 0.7);
+      setImageUrl(compressedDataUrl);
+      setImageName(file.name || fallbackName || 'диаграмма_масла.jpg');
+    } catch (err: any) {
+      console.error('Failed to compress oil diagram image', err);
+      setErrorMsg('Не удалось сжать изображение. Попробуйте другой файл.');
+    }
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -406,7 +371,10 @@ export const OilPatternModal: React.FC<OilPatternModalProps> = ({
                 <div className="flex items-center justify-between text-xs pt-1">
                   <div className="flex items-center gap-1.5 text-stone-300 truncate mr-2">
                     <FileText className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                    <span className="truncate text-[11px] font-mono">{imageName || 'диаграмма_масла.png'}</span>
+                    <span className="truncate text-[11px] font-mono">{imageName || 'диаграмма_масла.jpg'}</span>
+                    <span className="text-[10px] text-emerald-400 font-mono bg-emerald-950/60 border border-emerald-800/40 px-1 rounded shrink-0">
+                      ~{getImageSizeKb(imageUrl)} КБ
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0">

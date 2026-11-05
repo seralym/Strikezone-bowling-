@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { AppSettings, AppLanguage, AppTheme } from '../types/bowling';
 import { getTranslation } from '../utils/i18n';
 import { playPinCrashSound } from '../utils/audio';
@@ -18,7 +18,17 @@ import {
   CheckCircle2,
   Share2,
   X,
+  ShieldCheck,
+  Archive,
+  Layers,
+  AlertTriangle,
+  FileCheck,
 } from 'lucide-react';
+import {
+  downloadFullAppBackup,
+  restoreFullAppBackup,
+  parseImportFileContent,
+} from '../utils/shareUtils';
 
 interface SettingsViewProps {
   settings: AppSettings;
@@ -26,6 +36,7 @@ interface SettingsViewProps {
   onExportData: () => void;
   onImportData: (jsonStr: string) => void;
   onClearData: () => void;
+  onRestoreBackup?: (backupData: any, mode: 'replace' | 'merge') => void;
   onNotification?: (msg: string) => void;
 }
 
@@ -35,11 +46,18 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onExportData,
   onImportData,
   onClearData,
+  onRestoreBackup,
   onNotification,
 }) => {
   const t = getTranslation(settings.language);
   const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
   const [showIOSModal, setShowIOSModal] = useState(false);
+
+  // Backup & Restore states
+  const backupFileInputRef = useRef<HTMLInputElement>(null);
+  const [pendingBackupData, setPendingBackupData] = useState<any | null>(null);
+  const [isRestoreModalOpen, setIsRestoreModalOpen] = useState(false);
+  const [restoreMode, setRestoreMode] = useState<'replace' | 'merge'>('merge');
 
   const handleInstallClick = async () => {
     if (isInstallable) {
@@ -83,6 +101,44 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     if (onNotification) {
       onNotification(getTranslation(lang).settingsSavedToast);
     }
+  };
+
+  const handleBackupFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (!content) return;
+
+      const parsed = parseImportFileContent(content);
+      if (parsed.type === 'full_backup' || parsed.backupData || (parsed as any).matches) {
+        const data = parsed.backupData || JSON.parse(content);
+        setPendingBackupData(data);
+        setIsRestoreModalOpen(true);
+      } else {
+        if (onNotification) {
+          onNotification('Файл не распознан как полная резервная копия StrikeZone');
+        }
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const handleConfirmRestore = () => {
+    if (!pendingBackupData) return;
+
+    if (onRestoreBackup) {
+      onRestoreBackup(pendingBackupData, restoreMode);
+    } else {
+      const res = restoreFullAppBackup(pendingBackupData, restoreMode);
+      if (onNotification) onNotification(res.message);
+    }
+
+    setIsRestoreModalOpen(false);
+    setPendingBackupData(null);
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -345,52 +401,99 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       </div>
 
       {/* ========================================================================= */}
-      {/* 4. DATA BACKUP & RESTORE */}
+      {/* 4. FULL APPLICATION BACKUP & RESTORE */}
       {/* ========================================================================= */}
-      <div className="rounded-2xl bg-stone-900/80 border border-stone-800 p-5 sm:p-6 shadow-xl space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
-            <Database className="w-5 h-5 text-emerald-400" />
-          </div>
-          <div>
-            <h3 className="text-base font-bold text-stone-100">
-              {t.dataSectionTitle}
-            </h3>
-            <p className="text-xs text-stone-400 mt-0.5">
-              {t.dataSectionDesc}
-            </p>
+      <div className="rounded-3xl bg-stone-900/90 border border-stone-800 p-5 sm:p-7 shadow-xl space-y-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-6 h-6 text-amber-400" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-stone-100 flex items-center gap-2">
+                <span>Резервное копирование (Бэкап)</span>
+              </h3>
+              <p className="text-xs sm:text-sm text-stone-400 mt-0.5">
+                Полная сохранность вашего дневника: профиль, матчи, этапы турниров, арсенал шаров с фото и сверловками, диаграммы масел и настройки
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 pt-2">
+        {/* Hidden file input for full backup restoration */}
+        <input
+          ref={backupFileInputRef}
+          type="file"
+          accept=".json,application/json,text/plain"
+          onChange={handleBackupFileInput}
+          className="hidden"
+        />
+
+        {/* Main Backup Action Buttons */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
           <button
             type="button"
-            onClick={onExportData}
-            className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-bold transition-colors flex items-center gap-2 border border-stone-700"
+            onClick={() => {
+              downloadFullAppBackup();
+              if (onNotification) onNotification('Полный файл бэкапа сохранён (.json)');
+            }}
+            className="p-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-lg shadow-amber-500/20 active:scale-98 transition-all cursor-pointer"
           >
-            <Download className="w-4 h-4 text-emerald-400" />
-            <span>{t.exportDataBtn}</span>
+            <Download className="w-4 h-4 text-stone-950" />
+            <span>Скачать полный бэкап (.json)</span>
           </button>
 
-          <label className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-bold transition-colors flex items-center gap-2 border border-stone-700 cursor-pointer">
+          <button
+            type="button"
+            onClick={() => backupFileInputRef.current?.click()}
+            className="p-4 rounded-2xl bg-stone-800 hover:bg-stone-700 text-stone-100 font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 border border-stone-700 shadow-md active:scale-98 transition-all cursor-pointer"
+          >
             <Upload className="w-4 h-4 text-cyan-400" />
-            <span>{t.importDataBtn}</span>
-            <input
-              type="file"
-              accept=".json,application/json,text/plain,*/*"
-              onChange={handleFileInput}
-              className="hidden"
-            />
-          </label>
+            <span>Восстановить из бэкапа...</span>
+          </button>
+        </div>
+
+        {/* Informative info box */}
+        <div className="p-3.5 rounded-2xl bg-stone-950/70 border border-stone-800/80 text-xs text-stone-400 flex items-start gap-2.5">
+          <Sparkles className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+          <p className="leading-relaxed">
+            Файл бэкапа содержит все данные в стандартном формате JSON и может быть перенесён на любое другое устройство (смартфон, планшет, ПК) или отправлен через мессенджеры.
+          </p>
+        </div>
+
+        {/* Secondary section: Quick matches export & Clear data */}
+        <div className="pt-3 border-t border-stone-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onExportData}
+              className="px-3.5 py-2 rounded-xl bg-stone-950 hover:bg-stone-800 text-stone-300 font-semibold border border-stone-800 transition-colors flex items-center gap-1.5 cursor-pointer"
+              title="Выгрузить только историю сыгранных матчей"
+            >
+              <Database className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Только матчи (JSON)</span>
+            </button>
+
+            <label className="px-3.5 py-2 rounded-xl bg-stone-950 hover:bg-stone-800 text-stone-300 font-semibold border border-stone-800 transition-colors flex items-center gap-1.5 cursor-pointer">
+              <Upload className="w-3.5 h-3.5 text-stone-400" />
+              <span>Импорт матчей</span>
+              <input
+                type="file"
+                accept=".json,application/json,text/plain,*/*"
+                onChange={handleFileInput}
+                className="hidden"
+              />
+            </label>
+          </div>
 
           <button
             type="button"
             onClick={onClearData}
-            title="Очистить все сохранённые матчи и данные"
-            className="px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-red-950/40 text-stone-400 hover:text-red-400 text-xs font-semibold transition-colors flex items-center gap-2 border border-stone-800 hover:border-red-800/60 ml-auto cursor-pointer"
+            title="Очистить все сохранённые матчи и турниры"
+            className="px-3.5 py-2 rounded-xl bg-stone-950 hover:bg-red-950/40 text-stone-500 hover:text-red-400 font-medium transition-colors flex items-center gap-1.5 border border-stone-800 hover:border-red-800/50 cursor-pointer ml-auto"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>{t.clearDataBtn}</span>
+            <span>Очистить историю игр</span>
           </button>
         </div>
       </div>
@@ -538,6 +641,139 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             >
               Понятно
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* RESTORE CONFIRMATION MODAL WITH MODE SELECTION */}
+      {isRestoreModalOpen && pendingBackupData && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setIsRestoreModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-lg bg-stone-900 border border-stone-800 rounded-3xl p-6 shadow-2xl text-left space-y-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3 pb-3 border-b border-stone-800">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center shrink-0">
+                  <Archive className="w-5 h-5 text-cyan-400" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-stone-100">
+                    Восстановление из бэкапа
+                  </h3>
+                  <p className="text-xs text-stone-400">
+                    {pendingBackupData.exportedAt
+                      ? `Копия от ${new Date(pendingBackupData.exportedAt).toLocaleDateString()} ${new Date(pendingBackupData.exportedAt).toLocaleTimeString()}`
+                      : 'Файл резервной копии StrikeZone'}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsRestoreModalOpen(false)}
+                className="p-1.5 rounded-lg text-stone-400 hover:text-stone-200 hover:bg-stone-800 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Summary of content detected in backup */}
+            <div className="p-3.5 rounded-2xl bg-stone-950 border border-stone-800/80 space-y-2">
+              <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider block">
+                Содержимое резервной копии:
+              </span>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-2 rounded-xl bg-stone-900 border border-stone-800 text-stone-300">
+                  Матчи: <strong className="text-amber-400 font-mono font-bold">{(pendingBackupData.matches || []).length}</strong> шт.
+                </div>
+                <div className="p-2 rounded-xl bg-stone-900 border border-stone-800 text-stone-300">
+                  Турниры: <strong className="text-amber-400 font-mono font-bold">{(pendingBackupData.savedTournaments || pendingBackupData.tournaments || []).length}</strong> шт.
+                </div>
+                <div className="p-2 rounded-xl bg-stone-900 border border-stone-800 text-stone-300">
+                  Шары (арсенал): <strong className="text-amber-400 font-mono font-bold">{(pendingBackupData.userConfig?.balls || []).length}</strong> шт.
+                </div>
+                <div className="p-2 rounded-xl bg-stone-900 border border-stone-800 text-stone-300">
+                  Программы масла: <strong className="text-cyan-400 font-mono font-bold">{(pendingBackupData.userConfig?.oilPatterns || []).length}</strong> шт.
+                </div>
+              </div>
+            </div>
+
+            {/* Mode selection radio cards */}
+            <div className="space-y-2.5">
+              <label className="block text-xs font-bold text-stone-300 uppercase tracking-wider">
+                Выберите режим восстановления:
+              </label>
+
+              {/* Option 1: Merge mode */}
+              <div
+                onClick={() => setRestoreMode('merge')}
+                className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 ${
+                  restoreMode === 'merge'
+                    ? 'bg-amber-500/10 border-amber-500/50 shadow-md shadow-amber-500/5'
+                    : 'bg-stone-950/70 border-stone-800 hover:border-stone-700'
+                }`}
+              >
+                <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${
+                  restoreMode === 'merge' ? 'border-amber-400 bg-amber-500 text-stone-950' : 'border-stone-600'
+                }`}>
+                  {restoreMode === 'merge' && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                </div>
+                <div>
+                  <h4 className="font-bold text-stone-100 text-xs sm:text-sm">
+                    Объединить (добавить недостающие записи)
+                  </h4>
+                  <p className="text-[11px] text-stone-400 mt-0.5 leading-relaxed">
+                    Сохраняет текущие игры и арсенал, добавляя из копии только новые матчи, шары и программы масел без дублирования.
+                  </p>
+                </div>
+              </div>
+
+              {/* Option 2: Replace mode */}
+              <div
+                onClick={() => setRestoreMode('replace')}
+                className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 ${
+                  restoreMode === 'replace'
+                    ? 'bg-red-500/10 border-red-500/50 shadow-md shadow-red-500/5'
+                    : 'bg-stone-950/70 border-stone-800 hover:border-stone-700'
+                }`}
+              >
+                <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${
+                  restoreMode === 'replace' ? 'border-red-400 bg-red-500 text-white' : 'border-stone-600'
+                }`}>
+                  {restoreMode === 'replace' && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                </div>
+                <div>
+                  <h4 className="font-bold text-red-300 text-xs sm:text-sm flex items-center gap-1.5">
+                    <span>Полная замена (восстановить копию поверх текущих)</span>
+                  </h4>
+                  <p className="text-[11px] text-stone-400 mt-0.5 leading-relaxed">
+                    Полностью перезаписывает текущую базу данных состоянием из резервной копии.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-stone-800">
+              <button
+                type="button"
+                onClick={() => setIsRestoreModalOpen(false)}
+                className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-semibold transition-colors cursor-pointer"
+              >
+                Отмена
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmRestore}
+                className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-bold transition-all shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer"
+              >
+                Подтвердить восстановление
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -38,6 +38,8 @@ import {
   importMatchesFromJson,
   loadUserPersonalConfig,
   saveUserPersonalConfig,
+  loadSavedBalls,
+  saveSavedBalls,
   loadAppSettings,
   saveAppSettings,
   loadSavedTournaments,
@@ -58,6 +60,8 @@ import {
   SavedTournament,
   PracticeDrillRecord,
 } from './types/bowling';
+import { optimizeHeavyStoredImages } from './utils/imageCompressor';
+import { restoreFullAppBackup } from './utils/shareUtils';
 
 import { DrawerMenu } from './components/DrawerMenu';
 import { HomeScreen } from './components/HomeScreen';
@@ -158,10 +162,18 @@ export default function App() {
   // Notification / toast feedback
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Initialize sounds and load matches on mount
+  // Initialize sounds and load matches on mount, plus run background image optimization for stored images
   useEffect(() => {
     setSoundMuted(!settings.soundEnabled);
     setMatches(loadSavedMatches());
+
+    // One-time background optimization for legacy heavy images (>300 KB) in localStorage
+    optimizeHeavyStoredImages(userConfig).then((res) => {
+      if (res) {
+        handleUpdateUserConfig(res.updatedConfig);
+        showToast(`Оптимизировано изображений: ${res.count} (освобождено ~${res.savedKb} КБ)`);
+      }
+    });
   }, []);
 
   // Save active match whenever it changes
@@ -187,11 +199,29 @@ export default function App() {
   const handleUpdateUserConfig = (newConfig: UserPersonalConfig) => {
     setUserConfig(newConfig);
     saveUserPersonalConfig(newConfig);
-    // Also update player name on active match if needed
-    if (activeMatch.players[0] && activeMatch.players[0].playerName !== newConfig.name) {
+    saveSavedBalls(newConfig.balls);
+
+    // If active match had no ball selected and balls are now available, bind the primary ball
+    if (
+      (!activeMatch.ballId || !newConfig.balls.some((b) => b.id === activeMatch.ballId)) &&
+      newConfig.balls.length > 0
+    ) {
+      const preferredBall =
+        newConfig.balls.find((b) => b.isPrimaryStrikeBall) || newConfig.balls[0];
       setActiveMatch((prev) => ({
         ...prev,
-        players: [{ ...prev.players[0], playerName: newConfig.name }],
+        ballId: preferredBall.id,
+        ballName: preferredBall.name,
+      }));
+    }
+
+    // Also update player name on active match if needed
+    if (activeMatch?.players?.[0] && activeMatch.players[0].playerName !== newConfig.name) {
+      setActiveMatch((prev) => ({
+        ...prev,
+        players: prev.players?.[0]
+          ? [{ ...prev.players[0], playerName: newConfig.name }]
+          : [createEmptyPlayerGame(newConfig.name)],
       }));
     }
   };
@@ -204,6 +234,11 @@ export default function App() {
   const handleSavePracticeDrills = (updated: PracticeDrillRecord[]) => {
     setPracticeDrills(updated);
     savePracticeDrills(updated);
+  };
+
+  const handleUpdateMatches = (updated: MatchRecord[]) => {
+    setMatches(updated);
+    saveMatches(updated);
   };
 
   const handleQuickStartPractice = (presetPins?: number[]) => {
@@ -222,6 +257,10 @@ export default function App() {
       ...prev,
       tournamentId: tournament.tournamentId,
       tournamentName: tournament.tournamentName,
+      tournamentType: tournament.tournamentType || 'single',
+      stageId: tournament.stageId,
+      stageName: tournament.stageName,
+      includeInStats: tournament.includeInStats !== undefined ? tournament.includeInStats : true,
       tournamentStartDate: tournament.startDate,
       tournamentEndDate: tournament.endDate,
       centerId: tournament.centerId,
@@ -272,7 +311,7 @@ export default function App() {
   const [isFrameEditModalOpen, setIsFrameEditModalOpen] = useState(false);
 
   // Safe reference to the user's personal game
-  const activePlayer: PlayerGame = activeMatch.players[0] || createEmptyPlayerGame(userConfig.name);
+  const activePlayer: PlayerGame = activeMatch?.players?.[0] || createEmptyPlayerGame(userConfig?.name || 'Игрок 1');
 
   // Active player's current frame
   const currentFrameIdx = activePlayer.frames.findIndex((f) => !isFrameComplete(f));
@@ -525,9 +564,13 @@ export default function App() {
     const newMatch: MatchRecord = {
       id: 'match_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9),
       date: new Date().toISOString(),
-      title: config.tournamentName,
+      title: config.stageName ? `${config.tournamentName} — ${config.stageName}` : config.tournamentName,
       tournamentId: config.tournamentId,
       tournamentName: config.tournamentName,
+      tournamentType: config.tournamentType || 'single',
+      stageId: config.stageId,
+      stageName: config.stageName,
+      includeInStats: config.includeInStats !== undefined ? config.includeInStats : true,
       tournamentStartDate: config.startDate,
       tournamentEndDate: config.endDate,
       laneNumber: config.laneNumber,
@@ -543,7 +586,7 @@ export default function App() {
     setActiveMatch(newMatch);
     setSelectedPinsToKnock([]);
     setActiveView('game');
-    showToast(`🏆 ${config.tournamentName}`);
+    showToast(`🏆 ${config.stageName ? `${config.tournamentName} (${config.stageName})` : config.tournamentName}`);
   };
 
   // Start fresh game with automated lane transition based on selected rule
@@ -581,6 +624,10 @@ export default function App() {
       title: activeTournament?.tournamentName || activeMatch.tournamentName || (activeMatch.title && activeMatch.title !== 'Тренировочный матч' ? activeMatch.title : 'Новая игра'),
       tournamentId: activeTournament?.tournamentId || activeMatch.tournamentId,
       tournamentName: activeTournament?.tournamentName || activeMatch.tournamentName,
+      tournamentType: activeTournament?.tournamentType || activeMatch.tournamentType || 'single',
+      stageId: activeTournament?.stageId || activeMatch.stageId,
+      stageName: activeTournament?.stageName || activeMatch.stageName,
+      includeInStats: activeTournament?.includeInStats !== undefined ? activeTournament.includeInStats : (activeMatch.includeInStats !== undefined ? activeMatch.includeInStats : true),
       tournamentStartDate: activeTournament?.startDate || activeMatch.tournamentStartDate,
       tournamentEndDate: activeTournament?.endDate || activeMatch.tournamentEndDate,
       laneNumber: nextLane,
@@ -704,6 +751,23 @@ export default function App() {
       showToast('Данные успешно импортированы!');
     } else {
       showToast('Ошибка импорта: неверный формат JSON');
+    }
+  };
+
+  const handleRestoreFullBackup = (backupData: any, mode: 'replace' | 'merge') => {
+    const res = restoreFullAppBackup(backupData, mode);
+    if (res.success) {
+      setMatches(loadSavedMatches());
+      setUserConfig(loadUserPersonalConfig());
+      setSavedTournaments(loadSavedTournaments());
+      setPracticeDrills(loadPracticeDrills());
+      setActiveTournament(loadActiveTournament());
+      const newSettings = loadAppSettings();
+      setSettings(newSettings);
+      setSoundMuted(!newSettings.soundEnabled);
+      showToast(res.message);
+    } else {
+      showToast(`Ошибка восстановления: ${res.message}`);
     }
   };
 
@@ -899,6 +963,7 @@ export default function App() {
             onBackToHome={() => setActiveView('home')}
             onNotification={showToast}
             matches={matches}
+            onUpdateMatches={handleUpdateMatches}
           />
         )}
 
@@ -923,6 +988,7 @@ export default function App() {
             <ArsenalManager
               userConfig={userConfig}
               onUpdateConfig={handleUpdateUserConfig}
+              onNotification={showToast}
             />
           </div>
         )}
@@ -1228,10 +1294,13 @@ export default function App() {
             onUpdateConfig={handleUpdateUserConfig}
             matches={matches}
             savedTournaments={savedTournaments}
+            practiceDrills={practiceDrills}
             language={settings.language}
             onNotification={showToast}
             onExportData={handleExportMatches}
             onResetStats={handleResetStats}
+            onUpdateMatches={handleUpdateMatches}
+            onUpdatePractices={handleSavePracticeDrills}
           />
         )}
 
@@ -1255,6 +1324,7 @@ export default function App() {
             onExportData={handleExportMatches}
             onImportData={handleImportMatches}
             onClearData={handleClearData}
+            onRestoreBackup={handleRestoreFullBackup}
             onNotification={showToast}
           />
         )}

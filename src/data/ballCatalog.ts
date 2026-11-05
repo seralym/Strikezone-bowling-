@@ -2,6 +2,15 @@ import { BowlingBall } from '../types/bowling';
 import { ARCHIVED_BALLS } from './archivedBalls';
 import { EXPANDED_BALLS } from './expandedBalls';
 
+export interface BallWeightSpec {
+  weightLbs: number; // 12, 13, 14, 15, 16
+  coreName: string;
+  coreType: 'Symmetrical' | 'Asymmetrical';
+  rg: number;
+  diff: number;
+  mb?: number;
+}
+
 export interface CatalogBallPreset {
   id: string;
   name: string;
@@ -20,9 +29,9 @@ export interface CatalogBallPreset {
   coverstockName: string;
   core: string;
   coreType: 'Symmetrical' | 'Asymmetrical';
-  rg: number;
-  diff: number;
-  mb?: number; // Intermediate Differential (Mass Bias) for Asymmetrical cores
+  rg: number; // standard reference for 15 lbs
+  diff: number; // standard reference for 15 lbs
+  mb?: number; // Intermediate Differential (Mass Bias) for Asymmetrical cores (15 lbs)
   finish: string;
   recommendedOil: 'Heavy' | 'Medium-Heavy' | 'Medium' | 'Medium-Light' | 'Light-Medium' | 'Dry' | 'Short';
   primaryColor: string;
@@ -33,6 +42,7 @@ export interface CatalogBallPreset {
   releaseYear?: number;
   isBanned?: boolean;
   bannedReason?: string;
+  weights?: BallWeightSpec[];
 }
 
 export const BALL_BRANDS: Array<
@@ -4012,23 +4022,624 @@ export const BANNED_BALLS: CatalogBallPreset[] = [
     isBanned: true,
     bannedReason: 'Запрет на PBA Tour по правилу минимальной твердости уретана 78D (2022)',
   },
+  {
+    id: 'banned_storm_electrify_solid',
+    name: 'Electrify Solid [Запрещён USBC]',
+    brand: 'Storm',
+    coverstock: 'Solid',
+    coverstockName: 'Reactor™ Solid Reactive',
+    core: 'Circuit™ Core',
+    coreType: 'Symmetrical',
+    rg: 2.51,
+    diff: 0.030,
+    finish: '1500-grit Polished',
+    recommendedOil: 'Medium-Light',
+    primaryColor: '#ea580c',
+    secondaryColor: '#9a3412',
+    accentColor: '#fdba74',
+    description: 'Официально отозван USBC весной 2022 года из-за отклонения твердости партии оболочки ниже нормы 73D.',
+    releaseYear: 2021,
+    isBanned: true,
+    bannedReason: 'Запрещён USBC (твёрдость оболочки ниже нормы 73D)',
+  },
+  {
+    id: 'banned_roto_idol_helios',
+    name: 'Idol Helios [Запрещён USBC]',
+    brand: 'Roto Grip',
+    coverstock: 'Solid',
+    coverstockName: 'XtremeTrax™ Solid Reactive',
+    core: 'Ikon™ Core',
+    coreType: 'Symmetrical',
+    rg: 2.49,
+    diff: 0.052,
+    finish: '2000-grit Abralon',
+    recommendedOil: 'Medium-Heavy',
+    primaryColor: '#ea580c',
+    secondaryColor: '#c2410c',
+    accentColor: '#fb923c',
+    description: 'Внесен в список запрещенных USBC шаров в марте 2022 года в связи с твердостью заводской партии ниже минимального порога 73D.',
+    releaseYear: 2021,
+    isBanned: true,
+    bannedReason: 'Запрещён USBC (твёрдость оболочки ниже нормы 73D)',
+  },
+  {
+    id: 'banned_roto_idol_pro',
+    name: 'Idol Pro [Запрещён USBC]',
+    brand: 'Roto Grip',
+    coverstock: 'Solid',
+    coverstockName: 'eTrax-S19™ Solid Reactive',
+    core: 'Ikon™ Core',
+    coreType: 'Symmetrical',
+    rg: 2.49,
+    diff: 0.052,
+    finish: '3000-grit Sheen',
+    recommendedOil: 'Medium-Heavy',
+    primaryColor: '#0284c7',
+    secondaryColor: '#0369a1',
+    accentColor: '#38bdf8',
+    description: 'Ограничен и запрещен USBC в марте 2022 года по итогам лабораторных тестов твердости материала покрытия.',
+    releaseYear: 2019,
+    isBanned: true,
+    bannedReason: 'Запрещён USBC (твёрдость оболочки ниже нормы 73D)',
+  },
 ];
 
+export const LATEST_2025_2026_BALLS: CatalogBallPreset[] = [
+  // Storm
+  {
+    id: 'storm_summit_surge',
+    name: 'Summit Surge',
+    brand: 'Storm',
+    coverstock: 'Pearl',
+    coverstockName: 'TX-24™ Pearl Reactive',
+    core: 'Centripetal™ HD - A.I. Core',
+    coreType: 'Symmetrical',
+    rg: 2.46,
+    diff: 0.056,
+    finish: 'Reacta Gloss',
+    recommendedOil: 'Medium-Heavy',
+    primaryColor: '#9333ea',
+    secondaryColor: '#0f172a',
+    accentColor: '#f59e0b',
+    description: 'Флагманский релиз Storm 2025 года с ядром Centripetal HD A.I. и жемчужной оболочкой TX-24 для взрывного захода в карман на масле средней и высокой плотности.',
+    releaseYear: 2025,
+  },
+  {
+    id: 'storm_ion_max',
+    name: 'Ion Max',
+    brand: 'Storm',
+    coverstock: 'Solid',
+    coverstockName: 'NeX™ Solid Reactive',
+    core: 'Element™ A.I. Core',
+    coreType: 'Asymmetrical',
+    rg: 2.47,
+    diff: 0.054,
+    mb: 0.014,
+    finish: '2000-grit Abralon',
+    recommendedOil: 'Heavy',
+    primaryColor: '#dc2626',
+    secondaryColor: '#09090b',
+    accentColor: '#ea580c',
+    description: 'Мощнейший асимметричный шар Storm 2025 года с инновационным ядром Element A.I. и сверхагрессивной нано-оболочкой NeX Solid для максимального контроля тяжелого масла.',
+    releaseYear: 2025,
+  },
+  {
+    id: 'storm_road_pearl',
+    name: 'The Road Pearl',
+    brand: 'Storm',
+    coverstock: 'Pearl',
+    coverstockName: 'ReX™ Pearl Reactive',
+    core: 'Inverted Fe2 A.I. Core',
+    coreType: 'Symmetrical',
+    rg: 2.55,
+    diff: 0.045,
+    finish: 'Reacta Gloss',
+    recommendedOil: 'Medium',
+    primaryColor: '#059669',
+    secondaryColor: '#022c22',
+    accentColor: '#6ee7b7',
+    description: 'Новинка 2025 года легендарной серии Road с ядром A.I. и оболочкой ReX Pearl для чистого проката по сухим передним планкам дорожки и резкого броска в карман.',
+    releaseYear: 2025,
+  },
+  {
+    id: 'storm_physix_power_elite',
+    name: 'PhysiX Power Elite Blue',
+    brand: 'Storm',
+    coverstock: 'Pearl',
+    coverstockName: 'NeX™ Pearl Reactive',
+    core: 'Atomic™ Core',
+    coreType: 'Asymmetrical',
+    rg: 2.48,
+    diff: 0.053,
+    mb: 0.017,
+    finish: '1500-grit Polished',
+    recommendedOil: 'Heavy',
+    primaryColor: '#1d4ed8',
+    secondaryColor: '#172554',
+    accentColor: '#60a5fa',
+    description: 'Популярнейший международный Overseas-релиз серии PhysiX с ядром Atomic Core и полированной нано-жемчужной оболочкой NeX Pearl.',
+    releaseYear: 2024,
+  },
+  {
+    id: 'storm_dark_physix',
+    name: 'Dark PhysiX',
+    brand: 'Storm',
+    coverstock: 'Solid',
+    coverstockName: 'NeX™ Dark Solid',
+    core: 'Atomic™ Core',
+    coreType: 'Asymmetrical',
+    rg: 2.48,
+    diff: 0.053,
+    mb: 0.017,
+    finish: '3000-grit Abralon',
+    recommendedOil: 'Heavy',
+    primaryColor: '#312e81',
+    secondaryColor: '#0f172a',
+    accentColor: '#a855f7',
+    description: 'Культовый международный релиз серии PhysiX для тяжелых масляных кондиций с исключительным продолжением движения через кегли.',
+    releaseYear: 2023,
+    isArchived: true,
+  },
+
+  // Roto Grip
+  {
+    id: 'roto_attention_star_s2',
+    name: 'Attention Star S2',
+    brand: 'Roto Grip',
+    coverstock: 'Pearl',
+    coverstockName: 'eTrax™ PLUS Pearl',
+    core: 'Momentous™ A.I. Core',
+    coreType: 'Asymmetrical',
+    rg: 2.48,
+    diff: 0.049,
+    mb: 0.017,
+    finish: 'Reacta Gloss',
+    recommendedOil: 'Medium-Heavy',
+    primaryColor: '#d97706',
+    secondaryColor: '#1c1917',
+    accentColor: '#fde047',
+    description: 'Новейший хит 2025 года Roto Grip. Эволюция популярной платформы Attention Star с ядром Momentous A.I. для непревзойденной угловой траектории на брейкпоинте.',
+    releaseYear: 2025,
+  },
+  {
+    id: 'roto_optimum_idol_pearl',
+    name: 'Optimum Idol Pearl',
+    brand: 'Roto Grip',
+    coverstock: 'Pearl',
+    coverstockName: 'MicroTrax™ Pearl Reactive',
+    core: 'Ikon™ + A.I. Core',
+    coreType: 'Symmetrical',
+    rg: 2.47,
+    diff: 0.056,
+    finish: 'Reacta Gloss',
+    recommendedOil: 'Medium-Heavy',
+    primaryColor: '#0d9488',
+    secondaryColor: '#134e4a',
+    accentColor: '#2dd4bf',
+    description: 'Новинка легендарной серии Idol с ядром Ikon + A.I. и жемчужной оболочкой MicroTrax Pearl для идеального баланса контроля и углового срыва.',
+    releaseYear: 2024,
+  },
+  {
+    id: 'roto_hyper_cell_fused',
+    name: 'Hyper Cell Fused',
+    brand: 'Roto Grip',
+    coverstock: 'Hybrid',
+    coverstockName: 'eTrax-H18™ Hybrid Reactive',
+    core: 'Nucleus™ Core',
+    coreType: 'Asymmetrical',
+    rg: 2.52,
+    diff: 0.056,
+    mb: 0.018,
+    finish: '1500-grit Polished',
+    recommendedOil: 'Heavy',
+    primaryColor: '#7c2d12',
+    secondaryColor: '#1c1917',
+    accentColor: '#f97316',
+    description: 'Легендарный асимметричный гибрид Roto Grip с ядром Nucleus Core для сокрушительного удара по кеглям на тяжелом масле.',
+    releaseYear: 2022,
+    isArchived: true,
+  },
+
+  // 900 Global
+  {
+    id: 'global_sublime_focus',
+    name: 'Sublime Focus',
+    brand: '900 Global',
+    coverstock: 'Solid',
+    coverstockName: 'Reserve Blend 804 Solid',
+    core: 'Immerse™ A.I. Core',
+    coreType: 'Symmetrical',
+    rg: 2.49,
+    diff: 0.050,
+    finish: '2000-grit Abralon',
+    recommendedOil: 'Medium-Heavy',
+    primaryColor: '#15803d',
+    secondaryColor: '#052e16',
+    accentColor: '#86efac',
+    description: 'Новинка 2025 года 900 Global с твердой матовой оболочкой Reserve Blend 804 и ядром Immerse A.I. для уверенного раннего чтения дорожки.',
+    releaseYear: 2025,
+  },
+  {
+    id: 'global_harsh_reality_pearl',
+    name: 'Harsh Reality Pearl',
+    brand: '900 Global',
+    coverstock: 'Pearl',
+    coverstockName: 'Reserve Blend 902 Pearl',
+    core: 'Disturbance A.I. Core',
+    coreType: 'Asymmetrical',
+    rg: 2.48,
+    diff: 0.054,
+    mb: 0.019,
+    finish: 'Reacta Gloss',
+    recommendedOil: 'Heavy',
+    primaryColor: '#b45309',
+    secondaryColor: '#451a03',
+    accentColor: '#fcd34d',
+    description: 'Асимметричный монстр 900 Global 2024 года с жемчужной оболочкой 902 Pearl и ядром Disturbance A.I. для непревзойденной длины и взрывного хука.',
+    releaseYear: 2024,
+  },
+
+  // Hammer
+  {
+    id: 'hammer_effect_tour',
+    name: 'Hammer Effect Tour',
+    brand: 'Hammer',
+    coverstock: 'Solid',
+    coverstockName: 'HK22 - Cohesion Tour Solid',
+    core: 'Huntsman Core',
+    coreType: 'Asymmetrical',
+    rg: 2.47,
+    diff: 0.050,
+    mb: 0.017,
+    finish: '500/2000 Siaair',
+    recommendedOil: 'Heavy',
+    primaryColor: '#1e293b',
+    secondaryColor: '#0f172a',
+    accentColor: '#f59e0b',
+    description: 'Флагманский релиз Hammer 2025 года с инновационным компаундом HK22 Cohesion Tour Solid и ядром Huntsman для бескомпромиссного сцепления на турнирном масле.',
+    releaseYear: 2025,
+  },
+  {
+    id: 'hammer_black_widow_3_hybrid',
+    name: 'Black Widow 3.0 Hybrid',
+    brand: 'Hammer',
+    coverstock: 'Hybrid',
+    coverstockName: 'HK22 - Aggression Hybrid',
+    core: 'Gas Mask Core',
+    coreType: 'Asymmetrical',
+    rg: 2.50,
+    diff: 0.058,
+    mb: 0.016,
+    finish: '500/1000/1500 Crown Factory Polish',
+    recommendedOil: 'Medium-Heavy',
+    primaryColor: '#b91c1c',
+    secondaryColor: '#18181b',
+    accentColor: '#f87171',
+    description: 'Премьера 2025 года культовой серии Black Widow. Легендарное ядро Gas Mask с гибридной оболочкой HK22 Aggression для динамичного отклика на сухом конце дорожки.',
+    releaseYear: 2025,
+  },
+  {
+    id: 'hammer_pure_envy',
+    name: 'Pure Envy',
+    brand: 'Hammer',
+    coverstock: 'Solid',
+    coverstockName: 'HK22 - Cohesion Solid',
+    core: 'Launcher Core',
+    coreType: 'Asymmetrical',
+    rg: 2.50,
+    diff: 0.055,
+    mb: 0.021,
+    finish: '500/2000 Siaair',
+    recommendedOil: 'Heavy',
+    primaryColor: '#047857',
+    secondaryColor: '#064e3b',
+    accentColor: '#a7f3d0',
+    description: 'Асимметричный шар Hammer 2025 года с ядром Launcher и формулой HK22 Cohesion Solid для непревзойденной управляемости на длинных спортивных диаграммах.',
+    releaseYear: 2025,
+  },
+  {
+    id: 'hammer_arctic_vibe',
+    name: 'Arctic Vibe',
+    brand: 'Hammer',
+    coverstock: 'Hybrid',
+    coverstockName: 'HK22 - CT Reactive Plus Hybrid',
+    core: 'Vibe Core',
+    coreType: 'Symmetrical',
+    rg: 2.51,
+    diff: 0.042,
+    finish: 'Crown Factory Polish',
+    recommendedOil: 'Medium-Light',
+    primaryColor: '#0284c7',
+    secondaryColor: '#f8fafc',
+    accentColor: '#38bdf8',
+    description: 'Бестселлер Hammer серии Vibe с инновационной технологией HK22 для легкого прохождения передней части дорожки и плавного угла захода.',
+    releaseYear: 2024,
+  },
+
+  // Brunswick
+  {
+    id: 'brunswick_archetype_hybrid',
+    name: 'Archetype Hybrid',
+    brand: 'Brunswick',
+    coverstock: 'Hybrid',
+    coverstockName: 'HK22 - Savvy Hook 4.0 Hybrid',
+    core: 'I-Block Core',
+    coreType: 'Asymmetrical',
+    rg: 2.51,
+    diff: 0.053,
+    mb: 0.020,
+    finish: '500/1000 Crown Factory Polish',
+    recommendedOil: 'Heavy',
+    primaryColor: '#4338ca',
+    secondaryColor: '#1e1b4b',
+    accentColor: '#818cf8',
+    description: 'Топовый гибридный асимметрик Brunswick 2025 года с мощнейшим ядром I-Block и оболочкой Savvy Hook 4.0 HK22 для взрывного захода в карман.',
+    releaseYear: 2025,
+  },
+  {
+    id: 'brunswick_vaporize',
+    name: 'Vaporize',
+    brand: 'Brunswick',
+    coverstock: 'Pearl',
+    coverstockName: 'HK22 - Cohesion Pearl',
+    core: 'Zone LFT Core',
+    coreType: 'Symmetrical',
+    rg: 2.49,
+    diff: 0.052,
+    finish: 'Crown Factory Polish',
+    recommendedOil: 'Medium',
+    primaryColor: '#0284c7',
+    secondaryColor: '#0f172a',
+    accentColor: '#38bdf8',
+    description: 'Симметричный жемчужный хит 2024-2025 года с ядром Zone LFT и технологией HK22 Cohesion для невероятной длины и резкого угла брейкпоинта.',
+    releaseYear: 2024,
+  },
+
+  // Motiv
+  {
+    id: 'motiv_sub_zero_forge',
+    name: 'Sub-Zero Forge',
+    brand: 'Motiv',
+    coverstock: 'Solid',
+    coverstockName: 'Leverage MXC Solid',
+    core: 'Detonator™ Core',
+    coreType: 'Symmetrical',
+    rg: 2.47,
+    diff: 0.055,
+    finish: '1000 LSS',
+    recommendedOil: 'Heavy',
+    primaryColor: '#0284c7',
+    secondaryColor: '#082f49',
+    accentColor: '#bae6fd',
+    description: 'Премьера Motiv 2025 года с низким RG ядром Detonator и агрессивной матовой оболочкой Leverage MXC Solid для сверхтяжелого турнирного масла.',
+    releaseYear: 2025,
+  },
+  {
+    id: 'motiv_raptor_rush',
+    name: 'Raptor Rush',
+    brand: 'Motiv',
+    coverstock: 'Pearl',
+    coverstockName: 'Propulsion MXV Pearl',
+    core: 'Affliction V2 Core',
+    coreType: 'Asymmetrical',
+    rg: 2.50,
+    diff: 0.052,
+    mb: 0.013,
+    finish: '5000 LSP',
+    recommendedOil: 'Medium-Heavy',
+    primaryColor: '#c2410c',
+    secondaryColor: '#1c1917',
+    accentColor: '#fb923c',
+    description: 'Асимметричный жемчужный релиз Motiv 2025 года с ядром Affliction V2 и оболочкой Propulsion MXV для динамичной угловой реакции на сухом брейкпоинте.',
+    releaseYear: 2025,
+  },
+  {
+    id: 'motiv_hyper_venom',
+    name: 'Hyper Venom',
+    brand: 'Motiv',
+    coverstock: 'Pearl',
+    coverstockName: 'Propulsion MXV Pearl',
+    core: 'Gear™ Core',
+    coreType: 'Symmetrical',
+    rg: 2.48,
+    diff: 0.034,
+    finish: '5500 LSP',
+    recommendedOil: 'Light-Medium',
+    primaryColor: '#65a30d',
+    secondaryColor: '#14532d',
+    accentColor: '#bef264',
+    description: 'Яркий представитель культовой линейки Venom с ядром Gear Core и жемчужной оболочкой Propulsion MXV для сухих и выбитых дорожек.',
+    releaseYear: 2024,
+  },
+
+  // DV8
+  {
+    id: 'dv8_hater',
+    name: 'Hater',
+    brand: 'DV8',
+    coverstock: 'Solid',
+    coverstockName: 'HK22 - Havoc Solid',
+    core: 'Hater Core',
+    coreType: 'Asymmetrical',
+    rg: 2.53,
+    diff: 0.054,
+    mb: 0.024,
+    finish: '500/1500 Siaair',
+    recommendedOil: 'Heavy',
+    primaryColor: '#15803d',
+    secondaryColor: '#0f172a',
+    accentColor: '#4ade80',
+    description: 'Асимметричный шар DV8 для сверхтяжелого масла с ядром Hater и матовой поверхностью HK22 Havoc Solid.',
+    releaseYear: 2024,
+  },
+  {
+    id: 'dv8_trouble_maker_pearl',
+    name: 'Trouble Maker Pearl',
+    brand: 'DV8',
+    coverstock: 'Pearl',
+    coverstockName: 'HK22 - Inciter Pearl',
+    core: 'Dualistic Core',
+    coreType: 'Asymmetrical',
+    rg: 2.49,
+    diff: 0.045,
+    mb: 0.012,
+    finish: 'Crown Factory Polish',
+    recommendedOil: 'Medium',
+    primaryColor: '#6b21a8',
+    secondaryColor: '#18181b',
+    accentColor: '#c084fc',
+    description: 'Специально разработан для двуручников и игроков без большого пальца с инновационным ядром Dualistic Core и жемчужной формулой HK22 Inciter.',
+    releaseYear: 2024,
+  },
+
+  // Ebonite
+  {
+    id: 'ebonite_crusher',
+    name: 'Crusher',
+    brand: 'Ebonite',
+    coverstock: 'Solid',
+    coverstockName: 'HK22 - GB15.0 Solid',
+    core: 'Matrix Core',
+    coreType: 'Symmetrical',
+    rg: 2.48,
+    diff: 0.053,
+    finish: '500/2000 Siaair',
+    recommendedOil: 'Heavy',
+    primaryColor: '#b91c1c',
+    secondaryColor: '#18181b',
+    accentColor: '#f87171',
+    description: 'Новинка Ebonite 2025 года с проверенным ядром Matrix и модернизированной оболочкой GB15.0 HK22 для сокрушительного удара на тяжелом масле.',
+    releaseYear: 2025,
+  },
+  {
+    id: 'ebonite_gb5_pearl',
+    name: 'GB5 Pearl',
+    brand: 'Ebonite',
+    coverstock: 'Pearl',
+    coverstockName: 'HK22 - GB15.0 Pearl',
+    core: 'Enhanced V2 Core',
+    coreType: 'Symmetrical',
+    rg: 2.48,
+    diff: 0.048,
+    finish: 'Crown Factory Polish',
+    recommendedOil: 'Medium-Heavy',
+    primaryColor: '#0369a1',
+    secondaryColor: '#082f49',
+    accentColor: '#38bdf8',
+    description: 'Продолжение легендарной линейки Game Breaker с ядром Enhanced V2 и полированной жемчужной оболочкой HK22 GB15.0.',
+    releaseYear: 2024,
+  },
+
+  // Columbia 300
+  {
+    id: 'c300_high_charge',
+    name: 'High Charge',
+    brand: 'Columbia 300',
+    coverstock: 'Solid',
+    coverstockName: 'HK22 - Reflex Solid',
+    core: 'Full Swing Core',
+    coreType: 'Symmetrical',
+    rg: 2.48,
+    diff: 0.050,
+    finish: '500/2000 Siaair',
+    recommendedOil: 'Medium-Heavy',
+    primaryColor: '#ea580c',
+    secondaryColor: '#18181b',
+    accentColor: '#fb923c',
+    description: 'Новинка 2025 года Columbia 300 с возрожденным ядром Full Swing и формулой HK22 Reflex Solid для надежной дуги в масле.',
+    releaseYear: 2025,
+  },
+  {
+    id: 'c300_pure_madness',
+    name: 'Pure Madness',
+    brand: 'Columbia 300',
+    coverstock: 'Solid',
+    coverstockName: 'HK22 - ERT Solid',
+    core: 'Craze Core',
+    coreType: 'Asymmetrical',
+    rg: 2.49,
+    diff: 0.048,
+    mb: 0.012,
+    finish: '500/2000 Siaair',
+    recommendedOil: 'Heavy',
+    primaryColor: '#831843',
+    secondaryColor: '#18181b',
+    accentColor: '#f472b6',
+    description: 'Асимметричный солид Columbia 300 с ядром Craze и оболочкой HK22 ERT Solid для мощного зацепа в глубоком масле.',
+    releaseYear: 2024,
+  },
+
+  // Track
+  {
+    id: 'track_theorem_pearl',
+    name: 'Theorem Pearl',
+    brand: 'Track',
+    coverstock: 'Pearl',
+    coverstockName: 'HK22 - Prime Pearl',
+    core: 'MC2 Technology Core',
+    coreType: 'Asymmetrical',
+    rg: 2.47,
+    diff: 0.046,
+    mb: 0.012,
+    finish: 'Crown Factory Polish',
+    recommendedOil: 'Medium',
+    primaryColor: '#0f766e',
+    secondaryColor: '#111827',
+    accentColor: '#2dd4bf',
+    description: 'Жемчужная эволюция линейки Theorem 2025 года с ядром MC2 Technology Core и оболочкой HK22 Prime Pearl для отличного продолжения через кегли.',
+    releaseYear: 2025,
+  },
+  {
+    id: 'track_stealth_solid',
+    name: 'Stealth Solid',
+    brand: 'Track',
+    coverstock: 'Solid',
+    coverstockName: 'HK22 - QR-9 Solid',
+    core: 'Stealth Core',
+    coreType: 'Symmetrical',
+    rg: 2.48,
+    diff: 0.056,
+    finish: '500/1000/2000 Siaair',
+    recommendedOil: 'Heavy',
+    primaryColor: '#1e293b',
+    secondaryColor: '#09090b',
+    accentColor: '#64748b',
+    description: 'Матовый симметричный шар Track с высоким дифференциалом и оболочкой HK22 QR-9 Solid для полного контроля на длинных масляных дорожках.',
+    releaseYear: 2024,
+  },
+];
+
+export const EVERGREEN_ACTIVE_BALL_IDS = new Set<string>([
+  'storm_phaze_2',
+  'storm_hyroad',
+  'hammer_purple_pearl_urethane',
+  'motiv_venom_shock',
+  'roto_hustle_rip',
+  'roto_hustle_m_m',
+  'brunswick_tzone_deep_space',
+  'storm_ice_storm',
+]);
+
+export function isBallRetired(preset: CatalogBallPreset): boolean {
+  if (preset.isArchived !== undefined) return preset.isArchived;
+  const year = preset.releaseYear || 2020;
+  return year < 2024 && !EVERGREEN_ACTIVE_BALL_IDS.has(preset.id);
+}
+
 const RAW_BALL_CATALOG: CatalogBallPreset[] = [
+  ...LATEST_2025_2026_BALLS,
   ...BANNED_BALLS,
   ...MODERN_BALL_CATALOG,
   ...EXPANDED_BALLS,
   ...ARCHIVED_BALLS,
 ];
 
-// Include models released from 2010 onwards, up to 40 balls per brand
-const brandCounts: Record<string, number> = {};
+// Include all models released from 2010 onwards without any artificial limit
 const uniqueIds = new Set<string>();
-
 const selectedBalls: CatalogBallPreset[] = [];
 
 for (const ball of RAW_BALL_CATALOG) {
-  // Enforce release year >= 2010
+  // Enforce release year >= 2010 (strictly no models before 2010)
   if (!ball.releaseYear || ball.releaseYear < 2010) {
     continue;
   }
@@ -4036,17 +4647,16 @@ for (const ball of RAW_BALL_CATALOG) {
   if (uniqueIds.has(ball.id)) {
     continue;
   }
-  const currentCount = brandCounts[ball.brand] || 0;
-  if (currentCount < 40) {
-    uniqueIds.add(ball.id);
-    brandCounts[ball.brand] = currentCount + 1;
-    selectedBalls.push(ball);
-  }
+  uniqueIds.add(ball.id);
+  selectedBalls.push({
+    ...ball,
+    isArchived: isBallRetired(ball),
+  });
 }
 
 /**
  * Complete catalog of bowling balls released since 2010 across 10 top brands.
- * Strictly sorted chronologically from newest models (2025/2024) to older releases (2010).
+ * Strictly sorted chronologically from newest models (2026/2025/2024) to older releases (2010).
  */
 export const BALL_CATALOG: CatalogBallPreset[] = [...selectedBalls].sort((a, b) => {
   const yearA = a.releaseYear || 2020;
@@ -4054,8 +4664,85 @@ export const BALL_CATALOG: CatalogBallPreset[] = [...selectedBalls].sort((a, b) 
   if (yearB !== yearA) {
     return yearB - yearA; // Newest first (descending order)
   }
+  if (a.brand !== b.brand) {
+    return a.brand.localeCompare(b.brand);
+  }
   return a.name.localeCompare(b.name);
 });
+
+/**
+ * Calculates or retrieves the exact factory specifications (RG, Diff, MB, Core)
+ * for a specific ball weight (12, 13, 14, 15, 16 lbs).
+ * Accurately models lightweight alternate cores for 12-13 lbs.
+ */
+export function getBallWeightSpec(
+  preset: CatalogBallPreset,
+  weightLbs: number
+): BallWeightSpec {
+  if (preset.weights && Array.isArray(preset.weights)) {
+    const found = preset.weights.find((w) => w.weightLbs === weightLbs);
+    if (found) return found;
+  }
+
+  const baseRg = preset.rg;
+  const baseDiff = preset.diff;
+  const baseMb = preset.mb;
+  const isAsym = preset.coreType === 'Asymmetrical';
+
+  if (weightLbs === 16) {
+    return {
+      weightLbs: 16,
+      coreName: preset.core,
+      coreType: preset.coreType,
+      rg: Number((baseRg - 0.02).toFixed(2)),
+      diff: Number(Math.max(0.015, baseDiff - 0.003).toFixed(3)),
+      mb: isAsym && baseMb ? Number(Math.max(0.005, baseMb - 0.002).toFixed(3)) : undefined,
+    };
+  }
+
+  if (weightLbs === 14) {
+    return {
+      weightLbs: 14,
+      coreName: preset.core,
+      coreType: preset.coreType,
+      rg: Number((baseRg + 0.03).toFixed(2)),
+      diff: Number(Math.max(0.015, baseDiff - 0.002).toFixed(3)),
+      mb: isAsym && baseMb ? Number(Math.max(0.005, baseMb - 0.003).toFixed(3)) : undefined,
+    };
+  }
+
+  if (weightLbs === 13) {
+    return {
+      weightLbs: 13,
+      coreName: `${preset.brand} Alternate Light Core (13 lbs)`,
+      coreType: 'Symmetrical',
+      rg: 2.59,
+      diff: 0.035,
+      mb: undefined,
+    };
+  }
+
+  if (weightLbs === 12) {
+    return {
+      weightLbs: 12,
+      coreName: `${preset.brand} Alternate Light Core (12 lbs)`,
+      coreType: 'Symmetrical',
+      rg: 2.63,
+      diff: 0.030,
+      mb: undefined,
+    };
+  }
+
+  // Standard 15 lbs
+  return {
+    weightLbs: 15,
+    coreName: preset.core,
+    coreType: preset.coreType,
+    rg: baseRg,
+    diff: baseDiff,
+    mb: baseMb,
+  };
+}
 
 export function createBallFromPreset(
   preset: CatalogBallPreset,
@@ -4066,27 +4753,28 @@ export function createBallFromPreset(
   pinToPapDistance?: string,
   drillingNotes?: string
 ): BowlingBall {
+  const spec = getBallWeightSpec(preset, weightLbs);
   return {
     id: `ball_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
     name: `${preset.brand} ${preset.name}`,
     brand: preset.brand,
-    weightLbs,
+    weightLbs: spec.weightLbs,
     coverstock: preset.coverstock,
     isPrimaryStrikeBall: isPrimary,
     isSpareBall: isSpare,
     color: preset.primaryColor,
-    notes: `${preset.coverstockName} · ${preset.finish} · Ядро: ${preset.core}`,
+    notes: `${preset.coverstockName} · ${preset.finish} · Ядро: ${spec.coreName} (${spec.weightLbs} lbs, RG: ${spec.rg}, Diff: ${spec.diff})`,
     presetId: preset.id,
     primaryColor: preset.primaryColor,
     secondaryColor: preset.secondaryColor,
     accentColor: preset.accentColor,
     finish: preset.finish,
-    coreType: preset.coreType,
-    coreName: preset.core,
+    coreType: spec.coreType,
+    coreName: spec.coreName,
     coverstockName: preset.coverstockName,
-    rg: preset.rg,
-    diff: preset.diff,
-    mb: preset.mb,
+    rg: spec.rg,
+    diff: spec.diff,
+    mb: spec.mb,
     recommendedOil: preset.recommendedOil,
     drillingLayout: drillingLayout?.trim() || undefined,
     pinToPapDistance: pinToPapDistance?.trim() || undefined,

@@ -5,6 +5,7 @@ import {
   MatchRecord,
   AppLanguage,
   SavedTournament,
+  PracticeDrillRecord,
 } from '../types/bowling';
 import { getTranslation, formatBowlerStyle } from '../utils/i18n';
 import { ProfileStats } from './ProfileStats';
@@ -38,11 +39,14 @@ interface PlayerProfileProps {
   onUpdateConfig: (newConfig: UserPersonalConfig) => void;
   matches: MatchRecord[];
   savedTournaments?: SavedTournament[];
+  practiceDrills?: PracticeDrillRecord[];
   language?: AppLanguage;
   onNotification?: (msg: string) => void;
   initialSubTab?: 'stats' | 'arsenal' | 'centers' | 'patterns';
   onExportData?: () => void;
   onResetStats?: () => void;
+  onUpdateMatches?: (matches: MatchRecord[]) => void;
+  onUpdatePractices?: (drills: PracticeDrillRecord[]) => void;
 }
 
 export const PlayerProfile: React.FC<PlayerProfileProps> = ({
@@ -50,11 +54,14 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({
   onUpdateConfig,
   matches,
   savedTournaments = [],
+  practiceDrills = [],
   language = 'ru',
   onNotification,
   initialSubTab,
   onExportData,
   onResetStats,
+  onUpdateMatches,
+  onUpdatePractices,
 }) => {
   const t = getTranslation(language);
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -130,8 +137,9 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({
   };
 
   // Calculate quick summary stats
-  const totalGames = matches.length;
-  const scores = matches.map((m) => m.players[0]?.totalScore || 0).filter((s) => s > 0);
+  const safeMatches = matches || [];
+  const totalGames = safeMatches.length;
+  const scores = safeMatches.map((m) => m?.players?.[0]?.totalScore || 0).filter((s) => s > 0);
   const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
   const highScore = scores.length > 0 ? Math.max(...scores) : 0;
 
@@ -593,7 +601,10 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({
             matches={matches}
             userConfig={userConfig}
             savedTournaments={savedTournaments}
+            practiceDrills={practiceDrills}
             onExportData={onExportData}
+            onUpdateMatches={onUpdateMatches}
+            onUpdatePractices={onUpdatePractices}
           />
         </div>
       )}
@@ -655,7 +666,7 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({
                 Будет удалено:
               </div>
               <ul className="text-stone-400 list-disc list-inside space-y-1 pl-1">
-                <li>Вся история сыгранных матчей и сессий ({matches.length})</li>
+                <li>Вся история сыгранных матчей и сессий ({(matches || []).length})</li>
                 <li>Рассчитанный средний счёт, рекорды и страйк-рейт</li>
                 <li>Журнал тренировочных заданий и серий</li>
               </ul>
@@ -666,9 +677,9 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({
               </div>
               <ul className="text-stone-400 list-disc list-inside space-y-1 pl-1">
                 <li>Ваш профиль (имя, аватар, стиль броска)</li>
-                <li>Личный арсенал шаров ({userConfig.balls.length})</li>
-                <li>Сохранённые диаграммы масла ({userConfig.oilPatterns.length})</li>
-                <li>Добавленные боулинг-центры ({userConfig.centers.length})</li>
+                <li>Личный арсенал шаров ({(userConfig?.balls || []).length})</li>
+                <li>Сохранённые диаграммы масла ({(userConfig?.oilPatterns || []).length})</li>
+                <li>Добавленные боулинг-центры ({(userConfig?.centers || []).length})</li>
               </ul>
             </div>
 

@@ -27,6 +27,8 @@ export interface BowlingBall {
   drillingLayout?: string; // e.g. "Pin Up 4x4x2", "Dual Angle 60° x 4" x 35°", "2LS #1"
   pinToPapDistance?: string; // e.g. "4.5 inches"
   drillingNotes?: string; // e.g. "Thumb pitch 1/4 reverse, Switch Grip sleeve"
+  imageUrl?: string; // Base64 data URL of ball photo or drilling layout
+  imageName?: string;
 }
 
 export interface OilPattern {
@@ -88,6 +90,23 @@ export interface PlayerGame {
   isFinished: boolean;
 }
 
+export type TournamentFormatType = 'single' | 'series'; // 'single' = Одиночный турнир, 'series' = Серия / Годовой с этапами
+
+export interface TournamentStage {
+  id: string;
+  name: string; // e.g. "Этап 1 (Январь)"
+  startDate?: string;
+  endDate?: string;
+  centerId?: string;
+  centerName?: string;
+  oilPatternId?: string;
+  oilPatternName?: string;
+  laneNumber?: number;
+  status?: 'active' | 'upcoming' | 'completed';
+  includeInStats?: boolean; // defaults to true
+  notes?: string;
+}
+
 export interface MatchRecord {
   id: string;
   date: string; // ISO string
@@ -95,6 +114,9 @@ export interface MatchRecord {
   competitionName?: string;
   tournamentId?: string;
   tournamentName?: string;
+  tournamentType?: TournamentFormatType;
+  stageId?: string;
+  stageName?: string;
   tournamentStartDate?: string;
   tournamentEndDate?: string;
   laneNumber?: number;
@@ -107,6 +129,7 @@ export interface MatchRecord {
   // Strictly personal app for the single user:
   players: PlayerGame[]; // kept as 1-element array for backward compatibility
   notes?: string;
+  includeInStats?: boolean; // defaults to true. If false, excluded from overall stats
 }
 
 export type LaneTransitionRule =
@@ -120,6 +143,9 @@ export type LaneTransitionRule =
 export interface TournamentConfig {
   tournamentId?: string;
   tournamentName: string;
+  tournamentType?: TournamentFormatType;
+  stageId?: string;
+  stageName?: string;
   centerId: string;
   centerName: string;
   startDate: string; // YYYY-MM-DD
@@ -131,6 +157,7 @@ export interface TournamentConfig {
   laneNumber?: number;
   laneTransitionRule?: LaneTransitionRule;
   currentGameNumber?: number;
+  includeInStats?: boolean;
 }
 
 export type BowlerStyle =
@@ -222,6 +249,9 @@ export interface BowlingNote {
 export interface SavedTournament {
   id: string;
   name: string;
+  tournamentType?: TournamentFormatType; // 'single' | 'series', defaults to 'single'
+  season?: string; // e.g. "2026", "Сезон 2025/2026"
+  stages?: TournamentStage[];
   centerId?: string;
   centerName?: string;
   startDate?: string;
@@ -235,6 +265,7 @@ export interface SavedTournament {
   format?: string;
   isRegular?: boolean;
   status?: 'active' | 'upcoming' | 'completed';
+  includeInStats?: boolean; // defaults to true
   notes?: string;
   createdAt?: string;
   // Completion / Final recap fields:
@@ -260,6 +291,7 @@ export interface PracticeDrillRecord {
   ballUsedId?: string;
   ballUsedName?: string;
   notes?: string;
+  includeInStats?: boolean; // defaults to true
 }
 
 

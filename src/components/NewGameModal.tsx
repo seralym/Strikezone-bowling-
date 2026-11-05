@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UserPersonalConfig } from '../types/bowling';
-import { X, CircleDot, Droplets, Building2 } from 'lucide-react';
+import { X, CircleDot, Droplets, Building2, Eye, EyeOff } from 'lucide-react';
 
 interface NewGameModalProps {
   isOpen: boolean;
@@ -15,6 +15,7 @@ interface NewGameModalProps {
     oilPatternName?: string;
     ballId?: string;
     ballName?: string;
+    includeInStats?: boolean;
   }) => void;
 }
 
@@ -38,6 +39,7 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
       userConfig.balls[0]?.id ||
       ''
   );
+  const [includeInStats, setIncludeInStats] = useState<boolean>(true);
 
   if (!isOpen) return null;
 
@@ -57,6 +59,7 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
       oilPatternName: pattern?.name,
       ballId: ball?.id,
       ballName: ball?.name,
+      includeInStats,
     });
     onClose();
   };
@@ -171,6 +174,39 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Include in General Stats Toggle */}
+          <div className="p-3 rounded-xl bg-stone-950/60 border border-stone-800/80 flex items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <label
+                htmlFor="new-game-include-stats"
+                className="text-xs font-semibold uppercase tracking-wider text-stone-200 flex items-center gap-1.5 cursor-pointer"
+              >
+                {includeInStats ? (
+                  <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                ) : (
+                  <EyeOff className="w-3.5 h-3.5 text-stone-500" />
+                )}
+                <span>Учитывать в общей статистике</span>
+              </label>
+              <p className="text-[11px] text-stone-400">
+                {includeInStats
+                  ? 'Партия пойдёт в расчёт личного среднего счёта и рекордов'
+                  : 'Партия будет сохранена «Вне зачёта» (не повлияет на средний счёт)'}
+              </p>
+            </div>
+
+            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+              <input
+                id="new-game-include-stats"
+                type="checkbox"
+                checked={includeInStats}
+                onChange={(e) => setIncludeInStats(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-stone-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+            </label>
           </div>
 
           {/* Sticky Bottom Actions Bar - Always active 'Сохранить' button */}

@@ -542,9 +542,11 @@ export function computeBowlerStats(
 ): BowlerProfileStats {
   const allGames: PlayerGame[] = [];
 
-  matches.forEach((m) => {
-    m.players.forEach((p) => {
-      if (!targetPlayerName || p.playerName.toLowerCase() === targetPlayerName.toLowerCase()) {
+  (matches || []).forEach((m) => {
+    if (!m) return;
+    (m.players || []).forEach((p) => {
+      if (!p) return;
+      if (!targetPlayerName || (p.playerName || '').toLowerCase() === targetPlayerName.toLowerCase()) {
         allGames.push(p);
       }
     });
@@ -579,10 +581,10 @@ export function computeBowlerStats(
     };
   }
 
-  const totalPinfall = allGames.reduce((acc, g) => acc + g.totalScore, 0);
+  const totalPinfall = allGames.reduce((acc, g) => acc + (g?.totalScore || 0), 0);
   const averageScore = Math.round((totalPinfall / gamesPlayed) * 10) / 10;
-  const highScore = Math.max(...allGames.map((g) => g.totalScore));
-  const lowScore = Math.min(...allGames.map((g) => g.totalScore));
+  const highScore = Math.max(...allGames.map((g) => g?.totalScore || 0));
+  const lowScore = Math.min(...allGames.map((g) => g?.totalScore || 0));
 
   let totalStrikes = 0;
   let totalSpares = 0;
@@ -611,45 +613,51 @@ export function computeBowlerStats(
   const leavePatterns: Record<string, { pins: PinNumber[]; name: string; count: number; converted: number }> = {};
 
   allGames.forEach((g) => {
-    totalStrikes += g.strikesCount;
-    totalSpares += g.sparesCount;
-    totalOpenFrames += g.openFramesCount;
-    totalSplits += g.splitsCount;
-    totalSplitsConverted += g.splitsConvertedCount;
+    if (!g) return;
+    totalStrikes += g.strikesCount || 0;
+    totalSpares += g.sparesCount || 0;
+    totalOpenFrames += g.openFramesCount || 0;
+    totalSplits += g.splitsCount || 0;
+    totalSplitsConverted += g.splitsConvertedCount || 0;
 
-    if (g.openFramesCount === 0 && g.isFinished) {
+    if ((g.openFramesCount || 0) === 0 && g.isFinished) {
       totalCleanGames++;
     }
 
-    g.frames.forEach((f, fIdx) => {
-      if (f.score !== null) {
-        frameScoresSum[fIdx] += f.score;
-        frameScoresCount[fIdx]++;
+    (g.frames || []).forEach((f, fIdx) => {
+      if (!f) return;
+      if (f.score !== null && f.score !== undefined) {
+        frameScoresSum[fIdx] = (frameScoresSum[fIdx] || 0) + f.score;
+        frameScoresCount[fIdx] = (frameScoresCount[fIdx] || 0) + 1;
       }
 
       // Check pin leaves on first roll
-      if (f.rolls.length > 0) {
+      if (Array.isArray(f.rolls) && f.rolls.length > 0) {
         const roll1 = f.rolls[0];
-        if (roll1.pinsKnocked < 10) {
+        if (roll1 && roll1.pinsKnocked < 10) {
           totalFirstRolls++;
-          roll1.standingAfter.forEach((p) => {
-            pinLeavesCounter[p]++;
+          (roll1.standingAfter || []).forEach((p) => {
+            if (pinLeavesCounter[p] !== undefined) {
+              pinLeavesCounter[p]++;
+            }
           });
 
           // Track specific leave combination
-          const sorted = [...roll1.standingAfter].sort((a, b) => a - b);
+          const sorted = [...(roll1.standingAfter || [])].sort((a, b) => a - b);
           const key = sorted.join('-');
-          if (!leavePatterns[key]) {
-            leavePatterns[key] = {
-              pins: sorted,
-              name: f.splitName || `Кегли: ${sorted.join(', ')}`,
-              count: 0,
-              converted: 0,
-            };
-          }
-          leavePatterns[key].count++;
-          if (f.isSpare) {
-            leavePatterns[key].converted++;
+          if (key) {
+            if (!leavePatterns[key]) {
+              leavePatterns[key] = {
+                pins: sorted,
+                name: f.splitName || `Кегли: ${sorted.join(', ')}`,
+                count: 0,
+                converted: 0,
+              };
+            }
+            leavePatterns[key].count++;
+            if (f.isSpare) {
+              leavePatterns[key].converted++;
+            }
           }
         }
       }
@@ -664,13 +672,13 @@ export function computeBowlerStats(
   const splitConversionRate = totalSplits > 0 ? Math.round((totalSplitsConverted / totalSplits) * 1000) / 10 : 0;
 
   // Score progression history
-  const scoreHistory = matches
+  const scoreHistory = (matches || [])
     .flatMap((m) =>
-      m.players
-        .filter((p) => !targetPlayerName || p.playerName.toLowerCase() === targetPlayerName.toLowerCase())
+      (m?.players || [])
+        .filter((p) => p && (!targetPlayerName || (p.playerName || '').toLowerCase() === targetPlayerName.toLowerCase()))
         .map((p) => ({
-          date: m.date,
-          score: p.totalScore,
+          date: m.date || new Date().toISOString(),
+          score: p.totalScore || 0,
           matchId: m.id,
         }))
     )
@@ -727,10 +735,11 @@ export function computeBowlerStats(
   const patternMap: Record<string, { games: number; total: number; high: number }> = {};
   const centerMap: Record<string, { games: number; total: number; high: number }> = {};
 
-  matches.forEach((m) => {
-    const game = m.players[0];
+  (matches || []).forEach((m) => {
+    if (!m) return;
+    const game = m.players?.[0];
     if (!game) return;
-    const score = game.totalScore;
+    const score = game.totalScore || 0;
 
     if (m.ballName) {
       if (!ballMap[m.ballName]) ballMap[m.ballName] = { games: 0, total: 0, high: 0 };
@@ -799,12 +808,17 @@ export function computeBowlerStats(
 }
 
 /**
- * Check if a match belongs to a specified tournament (by ID or tournament name)
+ * Check if a match belongs to a specified tournament (and optional stage)
  */
 export function isMatchInTournament(
   match: MatchRecord,
-  tourn: { id?: string; name: string }
+  tourn: { id?: string; name: string },
+  stageId?: string
 ): boolean {
+  if (stageId && match.stageId !== stageId) {
+    return false;
+  }
+
   if (tourn.id && match.tournamentId && match.tournamentId === tourn.id) {
     return true;
   }
@@ -829,6 +843,52 @@ export function isMatchInTournament(
   return false;
 }
 
+/**
+ * Determines whether a match should be included in the user's general overall statistics.
+ * Defaults to true for backward compatibility.
+ * Respects per-match, per-stage, and per-tournament inclusion flags.
+ */
+export function isMatchIncludedInStats(
+  match: MatchRecord,
+  savedTournaments?: { id: string; includeInStats?: boolean; stages?: { id: string; includeInStats?: boolean }[] }[]
+): boolean {
+  if (match.includeInStats === false) {
+    return false;
+  }
+
+  if (match.tournamentId && savedTournaments) {
+    const parentTourn = savedTournaments.find((t) => t.id === match.tournamentId);
+    if (parentTourn) {
+      if (parentTourn.includeInStats === false) {
+        return false;
+      }
+      if (match.stageId && parentTourn.stages) {
+        const parentStage = parentTourn.stages.find((s) => s.id === match.stageId);
+        if (parentStage && parentStage.includeInStats === false) {
+          return false;
+        }
+      }
+    }
+  }
+
+  return true;
+}
+
+export interface StageSummaryItem {
+  stageId: string;
+  stageName: string;
+  gamesPlayed: number;
+  averageScore: number;
+  highScore: number;
+  lowScore: number;
+  totalPinfall: number;
+  strikeRate: number;
+  spareRate: number;
+  cleanGamesCount: number;
+  cleanGamesRate: number;
+  matches: MatchRecord[];
+}
+
 export interface TournamentSummaryStats {
   tournamentId: string;
   tournamentName: string;
@@ -843,22 +903,52 @@ export interface TournamentSummaryStats {
   cleanGamesRate: number;
   splitConversionRate: number;
   matches: MatchRecord[];
+  stageSummaries?: StageSummaryItem[];
 }
 
 /**
- * Compute aggregate statistics strictly for a specific tournament
+ * Compute aggregate statistics strictly for a specific tournament (and optional stage)
  */
 export function computeTournamentSummary(
-  tourn: { id?: string; name: string },
+  tourn: { id?: string; name: string; stages?: { id: string; name: string }[] },
   matches: MatchRecord[],
-  targetPlayerName?: string
+  targetPlayerName?: string,
+  stageId?: string
 ): TournamentSummaryStats {
-  const tournMatches = matches.filter((m) => isMatchInTournament(m, tourn));
+  const tournMatches = (matches || []).filter((m) => isMatchInTournament(m, tourn, stageId));
   const stats = computeBowlerStats(tournMatches, targetPlayerName);
   const cleanGames = tournMatches.filter((m) => {
-    const p = m.players[0];
-    return p && p.isFinished && p.openFramesCount === 0;
+    const p = m?.players?.[0];
+    return p && p.isFinished && (p.openFramesCount || 0) === 0;
   }).length;
+
+  // If tournament has stages and no specific stage filter was requested, compute breakdown per stage
+  let stageSummaries: StageSummaryItem[] | undefined;
+  if (!stageId && tourn.stages && tourn.stages.length > 0) {
+    stageSummaries = tourn.stages.map((stg) => {
+      const stgMatches = (matches || []).filter((m) => isMatchInTournament(m, tourn, stg.id));
+      const stgStats = computeBowlerStats(stgMatches, targetPlayerName);
+      const stgCleanGames = stgMatches.filter((m) => {
+        const p = m?.players?.[0];
+        return p && p.isFinished && (p.openFramesCount || 0) === 0;
+      }).length;
+
+      return {
+        stageId: stg.id,
+        stageName: stg.name,
+        gamesPlayed: stgStats.gamesPlayed,
+        averageScore: stgStats.averageScore,
+        highScore: stgStats.highScore,
+        lowScore: stgStats.lowScore,
+        totalPinfall: stgStats.totalPinfall,
+        strikeRate: stgStats.strikeRate,
+        spareRate: stgStats.spareRate,
+        cleanGamesCount: stgCleanGames,
+        cleanGamesRate: stgStats.cleanGameRate,
+        matches: stgMatches,
+      };
+    });
+  }
 
   return {
     tournamentId: tourn.id || '',
@@ -874,6 +964,7 @@ export function computeTournamentSummary(
     cleanGamesRate: stats.cleanGameRate,
     splitConversionRate: stats.splitConversionRate,
     matches: tournMatches,
+    stageSummaries,
   };
 }
 

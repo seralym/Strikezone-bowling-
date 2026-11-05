@@ -18,6 +18,7 @@ const STORAGE_KEY_MATCHES = 'strikezone_matches_v1';
 const STORAGE_KEY_ACTIVE_MATCH = 'strikezone_active_match_v1';
 const STORAGE_KEY_SOUND_MUTED = 'strikezone_sound_muted';
 const STORAGE_KEY_USER_CONFIG = 'strikezone_user_config_v1';
+export const STORAGE_KEY_BALLS = 'strikezone_balls_v1';
 const STORAGE_KEY_SAVED_TOURNAMENTS = 'strikezone_saved_tournaments_v1';
 const STORAGE_KEY_PRACTICE_DRILLS = 'strikezone_practice_drills_v1';
 const STORAGE_KEY_NOTES = 'strikezone_bowler_notes_v1';
@@ -125,24 +126,92 @@ export const DEFAULT_USER_CONFIG: UserPersonalConfig = {
   activeCenterId: undefined,
 };
 
+export function loadSavedBalls(): BowlingBall[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const sanitizeBalls = (rawList: any[]): BowlingBall[] => {
+      return (rawList || []).map((b) => ({
+        ...b,
+        weightLbs: b.weightLbs || 15,
+        coverstock: b.coverstock || 'Solid',
+        color: b.color || b.primaryColor || '#b91c1c',
+        primaryColor: b.primaryColor || b.color || '#b91c1c',
+      }));
+    };
+
+    const rawBalls = localStorage.getItem(STORAGE_KEY_BALLS);
+    if (rawBalls) {
+      const parsed = JSON.parse(rawBalls);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return sanitizeBalls(parsed);
+      }
+    }
+    const rawConfig = localStorage.getItem(STORAGE_KEY_USER_CONFIG);
+    if (rawConfig) {
+      const parsedConfig = JSON.parse(rawConfig);
+      if (Array.isArray(parsedConfig?.balls) && parsedConfig.balls.length > 0) {
+        const sanitized = sanitizeBalls(parsedConfig.balls);
+        localStorage.setItem(STORAGE_KEY_BALLS, JSON.stringify(sanitized));
+        return sanitized;
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load saved balls', e);
+  }
+  return [];
+}
+
+export function saveSavedBalls(balls: BowlingBall[]): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(STORAGE_KEY_BALLS, JSON.stringify(balls));
+    const rawConfig = localStorage.getItem(STORAGE_KEY_USER_CONFIG);
+    if (rawConfig) {
+      const parsedConfig = JSON.parse(rawConfig);
+      parsedConfig.balls = balls;
+      if (!parsedConfig.activeBallId && balls.length > 0) {
+        parsedConfig.activeBallId = balls[0].id;
+      }
+      localStorage.setItem(STORAGE_KEY_USER_CONFIG, JSON.stringify(parsedConfig));
+    }
+  } catch (e) {
+    console.error('Failed to save saved balls', e);
+  }
+}
+
 export function loadUserPersonalConfig(): UserPersonalConfig {
   if (typeof window === 'undefined') return DEFAULT_USER_CONFIG;
   try {
     const raw = localStorage.getItem(STORAGE_KEY_USER_CONFIG);
     if (!raw) {
-      saveUserPersonalConfig(DEFAULT_USER_CONFIG);
-      return DEFAULT_USER_CONFIG;
+      const fallbackBalls = loadSavedBalls();
+      const initial: UserPersonalConfig = {
+        ...DEFAULT_USER_CONFIG,
+        balls: fallbackBalls,
+        activeBallId: fallbackBalls[0]?.id,
+      };
+      saveUserPersonalConfig(initial);
+      return initial;
     }
     const parsed = JSON.parse(raw);
     const resolvedStyle = parsed.style || (parsed.hand === 'Левша' ? 'Левша' : 'Правша');
+
+    let resolvedBalls: BowlingBall[] = [];
+    if (Array.isArray(parsed.balls) && parsed.balls.length > 0) {
+      resolvedBalls = parsed.balls;
+      localStorage.setItem(STORAGE_KEY_BALLS, JSON.stringify(resolvedBalls));
+    } else {
+      resolvedBalls = loadSavedBalls();
+    }
 
     return {
       ...DEFAULT_USER_CONFIG,
       ...parsed,
       style: resolvedStyle,
-      balls: Array.isArray(parsed.balls) ? parsed.balls : [],
+      balls: resolvedBalls,
       oilPatterns: Array.isArray(parsed.oilPatterns) ? parsed.oilPatterns : [],
       centers: Array.isArray(parsed.centers) ? parsed.centers : [],
+      activeBallId: parsed.activeBallId || resolvedBalls[0]?.id,
     };
   } catch (err) {
     console.error('Failed to load user config', err);
@@ -154,6 +223,9 @@ export function saveUserPersonalConfig(config: UserPersonalConfig): void {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(STORAGE_KEY_USER_CONFIG, JSON.stringify(config));
+    if (Array.isArray(config.balls)) {
+      localStorage.setItem(STORAGE_KEY_BALLS, JSON.stringify(config.balls));
+    }
   } catch (err) {
     console.error('Failed to save user config', err);
   }
@@ -169,14 +241,20 @@ export function loadSavedMatches(): MatchRecord[] {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
 
-    // Deduplicate by match ID to guarantee every match has a unique key
+    // Deduplicate by match ID to guarantee every match has a unique key and safe properties
     const seen = new Set<string>();
     const deduplicated: MatchRecord[] = [];
-    for (const item of parsed) {
-      if (item && item.id) {
-        if (!seen.has(item.id)) {
-          seen.add(item.id);
-          deduplicated.push(item);
+    for (const rawItem of parsed) {
+      if (rawItem && rawItem.id) {
+        if (!seen.has(rawItem.id)) {
+          seen.add(rawItem.id);
+          const safeItem: MatchRecord = {
+            ...rawItem,
+            players: Array.isArray(rawItem.players) ? rawItem.players : [],
+            includeInStats: rawItem.includeInStats !== false,
+            tournamentType: rawItem.tournamentType || 'single',
+          };
+          deduplicated.push(safeItem);
         }
       }
     }
@@ -284,6 +362,9 @@ export function importMatchesFromJson(jsonStr: string): boolean {
       saveMatches(parsed.matches);
       if (parsed.userConfig) {
         saveUserPersonalConfig(parsed.userConfig);
+      }
+      if (parsed.balls && Array.isArray(parsed.balls)) {
+        saveSavedBalls(parsed.balls);
       }
       if (parsed.tournaments && Array.isArray(parsed.tournaments)) {
         saveSavedTournaments(parsed.tournaments);
@@ -399,7 +480,13 @@ export function loadSavedTournaments(): SavedTournament[] {
     const raw = localStorage.getItem(STORAGE_KEY_SAVED_TOURNAMENTS);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((t) => ({
+      ...t,
+      stages: Array.isArray(t.stages) ? t.stages : [],
+      tournamentType: t.tournamentType || (Array.isArray(t.stages) && t.stages.length > 0 ? 'series' : 'single'),
+      includeInStats: t.includeInStats !== false,
+    }));
   } catch (e) {
     console.error('Failed to load saved tournaments', e);
     return [];
@@ -486,6 +573,76 @@ export function deleteNote(noteId: string): BowlingNote[] {
   const current = loadSavedNotes();
   const updated = current.filter((n) => n.id !== noteId);
   saveNotes(updated);
+  return updated;
+}
+
+/**
+ * Toggle whether a specific match is included in overall statistics
+ */
+export function toggleMatchIncludeInStats(matchId: string): MatchRecord[] {
+  const current = loadSavedMatches();
+  const updated = current.map((m) => {
+    if (m.id === matchId) {
+      const currentVal = m.includeInStats !== false;
+      return { ...m, includeInStats: !currentVal };
+    }
+    return m;
+  });
+  saveMatches(updated);
+  return updated;
+}
+
+/**
+ * Toggle whether an entire tournament is included in overall statistics
+ */
+export function toggleTournamentIncludeInStats(tournamentId: string): SavedTournament[] {
+  const current = loadSavedTournaments();
+  const updated = current.map((t) => {
+    if (t.id === tournamentId) {
+      const currentVal = t.includeInStats !== false;
+      return { ...t, includeInStats: !currentVal };
+    }
+    return t;
+  });
+  saveSavedTournaments(updated);
+  return updated;
+}
+
+/**
+ * Toggle whether a specific stage inside a multi-stage tournament is included in overall statistics
+ */
+export function toggleStageIncludeInStats(tournamentId: string, stageId: string): SavedTournament[] {
+  const current = loadSavedTournaments();
+  const updated = current.map((t) => {
+    if (t.id === tournamentId && t.stages) {
+      const updatedStages = t.stages.map((stg) => {
+        if (stg.id === stageId) {
+          const currentVal = stg.includeInStats !== false;
+          return { ...stg, includeInStats: !currentVal };
+        }
+        return stg;
+      });
+      return { ...t, stages: updatedStages };
+    }
+    return t;
+  });
+  saveSavedTournaments(updated);
+  return updated;
+}
+
+/**
+ * Toggle whether a practice drill record is included in overall statistics
+ */
+export function togglePracticeIncludeInStats(drillId: string): PracticeDrillRecord[] {
+  const current = loadPracticeDrills();
+  const updated = current.map((d) => {
+    if (d.id === drillId) {
+      const currentVal = d.includeInStats !== false;
+      return { ...d, includeInStats: !currentVal };
+    }
+    return d;
+  });
+  savePracticeDrills(updated);
   return updated;
 }
 
