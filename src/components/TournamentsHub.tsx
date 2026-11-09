@@ -8,6 +8,7 @@ import {
   AppSettings,
   MatchRecord,
   OilPattern,
+  LaneTransitionRule,
 } from '../types/bowling';
 import { getTranslation } from '../utils/i18n';
 import { computeTournamentSummary, isMatchInTournament } from '../utils/bowlingEngine';
@@ -15,9 +16,12 @@ import { toggleMatchIncludeInStats } from '../utils/storage';
 import { TournamentDetailModal } from './TournamentDetailModal';
 import { OilPatternModal } from './OilPatternModal';
 import { OilDiagramViewerModal } from './OilDiagramViewerModal';
+import { LaneTransitionSettings } from './LaneTransitionSettings';
+import { formatTransitionRuleBadge } from '../utils/laneTransition';
 import {
   Trophy,
   Plus,
+  Shuffle,
   Calendar,
   Building2,
   Droplets,
@@ -106,6 +110,12 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
   const [oilPatternId, setOilPatternId] = useState<string>(safePatterns[0]?.id || '');
   const [ballId, setBallId] = useState<string>(safeBalls[0]?.id || '');
   const [laneNumber, setLaneNumber] = useState<number | ''>(4);
+  const [laneTransitionRule, setLaneTransitionRule] = useState<LaneTransitionRule>('pairs');
+  const [seedNumber, setSeedNumber] = useState<number | ''>('');
+  const [seedParity, setSeedParity] = useState<'even' | 'odd'>('even');
+  const [customStep, setCustomStep] = useState<number>(2);
+  const [laneMin, setLaneMin] = useState<number | ''>(1);
+  const [laneMax, setLaneMax] = useState<number | ''>(24);
   const [format, setFormat] = useState<string>('Клубная лига / 4 игры в зачёт');
   const [isRegular, setIsRegular] = useState<boolean>(true);
   const [notes, setNotes] = useState<string>('');
@@ -124,6 +134,12 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
   const [stageOilPatternMode, setStageOilPatternMode] = useState<'preset' | 'custom'>('preset');
   const [stageCustomOilPattern, setStageCustomOilPattern] = useState<string>('');
   const [stageLaneNumber, setStageLaneNumber] = useState<number | ''>('');
+  const [stageLaneTransitionRule, setStageLaneTransitionRule] = useState<LaneTransitionRule>('pairs');
+  const [stageSeedNumber, setStageSeedNumber] = useState<number | ''>('');
+  const [stageSeedParity, setStageSeedParity] = useState<'even' | 'odd'>('even');
+  const [stageCustomStep, setStageCustomStep] = useState<number>(2);
+  const [stageLaneMin, setStageLaneMin] = useState<number | ''>(1);
+  const [stageLaneMax, setStageLaneMax] = useState<number | ''>(24);
   const [stageIncludeInStats, setStageIncludeInStats] = useState<boolean>(true);
   const [stageNotes, setStageNotes] = useState<string>('');
 
@@ -166,6 +182,12 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
     setOilPatternId(userConfig?.activeOilPatternId || safePatterns[0]?.id || '');
     setBallId(userConfig?.activeBallId || safeBalls[0]?.id || '');
     setLaneNumber(4);
+    setLaneTransitionRule('pairs');
+    setSeedNumber('');
+    setSeedParity('even');
+    setCustomStep(2);
+    setLaneMin(1);
+    setLaneMax(safeCenters[0]?.lanesCount || 24);
     setFormat('Регулярная лига');
     setIsRegular(true);
     setNotes('');
@@ -184,6 +206,12 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
     setOilPatternId(tourn.oilPatternId || safePatterns[0]?.id || '');
     setBallId(tourn.ballId || safeBalls[0]?.id || '');
     setLaneNumber(typeof tourn.laneNumber === 'number' ? tourn.laneNumber : 4);
+    setLaneTransitionRule(tourn.laneTransitionRule || 'pairs');
+    setSeedNumber(typeof tourn.seedNumber === 'number' ? tourn.seedNumber : '');
+    setSeedParity(tourn.seedParity || 'even');
+    setCustomStep(typeof tourn.customStep === 'number' ? tourn.customStep : 2);
+    setLaneMin(typeof tourn.laneMin === 'number' ? tourn.laneMin : 1);
+    setLaneMax(typeof tourn.laneMax === 'number' ? tourn.laneMax : (typeof tourn.totalLanes === 'number' ? tourn.totalLanes : 24));
     setFormat(tourn.format || '');
     setIsRegular(!!tourn.isRegular);
     setNotes(tourn.notes || '');
@@ -224,6 +252,13 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
             ballId: isSeriesTourn ? item.ballId : ballId,
             ballName: isSeriesTourn ? item.ballName : (ball ? ball.name : item.ballName),
             laneNumber: isSeriesTourn ? item.laneNumber : (typeof laneNumber === 'number' ? laneNumber : undefined),
+            laneTransitionRule: isSeriesTourn ? undefined : laneTransitionRule,
+            customStep: isSeriesTourn ? undefined : customStep,
+            seedNumber: isSeriesTourn ? undefined : (typeof seedNumber === 'number' ? seedNumber : undefined),
+            seedParity: isSeriesTourn ? undefined : seedParity,
+            laneMin: isSeriesTourn ? undefined : (typeof laneMin === 'number' ? laneMin : 1),
+            laneMax: isSeriesTourn ? undefined : (typeof laneMax === 'number' ? laneMax : 24),
+            totalLanes: isSeriesTourn ? undefined : (typeof laneMax === 'number' ? laneMax : 24),
             format: format.trim(),
             isRegular,
             notes: notes.trim(),
@@ -262,6 +297,13 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
             ballId,
             ballName: ball ? ball.name : 'Основной шар',
             laneNumber: typeof laneNumber === 'number' ? laneNumber : undefined,
+            laneTransitionRule,
+            customStep,
+            seedNumber: typeof seedNumber === 'number' ? seedNumber : undefined,
+            seedParity,
+            laneMin: typeof laneMin === 'number' ? laneMin : 1,
+            laneMax: typeof laneMax === 'number' ? laneMax : 24,
+            totalLanes: typeof laneMax === 'number' ? laneMax : 24,
             format: format.trim(),
             isRegular,
             status: 'active',
@@ -270,6 +312,7 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
           };
 
       onSaveTournaments([newTournament, ...savedTournaments]);
+
       if (onNotification) {
         onNotification(
           isSeriesTourn
@@ -345,6 +388,12 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
     }
 
     setStageLaneNumber(3);
+    setStageLaneTransitionRule(tournament.laneTransitionRule || 'pairs');
+    setStageSeedNumber(typeof tournament.seedNumber === 'number' ? tournament.seedNumber : '');
+    setStageSeedParity(tournament.seedParity || 'even');
+    setStageCustomStep(typeof tournament.customStep === 'number' ? tournament.customStep : 2);
+    setStageLaneMin(typeof tournament.laneMin === 'number' ? tournament.laneMin : 1);
+    setStageLaneMax(typeof tournament.laneMax === 'number' ? tournament.laneMax : (typeof tournament.totalLanes === 'number' ? tournament.totalLanes : 24));
     setStageIncludeInStats(true);
     setStageNotes('');
     setIsStageModalOpen(true);
@@ -390,6 +439,12 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
     }
 
     setStageLaneNumber(typeof stage.laneNumber === 'number' ? stage.laneNumber : '');
+    setStageLaneTransitionRule(stage.laneTransitionRule || 'pairs');
+    setStageSeedNumber(typeof stage.seedNumber === 'number' ? stage.seedNumber : '');
+    setStageSeedParity(stage.seedParity || 'even');
+    setStageCustomStep(typeof stage.customStep === 'number' ? stage.customStep : 2);
+    setStageLaneMin(typeof stage.laneMin === 'number' ? stage.laneMin : 1);
+    setStageLaneMax(typeof stage.laneMax === 'number' ? stage.laneMax : (typeof stage.totalLanes === 'number' ? stage.totalLanes : 24));
     setStageIncludeInStats(stage.includeInStats !== false);
     setStageNotes(stage.notes || '');
     setIsStageModalOpen(true);
@@ -430,6 +485,13 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
                 oilPatternId: finalOilId,
                 oilPatternName: finalOilName,
                 laneNumber: typeof stageLaneNumber === 'number' ? stageLaneNumber : undefined,
+                laneTransitionRule: stageLaneTransitionRule,
+                customStep: stageCustomStep,
+                seedNumber: typeof stageSeedNumber === 'number' ? stageSeedNumber : undefined,
+                seedParity: stageSeedParity,
+                laneMin: typeof stageLaneMin === 'number' ? stageLaneMin : 1,
+                laneMax: typeof stageLaneMax === 'number' ? stageLaneMax : 24,
+                totalLanes: typeof stageLaneMax === 'number' ? stageLaneMax : 24,
                 includeInStats: stageIncludeInStats,
                 notes: stageNotes.trim() || undefined,
               };
@@ -449,6 +511,13 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
             oilPatternId: finalOilId,
             oilPatternName: finalOilName,
             laneNumber: typeof stageLaneNumber === 'number' ? stageLaneNumber : undefined,
+            laneTransitionRule: stageLaneTransitionRule,
+            customStep: stageCustomStep,
+            seedNumber: typeof stageSeedNumber === 'number' ? stageSeedNumber : undefined,
+            seedParity: stageSeedParity,
+            laneMin: typeof stageLaneMin === 'number' ? stageLaneMin : 1,
+            laneMax: typeof stageLaneMax === 'number' ? stageLaneMax : 24,
+            totalLanes: typeof stageLaneMax === 'number' ? stageLaneMax : 24,
             includeInStats: stageIncludeInStats,
             status: 'active',
             notes: stageNotes.trim() || undefined,
@@ -458,6 +527,7 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
       }
       return t;
     });
+
 
     onSaveTournaments(updated);
     setIsStageModalOpen(false);
@@ -533,6 +603,13 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
       ballId: tourn.ballId || userConfig.balls[0]?.id || '',
       ballName: tourn.ballName || 'Основной шар',
       laneNumber: stage?.laneNumber ?? tourn.laneNumber,
+      laneTransitionRule: stage?.laneTransitionRule ?? tourn.laneTransitionRule ?? 'pairs',
+      customStep: stage?.customStep ?? tourn.customStep,
+      seedNumber: stage?.seedNumber ?? tourn.seedNumber,
+      seedParity: stage?.seedParity ?? tourn.seedParity,
+      laneMin: stage?.laneMin ?? tourn.laneMin ?? 1,
+      laneMax: stage?.laneMax ?? tourn.laneMax ?? (center?.lanesCount || 24),
+      totalLanes: stage?.totalLanes ?? tourn.totalLanes ?? (center?.lanesCount || 24),
       includeInStats: (tourn.includeInStats !== false) && (stage ? stage.includeInStats !== false : true),
     };
 
@@ -881,6 +958,19 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
                       <Droplets className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
                       <span>{tourn.oilPatternName || 'Масло не указано'}</span>
                     </span>
+                    <span className="text-stone-700">·</span>
+                    <span className="flex items-center gap-1.5 text-amber-300/90 bg-stone-900 border border-stone-800 px-2 py-0.5 rounded-md text-[11px]">
+                      <Shuffle className="w-3 h-3 text-amber-400 shrink-0" />
+                      <span>{formatTransitionRuleBadge(tourn.laneTransitionRule, tourn)}</span>
+                    </span>
+                    {tourn.laneNumber && (
+                      <>
+                        <span className="text-stone-700">·</span>
+                        <span className="text-stone-300">
+                          Дор. <strong className="text-stone-100 font-mono">{tourn.laneNumber}</strong>
+                        </span>
+                      </>
+                    )}
                   </div>
                 )}
 
@@ -1036,6 +1126,11 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
                                         </span>
                                       </>
                                     )}
+                                    <span className="text-stone-700">·</span>
+                                    <span className="flex items-center gap-1 text-amber-300/90 bg-stone-900 border border-stone-800 px-1.5 py-0.5 rounded text-[10px]">
+                                      <Shuffle className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+                                      <span>{formatTransitionRuleBadge(stage.laneTransitionRule || tourn.laneTransitionRule, stage)}</span>
+                                    </span>
                                   </div>
 
                                   <div className="flex items-center gap-3 font-mono text-[11px] bg-stone-950/80 px-2 py-1 rounded-lg border border-stone-800">
@@ -1555,6 +1650,23 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
                     </div>
                   </div>
 
+                  {/* Lane Transition Settings (Регламент перехода по дорожкам) */}
+                  <LaneTransitionSettings
+                    rule={laneTransitionRule}
+                    onChangeRule={setLaneTransitionRule}
+                    seedNumber={seedNumber}
+                    onChangeSeedNumber={setSeedNumber}
+                    seedParity={seedParity}
+                    onChangeSeedParity={setSeedParity}
+                    customStep={customStep}
+                    onChangeCustomStep={setCustomStep}
+                    laneMin={laneMin}
+                    onChangeLaneMin={setLaneMin}
+                    laneMax={laneMax}
+                    onChangeLaneMax={setLaneMax}
+                    defaultMaxLanes={safeCenters.find((c) => c.id === centerId)?.lanesCount || 24}
+                  />
+
                   {/* Regular tournament toggle */}
                   <label className="flex items-center gap-3 p-3 rounded-xl bg-stone-950 border border-stone-800 cursor-pointer">
                     <input
@@ -1849,6 +1961,23 @@ export const TournamentsHub: React.FC<TournamentsHubProps> = ({
                   className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-amber-500"
                 />
               </div>
+
+              {/* Stage Lane Transition Regulation (Регламент перехода по дорожкам) */}
+              <LaneTransitionSettings
+                rule={stageLaneTransitionRule}
+                onChangeRule={setStageLaneTransitionRule}
+                seedNumber={stageSeedNumber}
+                onChangeSeedNumber={setStageSeedNumber}
+                seedParity={stageSeedParity}
+                onChangeSeedParity={setStageSeedParity}
+                customStep={stageCustomStep}
+                onChangeCustomStep={setStageCustomStep}
+                laneMin={stageLaneMin}
+                onChangeLaneMin={setStageLaneMin}
+                laneMax={stageLaneMax}
+                onChangeLaneMax={setStageLaneMax}
+                defaultMaxLanes={safeCenters.find((c) => c.id === stageCenterId)?.lanesCount || 24}
+              />
 
               {/* Stage include in stats */}
               <label className="flex items-center gap-3 p-2.5 rounded-xl bg-stone-950 border border-stone-800 cursor-pointer">

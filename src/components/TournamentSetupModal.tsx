@@ -3,6 +3,7 @@ import { UserPersonalConfig, TournamentConfig, AppLanguage, OilPattern, LaneTran
 import { getTranslation } from '../utils/i18n';
 import { OilPatternModal } from './OilPatternModal';
 import { OilDiagramViewerModal } from './OilDiagramViewerModal';
+import { LaneTransitionSettings } from './LaneTransitionSettings';
 import {
   X,
   Trophy,
@@ -82,6 +83,21 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
   const [laneTransitionRule, setLaneTransitionRule] = useState<LaneTransitionRule>(
     initialValues?.laneTransitionRule || 'pairs'
   );
+  const [seedNumber, setSeedNumber] = useState<number | ''>(
+    initialValues?.seedNumber ?? ''
+  );
+  const [seedParity, setSeedParity] = useState<'even' | 'odd'>(
+    initialValues?.seedParity ?? 'even'
+  );
+  const [customStep, setCustomStep] = useState<number>(
+    initialValues?.customStep ?? 2
+  );
+  const [laneMin, setLaneMin] = useState<number | ''>(
+    initialValues?.laneMin ?? 1
+  );
+  const [laneMax, setLaneMax] = useState<number | ''>(
+    initialValues?.laneMax ?? (safeCenters.find((c) => c.id === selectedCenterId)?.lanesCount || 24)
+  );
   const [includeInStats, setIncludeInStats] = useState<boolean>(
     initialValues?.includeInStats !== undefined ? initialValues.includeInStats : true
   );
@@ -113,6 +129,12 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
       ballName: ball ? ball.name : 'Основной шар',
       laneNumber: typeof laneNumber === 'number' ? laneNumber : 1,
       laneTransitionRule,
+      customStep,
+      seedNumber: typeof seedNumber === 'number' ? seedNumber : undefined,
+      seedParity,
+      laneMin: typeof laneMin === 'number' ? laneMin : 1,
+      laneMax: typeof laneMax === 'number' ? laneMax : 24,
+      totalLanes: typeof laneMax === 'number' ? laneMax : 24,
       includeInStats,
       tournamentType: initialValues?.tournamentType || 'single',
       stageId: initialValues?.stageId,
@@ -316,28 +338,22 @@ export const TournamentSetupModal: React.FC<TournamentSetupModalProps> = ({
             </div>
           </div>
 
-          {/* 6. Lane Transition Rule (Правило смены дорожек) */}
-          <div className="p-3 rounded-xl bg-stone-950/60 border border-stone-800/80 space-y-1.5">
-            <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-stone-300">
-              <Shuffle className="w-3.5 h-3.5 text-amber-400" />
-              <span>Правило смены дорожек между партиями</span>
-            </label>
-            <select
-              value={laneTransitionRule}
-              onChange={(e) => setLaneTransitionRule(e.target.value as LaneTransitionRule)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-stone-900 border border-stone-800 text-stone-100 text-sm focus:outline-none focus:border-amber-500 cursor-pointer"
-            >
-              <option value="pairs">Чередование в паре дорожек (напр. 3 ⇄ 4)</option>
-              <option value="shift_plus_2">Сдвиг вправо через пару (+2 дорожки)</option>
-              <option value="shift_minus_2">Сдвиг влево через пару (-2 дорожки)</option>
-              <option value="shift_plus_1">Сдвиг на +1 дорожку</option>
-              <option value="shift_plus_4">Сдвиг на +4 дорожки</option>
-              <option value="none">Без смены (игра на одной дорожке)</option>
-            </select>
-            <p className="text-[11px] text-stone-500">
-              При нажатии «Следующая партия» номер дорожки переключится автоматически по этому правилу.
-            </p>
-          </div>
+          {/* 6. Lane Transition Regulation (Регламент перехода по дорожкам) */}
+          <LaneTransitionSettings
+            rule={laneTransitionRule}
+            onChangeRule={setLaneTransitionRule}
+            seedNumber={seedNumber}
+            onChangeSeedNumber={setSeedNumber}
+            seedParity={seedParity}
+            onChangeSeedParity={setSeedParity}
+            customStep={customStep}
+            onChangeCustomStep={setCustomStep}
+            laneMin={laneMin}
+            onChangeLaneMin={setLaneMin}
+            laneMax={laneMax}
+            onChangeLaneMax={setLaneMax}
+            defaultMaxLanes={safeCenters.find((c) => c.id === selectedCenterId)?.lanesCount || 24}
+          />
 
           {/* 7. Include in General Stats Toggle */}
           <div className="p-3 rounded-xl bg-stone-950/60 border border-stone-800/80 flex items-center justify-between gap-3">

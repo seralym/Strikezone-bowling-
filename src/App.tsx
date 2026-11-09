@@ -80,6 +80,7 @@ import { ScoreBoard } from './components/ScoreBoard';
 import { PinDeck } from './components/PinDeck';
 import { Controls } from './components/Controls';
 import { FrameEditModal } from './components/FrameEditModal';
+import { calculateNextLane, formatTransitionRuleBadge } from './utils/laneTransition';
 
 import {
   Menu,
@@ -93,6 +94,9 @@ import {
   CircleDot,
   ArrowLeft,
   Settings,
+  Edit3,
+  Shuffle,
+  X,
 } from 'lucide-react';
 
 export default function App() {
@@ -161,6 +165,37 @@ export default function App() {
 
   // Notification / toast feedback
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Manual Lane Edit Modal State during game
+  const [isLaneEditModalOpen, setIsLaneEditModalOpen] = useState(false);
+  const [editingLaneValue, setEditingLaneValue] = useState<number | ''>(1);
+
+  const handleOpenLaneEdit = () => {
+    setEditingLaneValue(activeMatch.laneNumber || activeTournament?.laneNumber || 1);
+    setIsLaneEditModalOpen(true);
+  };
+
+  const handleSaveEditedLane = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const newLane = typeof editingLaneValue === 'number' && editingLaneValue > 0 ? editingLaneValue : 1;
+    const updatedMatch: MatchRecord = {
+      ...activeMatch,
+      laneNumber: newLane,
+    };
+    setActiveMatch(updatedMatch);
+    saveActiveMatch(updatedMatch);
+
+    if (activeTournament) {
+      const updatedTourney: TournamentConfig = {
+        ...activeTournament,
+        laneNumber: newLane,
+      };
+      setActiveTournament(updatedTourney);
+      saveActiveTournament(updatedTourney);
+    }
+    setIsLaneEditModalOpen(false);
+    showToast(`Текущая дорожка изменена на №${newLane}`);
+  };
 
   // Initialize sounds and load matches on mount, plus run background image optimization for stored images
   useEffect(() => {
@@ -247,30 +282,6 @@ export default function App() {
   };
 
   const handleStartClassicGame = () => {
-    setActiveView('game');
-  };
-
-  const handleSelectActiveTournamentFromHub = (tournament: TournamentConfig) => {
-    setActiveTournament(tournament);
-    saveActiveTournament(tournament);
-    setActiveMatch((prev) => ({
-      ...prev,
-      tournamentId: tournament.tournamentId,
-      tournamentName: tournament.tournamentName,
-      tournamentType: tournament.tournamentType || 'single',
-      stageId: tournament.stageId,
-      stageName: tournament.stageName,
-      includeInStats: tournament.includeInStats !== undefined ? tournament.includeInStats : true,
-      tournamentStartDate: tournament.startDate,
-      tournamentEndDate: tournament.endDate,
-      centerId: tournament.centerId,
-      centerName: tournament.centerName,
-      oilPatternId: tournament.oilPatternId,
-      oilPatternName: tournament.oilPatternName,
-      ballId: tournament.ballId,
-      ballName: tournament.ballName,
-      laneNumber: tournament.laneNumber,
-    }));
     setActiveView('game');
   };
 
@@ -506,12 +517,14 @@ export default function App() {
     };
 
     setActiveMatch(updatedMatch);
+    saveActiveMatch(updatedMatch);
     setSelectedPinsToKnock([]);
 
     // Check if match just completed
     if (updatedPlayer.isFinished) {
       triggerCelebration('match');
-      showToast('🏆 Партия завершена! Сохраните результат.');
+      showToast('🏆 Партия завершена! Результат сохранён в историю.');
+      finalizeAndSaveMatch(updatedMatch);
     }
   };
 
@@ -547,16 +560,121 @@ export default function App() {
 
   const handleUndo = () => {
     const updatedPlayer = undoLastRoll(activePlayer);
-    setActiveMatch({
+    const updatedMatch: MatchRecord = {
       ...activeMatch,
       players: [updatedPlayer],
-    });
+    };
+    setActiveMatch(updatedMatch);
+    saveActiveMatch(updatedMatch);
     setSelectedPinsToKnock([]);
     showToast(t.undoBtn);
   };
 
+  // Helper to finalize and save match with full frame data, score and tournament linkages to persistent history
+  const finalizeAndSaveMatch = (matchToSave: MatchRecord): MatchRecord => {
+    const playerToRecalculate = matchToSave.players[0] || createEmptyPlayerGame(userConfig.name);
+    const recalculatedPlayer = calculateGameScores(playerToRecalculate);
+    const finalizedPlayer: PlayerGame = {
+      ...recalculatedPlayer,
+      isFinished: true,
+    };
+
+    let matchIncludeInStats = true;
+    if (activeTournament && activeTournament.includeInStats !== undefined) {
+      matchIncludeInStats = activeTournament.includeInStats !== false;
+    } else if (matchToSave.includeInStats !== undefined) {
+      matchIncludeInStats = matchToSave.includeInStats !== false;
+    }
+
+    const defaultCenter = userConfig.centers[0];
+    const defaultPattern = userConfig.oilPatterns[0];
+    const defaultBall = userConfig.balls[0];
+
+    const finalizedMatch: MatchRecord = {
+      ...matchToSave,
+      id: matchToSave.id || ('match_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9)),
+      date: matchToSave.date || new Date().toISOString(),
+      title:
+        matchToSave.title ||
+        (activeTournament?.stageName
+          ? `${activeTournament.tournamentName} — ${activeTournament.stageName}`
+          : activeTournament?.tournamentName) ||
+        'Одиночная игра',
+      tournamentId: activeTournament?.tournamentId || matchToSave.tournamentId,
+      tournamentName: activeTournament?.tournamentName || matchToSave.tournamentName,
+      tournamentType: activeTournament?.tournamentType || matchToSave.tournamentType || 'single',
+      stageId: activeTournament?.stageId || matchToSave.stageId,
+      stageName: activeTournament?.stageName || matchToSave.stageName,
+      tournamentStartDate: activeTournament?.startDate || matchToSave.tournamentStartDate,
+      tournamentEndDate: activeTournament?.endDate || matchToSave.tournamentEndDate,
+      laneNumber: matchToSave.laneNumber || activeTournament?.laneNumber,
+      centerId: matchToSave.centerId || activeTournament?.centerId || defaultCenter?.id,
+      centerName: matchToSave.centerName || activeTournament?.centerName || defaultCenter?.name,
+      oilPatternId: matchToSave.oilPatternId || activeTournament?.oilPatternId || defaultPattern?.id,
+      oilPatternName: matchToSave.oilPatternName || activeTournament?.oilPatternName || defaultPattern?.name,
+      ballId: matchToSave.ballId || activeTournament?.ballId || defaultBall?.id,
+      ballName: matchToSave.ballName || activeTournament?.ballName || defaultBall?.name,
+      includeInStats: matchIncludeInStats,
+      players: [finalizedPlayer],
+    };
+
+    const updatedMatches = addMatchToHistory(finalizedMatch);
+    setMatches(updatedMatches);
+    return finalizedMatch;
+  };
+
+  // Select active tournament/stage from TournamentsHub
+  const handleSelectActiveTournamentFromHub = (tournament: TournamentConfig) => {
+    const hasRolls = activePlayer.frames.some((f) => f.rolls && f.rolls.length > 0);
+    const isSameTournAndStage =
+      activeTournament?.tournamentId === tournament.tournamentId &&
+      activeTournament?.stageId === tournament.stageId;
+
+    if (hasRolls) {
+      if (isSameTournAndStage && !activePlayer.isFinished) {
+        setActiveView('game');
+        return;
+      }
+      finalizeAndSaveMatch(activeMatch);
+    }
+
+    setActiveTournament(tournament);
+    saveActiveTournament(tournament);
+
+    const newPlayer = createEmptyPlayerGame(userConfig.name);
+    const newMatch: MatchRecord = {
+      id: 'match_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9),
+      date: new Date().toISOString(),
+      title: tournament.stageName ? `${tournament.tournamentName} — ${tournament.stageName}` : tournament.tournamentName,
+      tournamentId: tournament.tournamentId,
+      tournamentName: tournament.tournamentName,
+      tournamentType: tournament.tournamentType || 'single',
+      stageId: tournament.stageId,
+      stageName: tournament.stageName,
+      includeInStats: tournament.includeInStats !== undefined ? tournament.includeInStats : true,
+      tournamentStartDate: tournament.startDate,
+      tournamentEndDate: tournament.endDate,
+      centerId: tournament.centerId,
+      centerName: tournament.centerName,
+      oilPatternId: tournament.oilPatternId,
+      oilPatternName: tournament.oilPatternName,
+      ballId: tournament.ballId,
+      ballName: tournament.ballName,
+      laneNumber: tournament.laneNumber,
+      players: [newPlayer],
+    };
+    setActiveMatch(newMatch);
+    saveActiveMatch(newMatch);
+    setSelectedPinsToKnock([]);
+    setActiveView('game');
+  };
+
   // Start new tournament with chosen center, dates, oil pattern, ball, lane
   const handleStartTournament = (config: TournamentConfig) => {
+    if (activePlayer.frames.some((f) => f.rolls && f.rolls.length > 0)) {
+      finalizeAndSaveMatch(activeMatch);
+    }
+
     setActiveTournament(config);
     saveActiveTournament(config);
 
@@ -584,6 +702,7 @@ export default function App() {
     };
 
     setActiveMatch(newMatch);
+    saveActiveMatch(newMatch);
     setSelectedPinsToKnock([]);
     setActiveView('game');
     showToast(`🏆 ${config.stageName ? `${config.tournamentName} (${config.stageName})` : config.tournamentName}`);
@@ -591,22 +710,26 @@ export default function App() {
 
   // Start fresh game with automated lane transition based on selected rule
   const handleStartNewGame = () => {
-    let nextLane = activeMatch.laneNumber || activeTournament?.laneNumber;
+    // 1. If current game has any rolls made, finalize and save it to history!
+    let savedScore: number | null = null;
+    if (activePlayer.frames.some((f) => f.rolls && f.rolls.length > 0)) {
+      const saved = finalizeAndSaveMatch(activeMatch);
+      savedScore = saved.players[0]?.totalScore ?? null;
+    }
 
-    if (activeTournament && nextLane) {
-      const rule = activeTournament.laneTransitionRule || 'pairs';
-      if (rule === 'pairs') {
-        // Alternating within a pair: 1 ⇄ 2, 3 ⇄ 4, 5 ⇄ 6, etc.
-        nextLane = nextLane % 2 === 1 ? nextLane + 1 : nextLane - 1;
-      } else if (rule === 'shift_plus_2') {
-        nextLane = nextLane + 2;
-      } else if (rule === 'shift_minus_2') {
-        nextLane = Math.max(1, nextLane - 2);
-      } else if (rule === 'shift_plus_1') {
-        nextLane = nextLane + 1;
-      } else if (rule === 'shift_plus_4') {
-        nextLane = nextLane + 4;
-      }
+    // 2. Automated lane transition
+    const currentLane = activeMatch.laneNumber || activeTournament?.laneNumber || 1;
+    let nextLane = currentLane;
+
+    if (activeTournament) {
+      nextLane = calculateNextLane(currentLane, activeTournament.laneTransitionRule || 'pairs', {
+        customStep: activeTournament.customStep,
+        seedNumber: activeTournament.seedNumber,
+        seedParity: activeTournament.seedParity,
+        laneMin: activeTournament.laneMin,
+        laneMax: activeTournament.laneMax,
+        totalLanes: activeTournament.totalLanes,
+      });
 
       const updatedTourney: TournamentConfig = {
         ...activeTournament,
@@ -617,6 +740,7 @@ export default function App() {
       saveActiveTournament(updatedTourney);
     }
 
+    // 3. Create fresh match and new player
     const newPlayer = createEmptyPlayerGame(userConfig.name);
     const newMatch: MatchRecord = {
       id: 'match_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9),
@@ -631,41 +755,69 @@ export default function App() {
       tournamentStartDate: activeTournament?.startDate || activeMatch.tournamentStartDate,
       tournamentEndDate: activeTournament?.endDate || activeMatch.tournamentEndDate,
       laneNumber: nextLane,
-      centerId: activeTournament?.centerId || activeMatch.centerId,
-      centerName: activeTournament?.centerName || activeMatch.centerName,
-      oilPatternId: activeTournament?.oilPatternId || activeMatch.oilPatternId,
-      oilPatternName: activeTournament?.oilPatternName || activeMatch.oilPatternName,
-      ballId: activeTournament?.ballId || activeMatch.ballId,
-      ballName: activeTournament?.ballName || activeMatch.ballName,
+      centerId: activeTournament?.centerId || activeMatch.centerId || userConfig.centers[0]?.id,
+      centerName: activeTournament?.centerName || activeMatch.centerName || userConfig.centers[0]?.name,
+      oilPatternId: activeTournament?.oilPatternId || activeMatch.oilPatternId || userConfig.oilPatterns[0]?.id,
+      oilPatternName: activeTournament?.oilPatternName || activeMatch.oilPatternName || userConfig.oilPatterns[0]?.name,
+      ballId: activeTournament?.ballId || activeMatch.ballId || userConfig.balls[0]?.id,
+      ballName: activeTournament?.ballName || activeMatch.ballName || userConfig.balls[0]?.name,
       players: [newPlayer],
     };
+
     setActiveMatch(newMatch);
+    saveActiveMatch(newMatch);
     setSelectedPinsToKnock([]);
     setActiveView('game');
 
-    if (nextLane && nextLane !== activeMatch.laneNumber) {
-      showToast(`Партия начата · Переход на дорожку №${nextLane}`);
+    if (savedScore !== null) {
+      if (nextLane && nextLane !== activeMatch.laneNumber) {
+        showToast(`Партия сохранена (${savedScore}) · Переход на дорожку №${nextLane}`);
+      } else {
+        showToast(`Партия сохранена (${savedScore}) · Следующая партия начата`);
+      }
     } else {
-      showToast('Следующая партия начата');
+      if (nextLane && nextLane !== activeMatch.laneNumber) {
+        showToast(`Партия начата · Переход на дорожку №${nextLane}`);
+      } else {
+        showToast('Следующая партия начата');
+      }
     }
   };
 
   // Finish current game / match early or on demand
   const handleFinishCurrentGame = () => {
-    // If rolls have been made, finalize game scores, mark finished and allow saving or moving to next game
-    if (activePlayer.frames.some((f) => f.rolls.length > 0)) {
-      const updatedPlayer: PlayerGame = {
-        ...activePlayer,
-        isFinished: true,
+    // If rolls have been made, finalize game scores, save to permanent history and reset active match
+    if (activePlayer.frames.some((f) => f.rolls && f.rolls.length > 0)) {
+      const saved = finalizeAndSaveMatch(activeMatch);
+      const score = saved.players[0]?.totalScore ?? 0;
+
+      // Reset active match to a clean match so returning to game starts fresh
+      const newPlayer = createEmptyPlayerGame(userConfig.name);
+      const freshMatch: MatchRecord = {
+        id: 'match_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9),
+        date: new Date().toISOString(),
+        title: activeTournament?.tournamentName || 'Одиночная игра',
+        tournamentId: activeTournament?.tournamentId,
+        tournamentName: activeTournament?.tournamentName,
+        tournamentType: activeTournament?.tournamentType || 'single',
+        stageId: activeTournament?.stageId,
+        stageName: activeTournament?.stageName,
+        includeInStats: activeTournament?.includeInStats !== undefined ? activeTournament.includeInStats : true,
+        laneNumber: activeTournament?.laneNumber || 1,
+        centerId: activeTournament?.centerId || userConfig.centers[0]?.id,
+        centerName: activeTournament?.centerName || userConfig.centers[0]?.name,
+        oilPatternId: activeTournament?.oilPatternId || userConfig.oilPatterns[0]?.id,
+        oilPatternName: activeTournament?.oilPatternName || userConfig.oilPatterns[0]?.name,
+        ballId: activeTournament?.ballId || userConfig.balls[0]?.id,
+        ballName: activeTournament?.ballName || userConfig.balls[0]?.name,
+        players: [newPlayer],
       };
-      const updatedMatch: MatchRecord = {
-        ...activeMatch,
-        players: [updatedPlayer],
-      };
-      setActiveMatch(updatedMatch);
-      saveActiveMatch(updatedMatch);
+      setActiveMatch(freshMatch);
+      saveActiveMatch(freshMatch);
       setSelectedPinsToKnock([]);
-      showToast('Партия завершена');
+
+      showToast(`Партия завершена и сохранена (Счёт: ${score})`);
+      setActiveView(activeTournament ? 'tournaments' : 'profile');
     } else {
       setActiveView('home');
       showToast('Игра завершена');
@@ -675,9 +827,8 @@ export default function App() {
   // Finish active tournament
   const handleFinishTournament = () => {
     // If the active match has rolls made, save it to history
-    if (activePlayer.frames.some((f) => f.rolls.length > 0)) {
-      const updated = addMatchToHistory(activeMatch);
-      setMatches(updated);
+    if (activePlayer.frames.some((f) => f.rolls && f.rolls.length > 0)) {
+      finalizeAndSaveMatch(activeMatch);
     }
 
     if (activeTournament?.tournamentId) {
@@ -691,6 +842,25 @@ export default function App() {
 
     setActiveTournament(null);
     saveActiveTournament(null);
+
+    const newPlayer = createEmptyPlayerGame(userConfig.name);
+    const freshMatch: MatchRecord = {
+      id: 'match_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9),
+      date: new Date().toISOString(),
+      title: 'Одиночная игра',
+      laneNumber: 1,
+      centerId: userConfig.centers[0]?.id,
+      centerName: userConfig.centers[0]?.name,
+      oilPatternId: userConfig.oilPatterns[0]?.id,
+      oilPatternName: userConfig.oilPatterns[0]?.name,
+      ballId: userConfig.balls[0]?.id,
+      ballName: userConfig.balls[0]?.name,
+      players: [newPlayer],
+    };
+    setActiveMatch(freshMatch);
+    saveActiveMatch(freshMatch);
+    setSelectedPinsToKnock([]);
+
     showToast('🏆 Турнир успешно завершён!');
     setActiveView('tournaments');
   };
@@ -724,8 +894,32 @@ export default function App() {
 
   // Save current match to permanent history
   const handleSaveMatchToHistory = () => {
-    const updated = addMatchToHistory(activeMatch);
-    setMatches(updated);
+    if (activePlayer.frames.some((f) => f.rolls && f.rolls.length > 0)) {
+      finalizeAndSaveMatch(activeMatch);
+      const newPlayer = createEmptyPlayerGame(userConfig.name);
+      const freshMatch: MatchRecord = {
+        id: 'match_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9),
+        date: new Date().toISOString(),
+        title: activeTournament?.tournamentName || 'Одиночная игра',
+        tournamentId: activeTournament?.tournamentId,
+        tournamentName: activeTournament?.tournamentName,
+        tournamentType: activeTournament?.tournamentType || 'single',
+        stageId: activeTournament?.stageId,
+        stageName: activeTournament?.stageName,
+        includeInStats: activeTournament?.includeInStats !== undefined ? activeTournament.includeInStats : true,
+        laneNumber: activeTournament?.laneNumber || 1,
+        centerId: activeTournament?.centerId || userConfig.centers[0]?.id,
+        centerName: activeTournament?.centerName || userConfig.centers[0]?.name,
+        oilPatternId: activeTournament?.oilPatternId || userConfig.oilPatterns[0]?.id,
+        oilPatternName: activeTournament?.oilPatternName || userConfig.oilPatterns[0]?.name,
+        ballId: activeTournament?.ballId || userConfig.balls[0]?.id,
+        ballName: activeTournament?.ballName || userConfig.balls[0]?.name,
+        players: [newPlayer],
+      };
+      setActiveMatch(freshMatch);
+      saveActiveMatch(freshMatch);
+      setSelectedPinsToKnock([]);
+    }
     showToast(t.matchSavedToast);
     setActiveView('profile');
   };
@@ -1086,16 +1280,37 @@ export default function App() {
                         Партия {activeTournament.currentGameNumber || 1}
                       </span>
                       <span className="text-stone-500">·</span>
-                      <span className="text-stone-400 shrink-0">
-                        Дорожка {activeMatch.laneNumber || activeTournament.laneNumber || 1}
-                      </span>
+                      <button
+                        type="button"
+                        onClick={handleOpenLaneEdit}
+                        className="px-2 py-0.5 rounded-lg bg-stone-900/90 hover:bg-stone-800 text-stone-200 hover:text-amber-300 border border-stone-800 hover:border-amber-500/50 font-mono text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shrink-0"
+                        title="Нажмите, чтобы изменить номер дорожки вручную"
+                      >
+                        <span>Дорожка {activeMatch.laneNumber || activeTournament.laneNumber || 1}</span>
+                        <Edit3 className="w-3 h-3 text-stone-500" />
+                      </button>
+                      {activeTournament.laneTransitionRule && activeTournament.laneTransitionRule !== 'none' && (
+                        <span
+                          className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-stone-950 border border-stone-800 text-[10px] text-amber-300/90 font-medium"
+                          title="Регламент перехода по дорожкам"
+                        >
+                          <Shuffle className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+                          <span>{formatTransitionRuleBadge(activeTournament.laneTransitionRule, activeTournament)}</span>
+                        </span>
+                      )}
                     </>
                   ) : (
                     <>
                       <span className="text-stone-500">·</span>
-                      <span className="text-stone-400">
-                        Дорожка {activeMatch.laneNumber || 1}
-                      </span>
+                      <button
+                        type="button"
+                        onClick={handleOpenLaneEdit}
+                        className="px-2 py-0.5 rounded-lg bg-stone-900/90 hover:bg-stone-800 text-stone-200 hover:text-amber-300 border border-stone-800 hover:border-amber-500/50 font-mono text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shrink-0"
+                        title="Нажмите, чтобы изменить номер дорожки вручную"
+                      >
+                        <span>Дорожка {activeMatch.laneNumber || 1}</span>
+                        <Edit3 className="w-3 h-3 text-stone-500" />
+                      </button>
                     </>
                   )}
                 </div>
@@ -1392,6 +1607,122 @@ export default function App() {
           setIsTournamentModalOpen(true);
         }}
       />
+
+      {/* Modal for manual lane change */}
+      {isLaneEditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between p-4 border-b border-stone-800/80 bg-stone-950/50">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400">
+                  <Edit3 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-stone-100">Смена дорожки</h3>
+                  <p className="text-xs text-stone-400">Изменение текущего номера дорожки</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsLaneEditModalOpen(false)}
+                className="p-1.5 rounded-lg text-stone-400 hover:text-stone-200 hover:bg-stone-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditedLane} className="p-5 space-y-4">
+              {activeTournament?.laneTransitionRule && activeTournament.laneTransitionRule !== 'none' && (
+                <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 text-xs text-amber-200/90 flex items-start gap-2">
+                  <Shuffle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold text-amber-300">Регламент турнира: </span>
+                    {formatTransitionRuleBadge(activeTournament.laneTransitionRule, activeTournament)}
+                    <p className="text-[11px] text-stone-400 mt-0.5">
+                      При переходе к следующей игре дорожка рассчитается автоматически от нового установленного значения.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-400 mb-2">
+                  Номер текущей дорожки
+                </label>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cur = typeof editingLaneValue === 'number' ? editingLaneValue : 1;
+                      setEditingLaneValue(Math.max(1, cur - 1));
+                    }}
+                    className="w-11 h-11 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold text-lg flex items-center justify-center transition-colors cursor-pointer border border-stone-700"
+                  >
+                    -
+                  </button>
+
+                  <input
+                    type="number"
+                    min={1}
+                    max={activeTournament?.laneMax || 99}
+                    value={editingLaneValue}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setEditingLaneValue(val === '' ? '' : Math.max(1, parseInt(val, 10) || 1));
+                    }}
+                    autoFocus
+                    className="flex-1 h-11 px-4 text-center text-xl font-mono font-bold bg-stone-950 border border-stone-700 rounded-xl text-amber-400 focus:outline-none focus:border-amber-500"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cur = typeof editingLaneValue === 'number' ? editingLaneValue : 1;
+                      const max = activeTournament?.laneMax || 99;
+                      setEditingLaneValue(Math.min(max, cur + 1));
+                    }}
+                    className="w-11 h-11 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold text-lg flex items-center justify-center transition-colors cursor-pointer border border-stone-700"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick switch helper */}
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const cur = typeof editingLaneValue === 'number' ? editingLaneValue : 1;
+                    const swapped = cur % 2 === 1 ? cur + 1 : Math.max(1, cur - 1);
+                    setEditingLaneValue(swapped);
+                  }}
+                  className="flex-1 py-2 px-3 rounded-lg bg-stone-800/80 hover:bg-stone-700/80 border border-stone-700/60 text-xs font-medium text-stone-300 hover:text-amber-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <Shuffle className="w-3.5 h-3.5 text-amber-400" />
+                  <span>В паре (⇄ {typeof editingLaneValue === 'number' ? (editingLaneValue % 2 === 1 ? editingLaneValue + 1 : Math.max(1, editingLaneValue - 1)) : 2})</span>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3 pt-3 border-t border-stone-800">
+                <button
+                  type="button"
+                  onClick={() => setIsLaneEditModalOpen(false)}
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-sm font-semibold transition-colors cursor-pointer"
+                >
+                  Отмена
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-sm transition-colors cursor-pointer shadow-lg shadow-amber-500/20"
+                >
+                  Применить
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

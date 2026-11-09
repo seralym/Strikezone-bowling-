@@ -102,6 +102,13 @@ export interface TournamentStage {
   oilPatternId?: string;
   oilPatternName?: string;
   laneNumber?: number;
+  laneTransitionRule?: LaneTransitionRule;
+  customStep?: number;
+  seedNumber?: number;
+  seedParity?: 'even' | 'odd';
+  totalLanes?: number;
+  laneMin?: number;
+  laneMax?: number;
   status?: 'active' | 'upcoming' | 'completed';
   includeInStats?: boolean; // defaults to true
   notes?: string;
@@ -133,11 +140,15 @@ export interface MatchRecord {
 }
 
 export type LaneTransitionRule =
-  | 'none' // Без смены дорожки
-  | 'pairs' // В паре (чет/нечет, напр. 3 ⇄ 4)
+  | 'none' // Без перехода (на той же дорожке / паре)
+  | 'pairs' // В паре (чет ⇄ нечет, напр. 1 ⇄ 2)
+  | 'shift_plus_1' // На одну дорожку вправо (+1)
+  | 'shift_minus_1' // На одну дорожку влево (-1)
+  | 'seed_even_left_odd_right' // По посеву: Чётный номер — влево, Нечётный — вправо
+  | 'seed_even_right_odd_left' // По посеву: Чётный номер — вправо, Нечётный — влево
+  | 'custom_step' // Произвольный шаг (+N или -N)
   | 'shift_plus_2' // Сдвиг на +2 дорожки вправо
   | 'shift_minus_2' // Сдвиг на -2 дорожки влево
-  | 'shift_plus_1' // Сдвиг на +1 дорожку
   | 'shift_plus_4'; // Сдвиг на +4 дорожки
 
 export interface TournamentConfig {
@@ -156,6 +167,12 @@ export interface TournamentConfig {
   ballName: string;
   laneNumber?: number;
   laneTransitionRule?: LaneTransitionRule;
+  customStep?: number;
+  seedNumber?: number;
+  seedParity?: 'even' | 'odd';
+  totalLanes?: number;
+  laneMin?: number;
+  laneMax?: number;
   currentGameNumber?: number;
   includeInStats?: boolean;
 }
@@ -262,6 +279,12 @@ export interface SavedTournament {
   ballName?: string;
   laneNumber?: number;
   laneTransitionRule?: LaneTransitionRule;
+  customStep?: number;
+  seedNumber?: number;
+  seedParity?: 'even' | 'odd';
+  totalLanes?: number;
+  laneMin?: number;
+  laneMax?: number;
   format?: string;
   isRegular?: boolean;
   status?: 'active' | 'upcoming' | 'completed';

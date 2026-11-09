@@ -22,8 +22,8 @@ export const PWAInstallBanner: React.FC = () => {
       <div className="relative mx-auto max-w-7xl px-4 pt-3 pb-1">
         <div className="rounded-2xl bg-gradient-to-r from-amber-950/70 via-stone-900 to-amber-950/60 border border-amber-500/30 p-3 sm:p-3.5 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center shrink-0">
-              <Smartphone className="w-5 h-5" />
+            <div className="w-11 h-11 rounded-xl bg-stone-900 border border-amber-500/40 flex items-center justify-center p-0.5 shadow-md shadow-amber-500/10 overflow-hidden shrink-0">
+              <img src="./icon.svg" alt="StrikeZone" className="w-full h-full object-contain rounded-lg" />
             </div>
             <div>
               <div className="flex items-center gap-2">
